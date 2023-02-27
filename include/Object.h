@@ -2,6 +2,7 @@
 #define OBJECT_H
 
 #include "Vector.h"
+#include "Matrix.h"
 
 class Object {
     private:
@@ -11,10 +12,6 @@ class Object {
 
     public:
         Object(Vector position, Vector rotation, Vector scale);
-        void move(Vector v);
-        void rotate(Vector v);
-        void scale(Vector v);
-        void scale(float s);
 };
 
 #endif

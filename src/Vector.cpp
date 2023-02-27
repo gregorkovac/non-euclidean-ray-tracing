@@ -1,4 +1,3 @@
-#include <math.h>
 #include "../include/Vector.h"
 
 Vector::Vector() {

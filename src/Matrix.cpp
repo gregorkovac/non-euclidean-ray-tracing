@@ -77,3 +77,65 @@ Matrix Matrix::transpose() {
 
     return res;
 }
+
+Matrix Matrix::identity() {
+    Matrix res = Matrix();
+
+    for (int i = 0; i < 4; i++)
+        res.m[i][i] = 1;
+
+    return res;
+}
+
+Matrix Matrix::translation(Vector v) {
+    Matrix m = Matrix::identity();
+
+    m.m[0][3] = v.x;
+    m.m[1][3] = v.y;
+    m.m[2][3] = v.z;
+
+    return m;
+}
+
+Matrix Matrix::rotationX(float angle) {
+    Matrix m = Matrix::identity();
+
+    m.m[1][1] = cos(angle);
+    m.m[1][2] = -sin(angle);
+    m.m[2][1] = sin(angle);
+    m.m[2][2] = cos(angle);
+
+    return m;
+}
+
+Matrix Matrix::rotationY(float angle) {
+    Matrix m = Matrix::identity();
+
+    m.m[0][0] = cos(angle);
+    m.m[0][2] = sin(angle);
+    m.m[2][0] = -sin(angle);
+    m.m[2][2] = cos(angle);
+
+    return m;
+}
+
+Matrix Matrix::rotationZ(float angle) {
+    Matrix m = Matrix::identity();
+
+    m.m[0][0] = cos(angle);
+    m.m[0][1] = -sin(angle);
+    m.m[1][0] = sin(angle);
+    m.m[1][1] = cos(angle);
+
+    return m;   
+}
+
+Matrix Matrix::scale(Vector v) {
+    Matrix m = Matrix::identity();
+
+    m.m[0][0] = v.x;
+    m.m[1][1] = v.y;
+    m.m[2][2] = v.z;
+
+    return m;
+}
