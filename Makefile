@@ -2,7 +2,7 @@
 OBJS = src/*.cpp 
 
 # CC specifies which compiler we're using
-CC = gcc
+CC = g++
 
 # INCLUDE_PATHS specifies the additional include paths we'll need
 INCLUDE_PATHS = -I./include
