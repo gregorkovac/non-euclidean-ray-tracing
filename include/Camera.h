@@ -5,10 +5,11 @@
 
 class Camera : public Object {
     private:
-        float fov;
+        float f_;
 
     public:
-        Camera(Vector position, Vector rotation, Vector scale, float fov);
+        Camera(Vector position, Vector rotation, Vector scale, float f);
+        float f();
 };
 
 #endif

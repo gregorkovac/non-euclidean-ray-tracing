@@ -6,6 +6,7 @@ using namespace std;
 
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 600
+#define PIXEL_SIZE 0.01
 
 Renderer* renderer = nullptr;
 
@@ -28,7 +29,7 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    renderer = new Renderer(WINDOW_WIDTH, WINDOW_HEIGHT);
+    renderer = new Renderer(WINDOW_WIDTH, WINDOW_HEIGHT, PIXEL_SIZE);
 
     unsigned char data[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
 

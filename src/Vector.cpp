@@ -50,9 +50,20 @@ float Vector::dot(Vector v) {
     return this->x * v.x + this->y * v.y + this->z * v.z + this->w * v.w;
 }
 
-void Vector::normalize() {
-    this->x /= this->w;
-    this->y /= this->w;
-    this->z /= this->w;
-    this->w = 1;
+Vector Vector::normalize() {
+    float x = this->x / this->w;
+    float y = this->y / this->w;
+    float z = this->z / this->w;
+    float w = 1;
+
+    return Vector(x, y, z, w);
+}
+
+Vector Vector::scalar(float s) {
+    float x = this->x * s;
+    float y = this->y * s;
+    float z = this->z * s;
+    float w = this->w * s;
+
+    return Vector(x, y, z, w);
 }

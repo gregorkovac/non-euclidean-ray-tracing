@@ -11,10 +11,11 @@ class Vector {
         Vector(float x, float y, float z);
         Vector(float x, float y, float z, float w);
         Vector(Vector *v);
-        void normalize();
+        Vector normalize();
         Vector add(Vector v);
         Vector sub(Vector v);
         float dot(Vector v);
+        Vector scalar(float s);
 };
 
 #endif

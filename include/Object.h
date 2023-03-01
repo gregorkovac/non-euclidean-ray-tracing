@@ -12,6 +12,12 @@ class Object {
 
     public:
         Object(Vector position, Vector rotation, Vector scale);
+        Vector position();
+        Vector rotation();
+        Vector scale();
+        Vector forward();
+        Vector right();
+        Vector up();
 };
 
 #endif

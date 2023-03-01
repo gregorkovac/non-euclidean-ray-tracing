@@ -1,8 +1,9 @@
 #include "../include/Renderer.h"
 
-Renderer::Renderer(int windowWidth, int windowHeight) {
+Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize) {
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
+    this->pixelSize = pixelSize;
 
     this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1), 70);
 
@@ -12,15 +13,13 @@ Renderer::Renderer(int windowWidth, int windowHeight) {
 }
 
 void Renderer::render(unsigned char* dataBuffer) {
-    // Just for testing
-    // for (int y = 0; y < windowWidth; y++) {
-    //     for (int x = 0; x < windowHeight; x++)
-    //     {
-    //         dataBuffer[(y * windowHeight + x) * 3 + 0] = 0;
-    //         dataBuffer[(y * windowHeight + x) * 3 + 1] = x;
-    //         dataBuffer[(y * windowHeight + x) * 3 + 2] = y;
-    //     }
-    // }
+    Vector imagePlaneCenter = camera->position().add(camera->forward().scalar(camera->f()));
 
-    // TODO: Implement raytracing here
+    for (int y = 0; y < windowHeight; y++) {
+        for (int x = 0; x < windowWidth; x++) {
+            Vector imagePlanePoint = imagePlaneCenter.add(camera->right().scalar((x - windowWidth / 2) * pixelSize)).add(camera->up().scalar((y - windowHeight / 2) * pixelSize));
+            Vector ray = imagePlanePoint.sub(camera->position()).normalize();
+        }
+    }
+    
 }

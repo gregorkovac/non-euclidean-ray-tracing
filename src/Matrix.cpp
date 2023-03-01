@@ -130,6 +130,10 @@ Matrix Matrix::rotationZ(float angle) {
     return m;   
 }
 
+Matrix Matrix::rotation(Vector v) {
+    return Matrix::rotationZ(v.z).multiply(Matrix::rotationY(v.y).multiply(Matrix::rotationX(v.x)));
+}
+
 Matrix Matrix::scale(Vector v) {
     Matrix m = Matrix::identity();
 

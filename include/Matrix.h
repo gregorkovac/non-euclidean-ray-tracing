@@ -23,6 +23,7 @@ class Matrix {
         static Matrix rotationX(float angle);
         static Matrix rotationY(float angle);
         static Matrix rotationZ(float angle);
+        static Matrix rotation(Vector v);
         static Matrix scale(Vector v);
 };
 
