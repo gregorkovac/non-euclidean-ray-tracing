@@ -10,6 +10,7 @@ class Camera : public Object {
     public:
         Camera(Vector position, Vector rotation, Vector scale, float f);
         float f();
+        bool intersect(Vector a, Vector b);
 };
 
 #endif

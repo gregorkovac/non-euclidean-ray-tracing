@@ -4,8 +4,8 @@
 
 using namespace std;
 
-#define WINDOW_WIDTH 600
-#define WINDOW_HEIGHT 600
+#define WINDOW_WIDTH 200
+#define WINDOW_HEIGHT 200
 #define PIXEL_SIZE 0.01
 
 Renderer* renderer = nullptr;
@@ -32,6 +32,10 @@ int main(void)
     renderer = new Renderer(WINDOW_WIDTH, WINDOW_HEIGHT, PIXEL_SIZE);
 
     unsigned char data[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
+
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT * 3; i++) {
+        data[i] = 0;
+    }
 
     renderer->render(data);
 

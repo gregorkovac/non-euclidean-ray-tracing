@@ -28,7 +28,7 @@ Vector::Vector(Vector *v) {
     this->w = v->w;
 }
 
-Vector Vector::add(Vector v) {
+Vector Vector::operator+(Vector v) {
     float x = this->x + v.x;
     float y = this->y + v.y;
     float z = this->z + v.z;
@@ -37,7 +37,7 @@ Vector Vector::add(Vector v) {
     return Vector(x, y, z, w);
 }
 
-Vector Vector::sub(Vector v) {
+Vector Vector::operator-(Vector v) {
     float x = this->x - v.x;
     float y = this->y - v.y;
     float z = this->z - v.z;
@@ -46,7 +46,7 @@ Vector Vector::sub(Vector v) {
     return Vector(x, y, z, w);
 }
 
-float Vector::dot(Vector v) {
+float Vector::operator*(Vector v) {
     return this->x * v.x + this->y * v.y + this->z * v.z + this->w * v.w;
 }
 
@@ -59,11 +59,17 @@ Vector Vector::normalize() {
     return Vector(x, y, z, w);
 }
 
-Vector Vector::scalar(float s) {
+Vector Vector::operator*(float s) {
     float x = this->x * s;
     float y = this->y * s;
     float z = this->z * s;
     float w = this->w * s;
 
     return Vector(x, y, z, w);
+}
+
+char* Vector::toString() {
+    char* str = new char[100];
+    sprintf(str, "(%f, %f, %f, %f)", this->x, this->y, this->z, this->w);
+    return str;
 }

@@ -1,9 +1,17 @@
 #include "../include/Object.h"
 
+Object::Object(Vector position, Vector rotation, Vector scale, Color color) {
+    this->position_ = position;
+    this->rotation_ = rotation;
+    this->scale_ = scale;
+    this->color_ = color;
+}
+
 Object::Object(Vector position, Vector rotation, Vector scale) {
     this->position_ = position;
     this->rotation_ = rotation;
     this->scale_ = scale;
+    this->color_ = DEFAULT_COLOR;
 }
 
 Vector Object::position() {
@@ -19,13 +27,17 @@ Vector Object::scale() {
 }
 
 Vector Object::forward() {
-    return Matrix::rotation(this->rotation_).multiply(Vector(0, 0, 1));
+    return Matrix::rotation(this->rotation_).multiply(Vector(0, 0, 1, 1));
 }
 
 Vector Object::right() {
-    return Matrix::rotation(this->rotation_).multiply(Vector(1, 0, 0));
+    return Matrix::rotation(this->rotation_).multiply(Vector(1, 0, 0, 1));
 }
 
 Vector Object::up() {
-    return Matrix::rotation(this->rotation_).multiply(Vector(0, 1, 0));
+    return Matrix::rotation(this->rotation_).multiply(Vector(0, 1, 0, 1));
+}
+
+Color Object::color() {
+    return this->color_;
 }

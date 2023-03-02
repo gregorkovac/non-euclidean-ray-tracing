@@ -7,3 +7,7 @@ Camera::Camera(Vector position, Vector rotation, Vector scale, float f) : Object
 float Camera::f() {
     return this->f_;
 }
+
+bool Camera::intersect(Vector a, Vector b) {
+    return false;
+}

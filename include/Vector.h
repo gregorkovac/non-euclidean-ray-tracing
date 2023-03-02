@@ -2,6 +2,7 @@
 #define VECTOR_H
 
 #include <math.h>
+#include <stdio.h>
 
 class Vector {
     public:
@@ -12,10 +13,11 @@ class Vector {
         Vector(float x, float y, float z, float w);
         Vector(Vector *v);
         Vector normalize();
-        Vector add(Vector v);
-        Vector sub(Vector v);
-        float dot(Vector v);
-        Vector scalar(float s);
+        Vector operator+(Vector v);
+        Vector operator-(Vector v);
+        float operator*(Vector v);
+        Vector operator*(float s);
+        char* toString();
 };
 
 #endif

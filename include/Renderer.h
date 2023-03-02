@@ -6,6 +6,11 @@
 #include "ParametricObjects.h"
 #include "Camera.h"
 
+#define MAX_ITER 100
+#define STEP_SIZE 0.01
+
+const Color BACKGROUND_COLOR = {0, 0, 0};
+
 class Renderer {
     private:
         int windowWidth;
@@ -13,10 +18,11 @@ class Renderer {
         float pixelSize;
         Camera* camera;
         Object** objects;
-        
+
     public:
         Renderer(int windowWidth, int windowHeight, float pixelSize);
         void render(unsigned char* dataBuffer);
+        Color trace(Vector ray, Vector origin, int depth);
 };
 
 #endif
