@@ -11,11 +11,11 @@ class Matrix {
         Matrix();
         Matrix(float m[4][4]);
         Matrix(Matrix *m);
-        Matrix multiply(Matrix m);
-        Matrix multiply(float s);
-        Vector multiply(Vector v);
-        Matrix add(Matrix m);
-        Matrix sub(Matrix m);
+        Matrix operator*(Matrix m);
+        Matrix operator*(float s);
+        Vector operator*(Vector v);
+        Matrix operator+(Matrix m);
+        Matrix operator-(Matrix m);
         Matrix transpose();
 
         static Matrix identity();

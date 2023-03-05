@@ -27,15 +27,15 @@ Vector Object::scale() {
 }
 
 Vector Object::forward() {
-    return Matrix::rotation(this->rotation_).multiply(Vector(0, 0, 1, 1));
+    return Matrix::rotation(this->rotation_) * Vector(0, 0, 1, 1);
 }
 
 Vector Object::right() {
-    return Matrix::rotation(this->rotation_).multiply(Vector(1, 0, 0, 1));
+    return Matrix::rotation(this->rotation_) * Vector(1, 0, 0, 1);
 }
 
 Vector Object::up() {
-    return Matrix::rotation(this->rotation_).multiply(Vector(0, 1, 0, 1));
+    return Matrix::rotation(this->rotation_) * Vector(0, 1, 0, 1);
 }
 
 Color Object::color() {

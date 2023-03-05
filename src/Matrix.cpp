@@ -18,7 +18,7 @@ Matrix::Matrix(Matrix *m) {
             this->m[i][j] = m->m[i][j];
 }
 
-Matrix Matrix::multiply(Matrix m) {
+Matrix Matrix::operator*(Matrix m) {
     Matrix res = Matrix();
 
     for (int i = 0; i < 4; i++)
@@ -29,7 +29,7 @@ Matrix Matrix::multiply(Matrix m) {
     return res;
 }
 
-Matrix Matrix::multiply(float s) {
+Matrix Matrix::operator*(float s) {
     Matrix res = Matrix();
 
     for (int i = 0; i < 4; i++)
@@ -39,7 +39,7 @@ Matrix Matrix::multiply(float s) {
     return res;
 }
 
-Vector Matrix::multiply(Vector v) {
+Vector Matrix::operator*(Vector v) {
     float x = m[0][0] * v.x + m[0][1] * v.y + m[0][2] * v.z + m[0][3] * v.w;
     float y = m[1][0] * v.x + m[1][1] * v.y + m[1][2] * v.z + m[1][3] * v.w;
     float z = m[2][0] * v.x + m[2][1] * v.y + m[2][2] * v.z + m[2][3] * v.w;
@@ -48,7 +48,7 @@ Vector Matrix::multiply(Vector v) {
     return Vector(x, y, z, w);
 }
 
-Matrix Matrix::add(Matrix m) {
+Matrix Matrix::operator+(Matrix m) {
     Matrix res = Matrix();
 
     for (int i = 0; i < 4; i++)
@@ -58,7 +58,7 @@ Matrix Matrix::add(Matrix m) {
     return res;
 }
 
-Matrix Matrix::sub(Matrix m) {
+Matrix Matrix::operator-(Matrix m) {
     Matrix res = Matrix();
 
     for (int i = 0; i < 4; i++)
@@ -131,7 +131,7 @@ Matrix Matrix::rotationZ(float angle) {
 }
 
 Matrix Matrix::rotation(Vector v) {
-    return Matrix::rotationZ(v.z).multiply(Matrix::rotationY(v.y).multiply(Matrix::rotationX(v.x)));
+    return Matrix::rotationZ(v.z) * Matrix::rotationY(v.y) * Matrix::rotationX(v.x);
 }
 
 Matrix Matrix::scale(Vector v) {

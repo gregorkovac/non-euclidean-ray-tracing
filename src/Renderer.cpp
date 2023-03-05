@@ -23,6 +23,7 @@ void Renderer::render(unsigned char* dataBuffer) {
 
     for (int y = 0; y < windowHeight; y++) {
         for (int x = 0; x < windowWidth; x++) {
+
             Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - windowWidth / 2) * pixelSize) + camera->up() * ((y - windowHeight / 2) * pixelSize);
             Vector ray = imagePlanePoint - camera->position();
 
@@ -58,9 +59,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
             if (objects[i]->intersect(prev, curr)) {
                 Color c = objects[i]->color();
 
-                c.r = c.r * (h / MAX_ITER);
-                c.g = c.g * (h / MAX_ITER);
-                c.b = c.b * (h / MAX_ITER);
+                c.r = c.r * (1 - h / MAX_ITER);
+                c.g = c.g * (1 - h / MAX_ITER);
+                c.b = c.b * (1 - h / MAX_ITER);
 
                 //printf("%f ... FOUND\n", h);
 
