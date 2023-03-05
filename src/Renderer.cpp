@@ -12,7 +12,7 @@ Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize) {
     this->objects = new Object*[1];
 
     Color red = {255, 0, 0};
-    this->objects[0] = new Sphere(1, Vector(0, 0, 10), Vector(0, 0, 0), Vector(1, 1, 1), red);
+    this->objects[0] = new Sphere(1, Vector(0, 0, 2), Vector(0, 0, 0), Vector(1, 1, 1), red);
 }
 
 void Renderer::render(unsigned char* dataBuffer) {
@@ -41,7 +41,6 @@ void Renderer::render(unsigned char* dataBuffer) {
             dataBuffer[(y * windowWidth + x) * 3] = color.r;
             dataBuffer[(y * windowWidth + x) * 3 + 1] = color.g;
             dataBuffer[(y * windowWidth + x) * 3 + 2] = color.b;
-
         }
     }
     

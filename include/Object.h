@@ -10,7 +10,7 @@
 const Color DEFAULT_COLOR = {0, 0, 0};
 
 class Object {
-    private:
+    protected:
         Vector position_;
         Vector rotation_;
         Vector scale_;

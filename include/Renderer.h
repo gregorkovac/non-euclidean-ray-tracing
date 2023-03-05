@@ -7,7 +7,7 @@
 #include "Camera.h"
 
 #define MAX_ITER 100
-#define STEP_SIZE 0.01
+#define STEP_SIZE 0.02
 
 const Color BACKGROUND_COLOR = {0, 0, 0};
 
