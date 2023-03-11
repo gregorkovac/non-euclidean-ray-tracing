@@ -5,11 +5,7 @@
 #include "Object.h"
 #include "ParametricObjects.h"
 #include "Camera.h"
-
-#define MAX_ITER 100
-#define STEP_SIZE 0.02
-
-const Color BACKGROUND_COLOR = {0, 0, 0};
+#include "ParametersAndConstants.h"
 
 class Renderer {
     private:

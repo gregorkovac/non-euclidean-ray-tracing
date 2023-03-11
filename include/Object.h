@@ -6,8 +6,7 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "Misc.h"
-
-const Color DEFAULT_COLOR = {0, 0, 0};
+#include "ParametersAndConstants.h"
 
 class Object {
     protected:

@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include "ParametersAndConstants.h"
 
 class Vector {
     public:

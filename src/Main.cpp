@@ -1,12 +1,9 @@
 #include <GLFW/glfw3.h>
 
+#include "../include/ParametersAndConstants.h"
 #include "../include/Renderer.h"
 
 using namespace std;
-
-#define WINDOW_WIDTH 200
-#define WINDOW_HEIGHT 200
-#define PIXEL_SIZE 0.01
 
 Renderer* renderer = nullptr;
 
@@ -45,7 +42,6 @@ int main(void)
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawPixels(WINDOW_WIDTH, WINDOW_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, data);
-
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);

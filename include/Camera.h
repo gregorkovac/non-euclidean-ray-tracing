@@ -2,6 +2,7 @@
 #define CAMERA_H
 
 #include "Object.h"
+#include "ParametersAndConstants.h"
 
 class Camera : public Object {
     private:

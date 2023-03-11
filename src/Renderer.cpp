@@ -9,33 +9,24 @@ Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize) {
 
     this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1), 1);
 
-    this->objects = new Object*[1];
+    this->objects = new Object*[2];
 
     Color red = {255, 0, 0};
+    Color blue = {100, 255, 255};
+
     this->objects[0] = new Sphere(1, Vector(0, 0, 2), Vector(0, 0, 0), Vector(1, 1, 1), red);
+    this->objects[1] = new Sphere(1, Vector(-1, 0, 2), Vector(0, 0, 0), Vector(0.5, 0.5, 0.5), blue);
 }
 
 void Renderer::render(unsigned char* dataBuffer) {
     Vector imagePlaneCenter = camera->position() + camera->forward() * camera->f();
-
-    // printf("Camera position: %s\n", camera->position().toString());
-    // printf("Image plane center: %s\n", imagePlaneCenter.toString());
 
     for (int y = 0; y < windowHeight; y++) {
         for (int x = 0; x < windowWidth; x++) {
 
             Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - windowWidth / 2) * pixelSize) + camera->up() * ((y - windowHeight / 2) * pixelSize);
             Vector ray = imagePlanePoint - camera->position();
-
-            // printf("Image plane point: %s\n", imagePlanePoint.toString());
-            //printf("Ray: %s\n", ray.toString());
-
-            // printf("%s\n", camera->right().scalar((x - windowWidth / 2) * pixelSize).toString());
-
-            // y = windowHeight + 1;
-            // break;
-
-            //printf("%d / %d --- ", y * windowWidth + x, windowWidth * windowHeight);
+            
             Color color = trace(ray, camera->position(), 0);
 
             dataBuffer[(y * windowWidth + x) * 3] = color.r;
@@ -54,7 +45,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
         prev = curr;
         curr = origin + ray * (h * STEP_SIZE);
 
-        for (int i = 0; i < 1; i++) {
+        // TODO: Define scene in seperate file and then parse it. Take into acount the number of objects and use it here.
+        for (int i = 0; i < 2; i++) {
             if (objects[i]->intersect(prev, curr)) {
                 Color c = objects[i]->color();
 
@@ -62,14 +54,10 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
                 c.g = c.g * (1 - h / MAX_ITER);
                 c.b = c.b * (1 - h / MAX_ITER);
 
-                //printf("%f ... FOUND\n", h);
-
                 return c;
             }
         }
     }
 
-    //printf(":(\n");
-
-    return BACKGROUND_COLOR;
+    return SKY_COLOR;
 }

@@ -11,7 +11,7 @@ Object::Object(Vector position, Vector rotation, Vector scale) {
     this->position_ = position;
     this->rotation_ = rotation;
     this->scale_ = scale;
-    this->color_ = DEFAULT_COLOR;
+    this->color_ = DEFAULT_OBJECT_COLOR;
 }
 
 Vector Object::position() {
