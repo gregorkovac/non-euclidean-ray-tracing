@@ -10,12 +10,16 @@ Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize) {
     this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1), 1);
 
     this->objects = new Object*[2];
+    this->lights = new Sphere*[1];
 
     Color red = {255, 0, 0};
     Color blue = {100, 255, 255};
+    Color white = {255, 255, 255};
 
     this->objects[0] = new Sphere(1, Vector(0, 0, 2), Vector(0, 0, 0), Vector(1, 1, 1), red);
     this->objects[1] = new Sphere(1, Vector(-1, 0, 2), Vector(0, 0, 0), Vector(0.5, 0.5, 0.5), blue);
+
+    this->lights[0] = new Sphere(1, Vector(-1, 1, 0), Vector(0, 0, 0), Vector(1, 1, 1), white);
 }
 
 void Renderer::render(unsigned char* dataBuffer) {
@@ -50,9 +54,25 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
             if (objects[i]->intersect(prev, curr)) {
                 Color c = objects[i]->color();
 
-                c.r = c.r * (1 - h / MAX_ITER);
-                c.g = c.g * (1 - h / MAX_ITER);
-                c.b = c.b * (1 - h / MAX_ITER);
+                for (int j = 0; j < 1; j++)
+                {
+                    if (isShadowed(prev, lights[j]->position()))
+                    {
+                        c.r = c.r * 0.5;
+                        c.g = c.g * 0.5;
+                        c.b = c.b * 0.5;
+                    }
+                    else
+                    {
+                        float distToLight = prev.distance(lights[j]->position());
+
+                        distToLight = distToLight > 2 ? 2 : distToLight;
+
+                        c.r = c.r * (2 - distToLight);
+                        c.g = c.g * (2 - distToLight);
+                        c.b = c.b * (2 - distToLight);
+                    }
+                }
 
                 return c;
             }
@@ -60,4 +80,28 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
     }
 
     return SKY_COLOR;
+}
+
+bool Renderer::isShadowed(Vector origin, Vector light)
+{
+    Vector curr = origin;
+    Vector prev = origin;
+
+    Vector ray = light - origin;
+
+    for (float h = 0; h < MAX_ITER; h += 1)
+    {
+        prev = curr;
+        curr = origin + ray * (h * STEP_SIZE);
+
+        for (int i = 0; i < 2; i++)
+        {
+            if (objects[i]->intersect(prev, curr))
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }

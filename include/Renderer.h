@@ -14,11 +14,13 @@ class Renderer {
         float pixelSize;
         Camera* camera;
         Object** objects;
+        Sphere** lights;
 
     public:
         Renderer(int windowWidth, int windowHeight, float pixelSize);
         void render(unsigned char* dataBuffer);
         Color trace(Vector ray, Vector origin, int depth);
+        bool isShadowed(Vector origin, Vector light);
 };
 
 #endif

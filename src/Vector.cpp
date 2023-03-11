@@ -73,3 +73,7 @@ char* Vector::toString() {
     sprintf(str, "(%f, %f, %f, %f)", this->x, this->y, this->z, this->w);
     return str;
 }
+
+float Vector::distance(Vector v) {
+    return sqrt(pow(this->x - v.x, 2) + pow(this->y - v.y, 2) + pow(this->z - v.z, 2));
+}

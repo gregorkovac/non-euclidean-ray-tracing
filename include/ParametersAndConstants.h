@@ -11,6 +11,6 @@
 #define STEP_SIZE 0.01
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {100, 200, 200};
+const Color SKY_COLOR = {0, 0, 0};
 
 #endif
