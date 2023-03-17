@@ -17,3 +17,11 @@ bool Sphere::intersect(Vector a, Vector b) {
 float Sphere::equation(Vector v) {
     return pow((v.x - this->position_.x), 2) + pow(v.y - this->position_.y, 2) + pow(v.z - this->position_.z, 2) - pow(this->radius * this->scale_.x, 2);
 }
+
+float Sphere::derivative(Vector v) {
+    return 2 * (v.x - this->position_.x) + 2 * (v.y - this->position_.y) + 2 * (v.z - this->position_.z);
+}
+
+Vector Sphere::gradient(Vector v) {
+    return Vector(2 * (v.x - this->position_.x), 2 * (v.y - this->position_.y), 2 * (v.z - this->position_.z));
+}

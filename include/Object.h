@@ -26,6 +26,10 @@ class Object {
         Vector up();
         Color color();
         virtual bool intersect(Vector a, Vector b) = 0;
+        virtual float equation(Vector v) = 0;
+        virtual float derivative(Vector v) = 0;
+        virtual Vector gradient(Vector v) = 0;
+        Vector newtonsMethod(Vector x0);
 };
 
 #endif

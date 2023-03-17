@@ -38,7 +38,6 @@ void Renderer::render(unsigned char* dataBuffer) {
             dataBuffer[(y * windowWidth + x) * 3 + 2] = color.b;
         }
     }
-    
 }
 
 Color Renderer::trace(Vector ray, Vector origin, int depth) {
@@ -53,24 +52,26 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
         for (int i = 0; i < 2; i++) {
             if (objects[i]->intersect(prev, curr)) {
                 Color c = objects[i]->color();
+                Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
+                // Newton
 
                 for (int j = 0; j < 1; j++)
                 {
-                    if (isShadowed(prev, lights[j]->position()))
+                    if (isShadowed(intersection, lights[j]->position()))
                     {
-                        c.r = c.r * 0.5;
-                        c.g = c.g * 0.5;
-                        c.b = c.b * 0.5;
+                        c.r = c.r * 0.1;
+                        c.g = c.g * 0.1;
+                        c.b = c.b * 0.1;
                     }
                     else
                     {
-                        float distToLight = prev.distance(lights[j]->position());
+                        float distToLight = intersection.distance(lights[j]->position());
+                        distToLight *= distToLight;
 
-                        distToLight = distToLight > 2 ? 2 : distToLight;
+                        c.r /= distToLight;
+                        c.g /= distToLight;
+                        c.b /= distToLight;
 
-                        c.r = c.r * (2 - distToLight);
-                        c.g = c.g * (2 - distToLight);
-                        c.b = c.b * (2 - distToLight);
                     }
                 }
 
@@ -84,15 +85,18 @@ Color Renderer::trace(Vector ray, Vector origin, int depth) {
 
 bool Renderer::isShadowed(Vector origin, Vector light)
 {
-    Vector curr = origin;
-    Vector prev = origin;
 
-    Vector ray = light - origin;
+    Vector ray = (light - origin);
+
+    Vector originMoved = origin + ray * STEP_SIZE;
+
+    Vector curr = originMoved;
+    Vector prev = originMoved;
 
     for (float h = 0; h < MAX_ITER; h += 1)
     {
         prev = curr;
-        curr = origin + ray * (h * STEP_SIZE);
+        curr = originMoved + ray * (h * STEP_SIZE);
 
         for (int i = 0; i < 2; i++)
         {

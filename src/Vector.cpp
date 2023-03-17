@@ -68,6 +68,15 @@ Vector Vector::operator*(float s) {
     return Vector(x, y, z, w);
 }
 
+Vector Vector::operator/(float s) {
+    float x = this->x / s;
+    float y = this->y / s;
+    float z = this->z / s;
+    float w = this->w / s;
+
+    return Vector(x, y, z, w);
+}
+
 char* Vector::toString() {
     char* str = new char[100];
     sprintf(str, "(%f, %f, %f, %f)", this->x, this->y, this->z, this->w);

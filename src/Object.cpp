@@ -41,3 +41,23 @@ Vector Object::up() {
 Color Object::color() {
     return this->color_;
 }
+
+Vector Object::newtonsMethod(Vector x0) {
+    int i = 0;
+
+    do {
+        float f = this->equation(x0);
+        Vector grad = this->gradient(x0);
+
+        Vector x1 = x0 - (grad * f).normalize();
+
+        if (x1.distance(x0) < EPSILON) {
+            return x1;
+        }
+
+        x0 = x1;
+        i++;
+    } while (i < MAX_ITER);
+
+    return x0;
+}

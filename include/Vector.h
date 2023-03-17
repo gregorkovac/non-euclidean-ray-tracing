@@ -18,6 +18,7 @@ class Vector {
         Vector operator-(Vector v);
         float operator*(Vector v);
         Vector operator*(float s);
+        Vector operator/(float s);
         char* toString();
         float distance(Vector v);
 };

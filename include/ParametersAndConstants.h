@@ -10,6 +10,8 @@
 #define MAX_ITER 200
 #define STEP_SIZE 0.01
 
+#define EPSILON 0.01
+
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
 const Color SKY_COLOR = {0, 0, 0};
 
