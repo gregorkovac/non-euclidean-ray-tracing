@@ -2,11 +2,10 @@
 
 #include <stdio.h>
 
-Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize)
+Renderer::Renderer(int frameWidth, int frameHeight)
 {
-    this->windowWidth = windowWidth;
-    this->windowHeight = windowHeight;
-    this->pixelSize = pixelSize;
+    this->frameWidth = frameWidth;
+    this->frameHeight = frameHeight;
 
     this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1), 1);
 
@@ -17,7 +16,7 @@ Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize)
     Color blue = {100, 255, 255};
     Color white = {255, 255, 255};
 
-    this->objects[0] = new Sphere(1, Vector(-0.5, 0, 3), Vector(0, 0, 0), Vector(1, 1, 1), red, 0, 0.5);
+    this->objects[0] = new Sphere(1, Vector(-0.5, 0, 3), Vector(0, 0, 0), Vector(1, 1, 1), red, 0, 0);
     this->objects[1] = new Sphere(1, Vector(-1, 0, 1.5), Vector(0, 0, 0), Vector(0.5, 0.5, 0.5), blue, 0, 0);
     this->objects[2] = new Plane(Vector(0, 1, 0), Vector(0, -1, 0), Vector(0, 0, 0), Vector(1, 1, 1), white);
 
@@ -25,37 +24,55 @@ Renderer::Renderer(int windowWidth, int windowHeight, float pixelSize)
 }
 
 // TODO: Separate window size and image plane size
+// TODO: More accurate shading. Problem with Newton's method?
 
 void Renderer::render(unsigned char *dataBuffer)
 {
+    unsigned char data[IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT * 3];
+
     Vector imagePlaneCenter = camera->position() + camera->forward() * camera->f();
 
-    for (int y = 0; y < windowHeight; y++)
+    for (int y = 0; y < IMAGE_PLANE_HEIGHT; y++)
     {
-        for (int x = 0; x < windowWidth; x++)
+        for (int x = 0; x < IMAGE_PLANE_WIDTH; x++)
         {
-
-            Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - windowWidth / 2) * pixelSize) + camera->up() * ((y - windowHeight / 2) * pixelSize);
+            Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
             Vector ray = imagePlanePoint - camera->position();
 
             Color color = trace(ray, camera->position(), 0);
 
-            dataBuffer[(y * windowWidth + x) * 3] = color.r * BRIGHTNESS > 255 ? 255 : color.r * BRIGHTNESS;
-            dataBuffer[(y * windowWidth + x) * 3 + 1] = color.g * BRIGHTNESS > 255 ? 255 : color.g * BRIGHTNESS;
-            dataBuffer[(y * windowWidth + x) * 3 + 2] = color.b * BRIGHTNESS > 255 ? 255 : color.b * BRIGHTNESS;
+            data[(y * IMAGE_PLANE_WIDTH + x) * 3] = color.r * BRIGHTNESS > 255 ? 255 : color.r * BRIGHTNESS;
+            data[(y * IMAGE_PLANE_WIDTH + x) * 3 + 1] = color.g * BRIGHTNESS > 255 ? 255 : color.g * BRIGHTNESS;
+            data[(y * IMAGE_PLANE_WIDTH + x) * 3 + 2] = color.b * BRIGHTNESS > 255 ? 255 : color.b * BRIGHTNESS;
 
             // Loading bar for number of rendered pixels
-            int numRendered = y * windowWidth + x + 1;
-            int numTotal = windowWidth * windowHeight;
+            int numRendered = y * IMAGE_PLANE_WIDTH + x + 1;
+            int numTotal = IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT;
             int numPercent = (numRendered * 100) / numTotal;
             // Loading bar printing
             printf("\r-> Rendered pixel %d/%d (%d%%)", numRendered, numTotal, numPercent);
 
-            //printf("\r-> Rendered pixel %d/%d", y * windowWidth + x + 1, windowWidth * windowHeight);
+            //printf("\r-> Rendered pixel %d/%d", y * frameWidth + x + 1, frameWidth * frameHeight);
             fflush(stdout);
         }
     }
     printf("\n");
+
+    printf("Mapping image plane to window...\n");
+
+    // Map data to dataBuffer
+    for (int y = 0; y < frameHeight; y++)
+    {
+        for (int x = 0; x < frameWidth; x++)
+        {
+            int xPlane = x * IMAGE_PLANE_WIDTH / frameWidth;
+            int yPlane = y * IMAGE_PLANE_HEIGHT / frameHeight;
+
+            dataBuffer[(y * frameWidth + x) * 3] = data[(yPlane * IMAGE_PLANE_WIDTH + xPlane) * 3];
+            dataBuffer[(y * frameWidth + x) * 3 + 1] = data[(yPlane * IMAGE_PLANE_WIDTH + xPlane) * 3 + 1];
+            dataBuffer[(y * frameWidth + x) * 3 + 2] = data[(yPlane * IMAGE_PLANE_WIDTH + xPlane) * 3 + 2];
+        }
+    }
 }
 
 // TODO: Better lighting

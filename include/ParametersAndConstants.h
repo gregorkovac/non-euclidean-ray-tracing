@@ -3,8 +3,12 @@
 
 #include "Misc.h"
 
-#define WINDOW_WIDTH 200
-#define WINDOW_HEIGHT 200
+#define WINDOW_WIDTH 400
+#define WINDOW_HEIGHT 400
+
+#define IMAGE_PLANE_WIDTH 200
+#define IMAGE_PLANE_HEIGHT 200
+
 #define PIXEL_SIZE 0.01
 
 #define MAX_ITER 300

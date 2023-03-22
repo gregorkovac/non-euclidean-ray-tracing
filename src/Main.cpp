@@ -34,7 +34,7 @@ int main(void)
 
     printf("Rendering...\n");
 
-    renderer = new Renderer(frameWidth, frameHeight, PIXEL_SIZE);
+    renderer = new Renderer(frameWidth, frameHeight);
 
     unsigned char data[frameWidth * frameHeight * 3];
 

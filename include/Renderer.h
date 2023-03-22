@@ -9,15 +9,14 @@
 
 class Renderer {
     private:
-        int windowWidth;
-        int windowHeight;
-        float pixelSize;
+        int frameWidth;
+        int frameHeight;
         Camera* camera;
         Object** objects;
         Sphere** lights;
 
     public:
-        Renderer(int windowWidth, int windowHeight, float pixelSize);
+        Renderer(int frameWidth, int frameHeight);
         void render(unsigned char* dataBuffer);
         Color trace(Vector ray, Vector origin, int depth);
         bool isShadowed(Vector origin, Vector light);
