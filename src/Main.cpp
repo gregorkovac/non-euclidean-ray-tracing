@@ -5,11 +5,13 @@
 
 using namespace std;
 
-Renderer* renderer = nullptr;
+Renderer *renderer = nullptr;
 
 int main(void)
 {
-    GLFWwindow* window;
+    printf("Setting up window...\n");
+
+    GLFWwindow *window;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -26,22 +28,31 @@ int main(void)
     /* Make the window's context current */
     glfwMakeContextCurrent(window);
 
-    renderer = new Renderer(WINDOW_WIDTH, WINDOW_HEIGHT, PIXEL_SIZE);
+    int frameWidth, frameHeight;
+    glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
+    glViewport(0, 0, frameWidth, frameHeight);
 
-    unsigned char data[WINDOW_WIDTH * WINDOW_HEIGHT * 3];
+    printf("Rendering...\n");
 
-    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT * 3; i++) {
+    renderer = new Renderer(frameWidth, frameHeight, PIXEL_SIZE);
+
+    unsigned char data[frameWidth * frameHeight * 3];
+
+    for (int i = 0; i < frameWidth * frameHeight * 3; i++)
+    {
         data[i] = 0;
     }
 
     renderer->render(data);
+
+    printf("Done!\n");
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))
     {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
-        glDrawPixels(WINDOW_WIDTH, WINDOW_HEIGHT, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -51,6 +62,8 @@ int main(void)
     }
 
     glfwTerminate();
+
+    printf("Terminated.\n");
 
     return 0;
 }

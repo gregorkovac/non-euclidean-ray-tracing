@@ -23,3 +23,7 @@ float Camera::derivative(Vector v) {
 Vector Camera::gradient(Vector v) {
     return Vector(0, 0, 0);
 }
+
+Vector Camera::normal(Vector v) {
+    return Vector(0, 0, 0);
+}
