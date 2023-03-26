@@ -1,11 +1,6 @@
 #include "../include/Camera.h"
 
-Camera::Camera(Vector position, Vector rotation, Vector scale, float f) : Object(position, rotation, scale) {
-    this->f_ = f;
-}
-
-float Camera::f() {
-    return this->f_;
+Camera::Camera(Vector position, Vector rotation, Vector scale) : Object(position, rotation, scale) {
 }
 
 bool Camera::intersect(Vector a, Vector b) {

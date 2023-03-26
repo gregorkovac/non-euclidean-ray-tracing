@@ -1,36 +1,111 @@
 #include "../include/Renderer.h"
 
-#include <stdio.h>
-
 Renderer::Renderer(int frameWidth, int frameHeight)
 {
     this->frameWidth = frameWidth;
     this->frameHeight = frameHeight;
 
-    this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1), 1);
+    // this->objects = new Object *[3];
+    // this->lights = new Sphere *[1];
 
-    this->objects = new Object *[3];
-    this->lights = new Sphere *[1];
+    // Color red = {255, 0, 0};
+    // Color blue = {100, 255, 255};
+    // Color white = {255, 255, 255};
+    // Color green = {0, 255, 0};
 
-    Color red = {255, 0, 0};
-    Color blue = {100, 255, 255};
-    Color white = {255, 255, 255};
+    // this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1));
 
-    this->objects[0] = new Sphere(1, Vector(-0.5, 0, 3), Vector(0, 0, 0), Vector(1, 1, 1), red, 0, 0);
-    this->objects[1] = new Sphere(1, Vector(-1, 0, 1.5), Vector(0, 0, 0), Vector(0.5, 0.5, 0.5), blue, 0, 0);
-    this->objects[2] = new Plane(Vector(0, 1, 0), Vector(0, -1, 0), Vector(0, 0, 0), Vector(1, 1, 1), white);
+    // this->objects[0] = new Sphere(1, Vector(0, 0, 3), Vector(0, 0, 0), Vector(1, 1, 1), red, 0, 0);
+    // this->objects[1] = new Sphere(1, Vector(0.5, 0, 2), Vector(0, 0, 0), Vector(0.2, 0.2, 0.2), blue, 0, 0);
+    // this->objects[2] = new Plane(Vector(0, 1, 0), Vector(0, -1, 0), Vector(0, 0, 0), Vector(1, 1, 1), white);
+    // this->objects[3] = new Plane(Vector(0, 0, 4), Vector(0, 0, -1), Vector(0, 0, 0), Vector(1, 1, 1), green);
 
-    this->lights[0] = new Sphere(1, Vector(-1, 1, 0), Vector(0, 0, 0), Vector(1, 1, 1), white);
+    // this->lights[0] = new Sphere(1, Vector(0, 0, 2), Vector(0, 0, 0), Vector(1, 1, 1), white);
 }
 
-// TODO: Separate window size and image plane size
-// TODO: More accurate shading. Problem with Newton's method?
+void Renderer::parseScene(char* sceneFilePath) {
+    FILE* file = fopen(sceneFilePath, "r");
+
+    if (file == NULL) {
+        printf("\033[0;31m");
+        printf("\nERROR: Could not open scene file %s\n", sceneFilePath);
+        exit(1);
+    }
+
+    char line[256];
+
+    this->numObjects = 0;
+    this->numLights = 0;
+
+    while (fgets(line, sizeof(line), file)) {
+        if (&line[0] == "#")
+            continue;
+
+        char objectType[20];
+        sscanf(line, "%s", objectType);
+
+        if (strcmp(objectType, "Light") == 0)
+            this->numLights++;
+        else if (strcmp(objectType, "Camera") != 0)
+            this->numObjects++;
+    }
+
+    this->objects = new Object *[numObjects];
+    this->lights = new Sphere *[numLights];
+
+    rewind(file);
+
+    int objectIndex = 0, lightIndex = 0;
+
+
+    while (fgets(line, sizeof(line), file)) {
+        if (&line[0] == "#")
+            continue;
+
+        char objectType[20];
+        Vector position;
+        Vector rotation;
+        Vector scale;
+        Color color;
+        float reflectivity;
+        float translucency;
+        
+        sscanf(line, "%s", objectType);
+
+        if (strcmp(objectType, "Light") == 0) {
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &color.r, &color.g, &color.b);
+            this->lights[lightIndex] = new Sphere(1, position, rotation, scale, color);
+            lightIndex++;
+            printf(" -> Light\n");
+        } else if (strcmp(objectType, "Camera") == 0) {
+            sscanf(line, "%s (%f %f %f) (%f %f %f)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z);
+            this->camera = new Camera(position, rotation, Vector(1, 1, 1));
+            printf(" -> Camera\n");
+        } else if (strcmp(objectType, "Sphere") == 0) {
+
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) (%d %d %d) %f %f", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &color.r, &color.g, &color.b, &reflectivity, &translucency);
+            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency);
+            objectIndex++;
+            printf(" -> Sphere\n");
+        } else if (strcmp(objectType, "Plane") == 0) {
+            Vector normal;
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f)(%f %f %f) (%f %f %f) %f %f %f", objectType, &normal.x, &normal.y, &normal.z, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &color.r, &color.g, &color.b, &reflectivity, &translucency);
+            this->objects[objectIndex] = new Plane(normal, position, rotation, scale, color, reflectivity, translucency);
+            objectIndex++;
+            printf(" -> Plane\n");
+        } else {
+            printf(" -> Unknown object type: %s; skipping\n", objectType);
+        }
+    }
+
+    fclose(file);
+}
 
 void Renderer::render(unsigned char *dataBuffer)
 {
     unsigned char data[IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT * 3];
 
-    Vector imagePlaneCenter = camera->position() + camera->forward() * camera->f();
+    Vector imagePlaneCenter = camera->position() + camera->forward() * FOCAL_LENGTH;
 
     for (int y = 0; y < IMAGE_PLANE_HEIGHT; y++)
     {
@@ -45,14 +120,18 @@ void Renderer::render(unsigned char *dataBuffer)
             data[(y * IMAGE_PLANE_WIDTH + x) * 3 + 1] = color.g * BRIGHTNESS > 255 ? 255 : color.g * BRIGHTNESS;
             data[(y * IMAGE_PLANE_WIDTH + x) * 3 + 2] = color.b * BRIGHTNESS > 255 ? 255 : color.b * BRIGHTNESS;
 
-            // Loading bar for number of rendered pixels
             int numRendered = y * IMAGE_PLANE_WIDTH + x + 1;
             int numTotal = IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT;
             int numPercent = (numRendered * 100) / numTotal;
-            // Loading bar printing
-            printf("\r-> Rendered pixel %d/%d (%d%%)", numRendered, numTotal, numPercent);
 
-            //printf("\r-> Rendered pixel %d/%d", y * frameWidth + x + 1, frameWidth * frameHeight);
+            printf("\r-> Rendered pixel %d/%d (%d%%) ", numRendered, numTotal, numPercent);
+
+            for (int i = 0; i < numPercent / 2; i++)
+                printf("■");
+            
+            for (int i = 0; i < 50 - numPercent / 2; i++)
+                printf("-");
+
             fflush(stdout);
         }
     }
@@ -75,9 +154,6 @@ void Renderer::render(unsigned char *dataBuffer)
     }
 }
 
-// TODO: Better lighting
-// TODO: Directional light
-
 Color Renderer::trace(Vector ray, Vector origin, int depth)
 {
     if (depth > MAX_DEPTH)
@@ -91,8 +167,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
         prev = curr;
         curr = origin + ray * (h * STEP_SIZE);
 
-        // TODO: Define scene in seperate file and then parse it. Take into acount the number of objects and use it here.
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < this->numObjects; i++)
         {
             if (objects[i]->intersect(prev, curr))
             {
@@ -124,17 +199,17 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                     c.b = c.b * (1 - translucency) + c1.b * translucency;
                 }
                 
-                for (int j = 0; j < 1; j++)
+                for (int j = 0; j < this->numLights; j++)
                 {
                     if (isShadowed(intersection, lights[j]->position()))
                     {
-                        c.r = c.r * 0.1;
-                        c.g = c.g * 0.1;
-                        c.b = c.b * 0.1;
+                        c.r = c.r * 0.2;
+                        c.g = c.g * 0.2;
+                        c.b = c.b * 0.2;
                     }
                     else
                     {
-                        float distToLight = intersection.normalize().distance(lights[j]->position());
+                        float distToLight = intersection.normalize3().distance(lights[j]->position());
 
                         distToLight *= distToLight;
 
@@ -143,6 +218,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                         c.b /= distToLight;
                     }
                 }
+
 
                 return c;
             }
@@ -155,7 +231,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 bool Renderer::isShadowed(Vector origin, Vector light)
 {
 
-    Vector ray = (light - origin).normalize();
+    Vector ray = (light - origin).normalize3();
 
     Vector originMoved = origin + ray;
 
@@ -167,7 +243,7 @@ bool Renderer::isShadowed(Vector origin, Vector light)
         prev = curr;
         curr = originMoved + ray * (h * STEP_SIZE);
 
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < this->numObjects; i++)
             if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0)
                 return true;
     }

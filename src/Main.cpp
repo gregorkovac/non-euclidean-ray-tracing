@@ -7,8 +7,9 @@ using namespace std;
 
 Renderer *renderer = nullptr;
 
-int main(void)
+int main(int argc, char **argv)
 {
+    printf("\033[0;36m");
     printf("Setting up window...\n");
 
     GLFWwindow *window;
@@ -32,10 +33,17 @@ int main(void)
     glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
     glViewport(0, 0, frameWidth, frameHeight);
 
-    printf("Rendering...\n");
 
     renderer = new Renderer(frameWidth, frameHeight);
 
+    printf("Parsing scene...\n");
+
+    if (argc > 1)
+        renderer->parseScene(argv[1]);
+    else
+        renderer->parseScene("./scenes/scene1.txt");
+
+    printf("Rendering...\n");
     unsigned char data[frameWidth * frameHeight * 3];
 
     for (int i = 0; i < frameWidth * frameHeight * 3; i++)

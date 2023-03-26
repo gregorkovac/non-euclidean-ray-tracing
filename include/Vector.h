@@ -14,6 +14,7 @@ class Vector {
         Vector(float x, float y, float z, float w);
         Vector(Vector *v);
         Vector normalize();
+        Vector normalize3();
         Vector operator+(Vector v);
         Vector operator-(Vector v);
         float operator*(Vector v);

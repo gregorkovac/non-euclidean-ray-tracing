@@ -4,7 +4,7 @@ Vector::Vector() {
     x = 0;
     y = 0;
     z = 0;
-    w = 0;
+    w = 1;
 }
 
 Vector::Vector(float x, float y, float z) {
@@ -57,6 +57,16 @@ Vector Vector::normalize() {
     float w = 1;
 
     return Vector(x, y, z, w);
+}
+
+Vector Vector::normalize3() {
+    float norm = sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));
+
+    float x = this->x / norm;
+    float y = this->y / norm;
+    float z = this->z / norm;
+
+    return Vector(x, y, z, 1);
 }
 
 Vector Vector::operator*(float s) {

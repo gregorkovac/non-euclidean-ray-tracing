@@ -5,12 +5,8 @@
 #include "ParametersAndConstants.h"
 
 class Camera : public Object {
-    private:
-        float f_;
-
     public:
-        Camera(Vector position, Vector rotation, Vector scale, float f);
-        float f();
+        Camera(Vector position, Vector rotation, Vector scale);
         bool intersect(Vector a, Vector b);
         float equation(Vector v);
         float derivative(Vector v);

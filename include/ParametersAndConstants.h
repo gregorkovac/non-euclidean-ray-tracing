@@ -9,6 +9,8 @@
 #define IMAGE_PLANE_WIDTH 200
 #define IMAGE_PLANE_HEIGHT 200
 
+#define FOCAL_LENGTH 1
+
 #define PIXEL_SIZE 0.01
 
 #define MAX_ITER 300
