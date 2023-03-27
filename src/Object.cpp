@@ -76,7 +76,7 @@ Vector Object::newtonsMethod(Vector x0) {
         float f = this->equation(x0);
         Vector grad = this->gradient(x0);
 
-        Vector x1 = x0 - (grad * f).normalize();
+        Vector x1 = x0 - (grad * f).normalize3();
 
         if (x1.distance(x0) < EPSILON) {
             return x1;
