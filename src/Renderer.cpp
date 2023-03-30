@@ -4,23 +4,6 @@ Renderer::Renderer(int frameWidth, int frameHeight)
 {
     this->frameWidth = frameWidth;
     this->frameHeight = frameHeight;
-
-    // this->objects = new Object *[3];
-    // this->lights = new Sphere *[1];
-
-    // Color red = {255, 0, 0};
-    // Color blue = {100, 255, 255};
-    // Color white = {255, 255, 255};
-    // Color green = {0, 255, 0};
-
-    // this->camera = new Camera(Vector(0, 0, 0), Vector(0, 0, 0), Vector(1, 1, 1));
-
-    // this->objects[0] = new Sphere(1, Vector(0, 0, 3), Vector(0, 0, 0), Vector(1, 1, 1), red, 0, 0);
-    // this->objects[1] = new Sphere(1, Vector(0.5, 0, 2), Vector(0, 0, 0), Vector(0.2, 0.2, 0.2), blue, 0, 0);
-    // this->objects[2] = new Plane(Vector(0, 1, 0), Vector(0, -1, 0), Vector(0, 0, 0), Vector(1, 1, 1), white);
-    // this->objects[3] = new Plane(Vector(0, 0, 4), Vector(0, 0, -1), Vector(0, 0, 0), Vector(1, 1, 1), green);
-
-    // this->lights[0] = new Sphere(1, Vector(0, 0, 2), Vector(0, 0, 0), Vector(1, 1, 1), white);
 }
 
 void Renderer::parseScene(char *sceneFilePath)
@@ -41,7 +24,7 @@ void Renderer::parseScene(char *sceneFilePath)
 
     while (fgets(line, sizeof(line), file))
     {
-        if (&line[0] == "#")
+        if (line[0] == '#' || line[0] == '\n')
             continue;
 
         char objectType[20];
@@ -62,7 +45,7 @@ void Renderer::parseScene(char *sceneFilePath)
 
     while (fgets(line, sizeof(line), file))
     {
-        if (&line[0] == "#")
+        if (line[0] == '#' || line[0] == '\n')
             continue;
 
         char objectType[20];
@@ -70,6 +53,7 @@ void Renderer::parseScene(char *sceneFilePath)
         Vector rotation;
         Vector scale;
         Color color;
+        char colorType[20];
         float reflectivity;
         float translucency;
 
@@ -90,17 +74,20 @@ void Renderer::parseScene(char *sceneFilePath)
         }
         else if (strcmp(objectType, "Sphere") == 0)
         {
+            
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, colorType, &color.r, &color.g, &color.b);
 
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) (%d %d %d) %f %f", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &color.r, &color.g, &color.b, &reflectivity, &translucency);
-            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency);
+            //printf("%s %d %d %d %f %f\n", colorType, color.r, color.g, color.b, reflectivity, translucency);
+
+            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, colorType);
             objectIndex++;
             printf(" -> Sphere\n");
         }
         else if (strcmp(objectType, "Plane") == 0)
         {
-            Vector normal;
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f)(%f %f %f) (%f %f %f) %f %f %f", objectType, &normal.x, &normal.y, &normal.z, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &color.r, &color.g, &color.b, &reflectivity, &translucency);
-            this->objects[objectIndex] = new Plane(normal, position, rotation, scale, color, reflectivity, translucency);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, colorType, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Plane(position, rotation, scale, color, reflectivity, translucency, colorType);
+
             objectIndex++;
             printf(" -> Plane\n");
         }
@@ -115,6 +102,7 @@ void Renderer::parseScene(char *sceneFilePath)
 
 void Renderer::render(unsigned char *dataBuffer)
 {
+
     unsigned char data[IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT * 3];
 
     Vector imagePlaneCenter = camera->position() + camera->forward() * FOCAL_LENGTH;
@@ -138,11 +126,13 @@ void Renderer::render(unsigned char *dataBuffer)
 
             printf("\r-> Rendered pixel %d/%d (%d%%) ", numRendered, numTotal, numPercent);
 
-            for (int i = 0; i < numPercent / 2; i++)
+            for (int i = 0; i < numPercent / 2; i++) {
                 printf("■");
+            }
 
-            for (int i = 0; i < 50 - numPercent / 2; i++)
+            for (int i = 0; i < 50 - numPercent / 2; i++) {
                 printf("-");
+            }
 
             fflush(stdout);
         }
@@ -228,7 +218,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     Vector curr = origin;
     Vector prev = origin;
 
-    ray = ray.normalize3();
+    //ray = ray.normalize3();
 
     for (float h = 0; h < MAX_ITER; h += 1)
     {
@@ -239,35 +229,33 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
         {
             if (objects[i]->intersect(prev, curr))
             {
-                Color c = objects[i]->color();
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
+                Color c = objects[i]->color(intersection);
 
                 Color reflectionColor = {0,0,0}, refractionColor = {0,0,0};
 
                 float reflectivity = objects[i]->reflectivity();
                 float translucency = objects[i]->translucency();
 
+                Vector inRay = (origin - intersection).normalize3();
+
                 if (reflectivity > 0)
                 {
-                    Vector reflectionRay = ray - objects[i]->normal(intersection) * (objects[i]->normal(intersection) * 2 * ray);
+                    Vector reflectionRay = inRay - objects[i]->normal(intersection) * 2 * (objects[i]->normal(intersection) * inRay);
 
                     reflectionColor = trace(reflectionRay, intersection + reflectionRay, depth + 1);
-
-                    // c.r = c.r * (1 - reflectivity) + c1.r * reflectivity;
-                    // c.g = c.g * (1 - reflectivity) + c1.g * reflectivity;
-                    // c.b = c.b * (1 - reflectivity) + c1.b * reflectivity;
                 }
 
                 if (translucency > 0)
                 {
-                    Vector refractionRay = ray - objects[i]->normal(intersection) * (objects[i]->normal(intersection) * 2 * ray);
+                    Vector refractionRay = objects[i]->normal(intersection) * sqrt(1 - pow(objects[i]->refractiveIndex(), 2) * (1 - pow(objects[i]->normal(intersection) * inRay, 2)));
 
                     refractionColor = trace(refractionRay, intersection + refractionRay, depth + 1);
-
-                    // c.r = c.r * (1 - translucency) + c1.r * translucency;
-                    // c.g = c.g * (1 - translucency) + c1.g * translucency;
-                    // c.b = c.b * (1 - translucency) + c1.b * translucency;
                 }
+
+                c.r = c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
+                c.g = c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
+                c.b = c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
 
                 for (int j = 0; j < this->numLights; j++)
                 {
@@ -283,15 +271,17 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                         distToLight *= distToLight;
 
+                        // TODO: light color
+
                         c.r /= distToLight;
                         c.g /= distToLight;
                         c.b /= distToLight;
                     }
                 }
 
-                c.r = c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
-                c.g = c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
-                c.b = c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
+                // if (depth > 1) {
+                //     printf("%d (%d %d %d)\n", i, c.r, c.g, c.b);
+                // }
 
                 return c;
             }
@@ -311,14 +301,16 @@ bool Renderer::isShadowed(Vector origin, Vector light)
     Vector curr = originMoved;
     Vector prev = originMoved;
 
-    for (float h = 0; h < MAX_ITER; h += 1)
+    for (float h = 1; h < MAX_ITER; h += 1)
     {
         prev = curr;
         curr = originMoved + ray * (h * STEP_SIZE);
 
         for (int i = 0; i < this->numObjects; i++)
-            if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0)
+            if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0) {
+                //printf("%s\n\n", objects[i]->toString());
                 return true;
+            }
     }
 
     return false;

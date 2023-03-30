@@ -1,5 +1,25 @@
 #include "../include/Object.h"
 
+Object::Object(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) {
+    this->position_ = position;
+    this->rotation_ = rotation;
+    this->scale_ = scale;
+    this->color_ = color;
+    
+    if (translucency > 1) this->translucency_ = 1;
+    else if (translucency < 0) this->translucency_ = 0;
+    else this->translucency_ = translucency;
+
+    if (reflectivity > 1) this->reflectivity_ = 1;
+    else if (reflectivity < 0) this->reflectivity_ = 0;
+    else this->reflectivity_ = reflectivity;
+
+    if (strcmp(colorType, "solid") == 0) this->colorType_ = COLOR_TYPE_SOLID;
+    else if (strcmp(colorType, "gradient") == 0) this->colorType_ = COLOR_TYPE_GRADIENT;
+    else if (strcmp(colorType, "checkerboard") == 0) this->colorType_ = COLOR_TYPE_CHECKERBOARD;
+    else this->colorType_ = COLOR_TYPE_SOLID;
+}
+
 Object::Object(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) {
     this->position_ = position;
     this->rotation_ = rotation;
@@ -57,8 +77,39 @@ Vector Object::up() {
     return Matrix::rotation(this->rotation_) * Vector(0, 1, 0, 1);
 }
 
-Color Object::color() {
-    return this->color_;
+Color Object::color(Vector p) {
+
+    switch (colorType_) {
+        case COLOR_TYPE_SOLID:
+            return this->color_;
+        case COLOR_TYPE_GRADIENT:
+            return {
+                (unsigned short) (this->color_.r * (1 - p.z) + 255 * p.z),
+                (unsigned short) (this->color_.g * (1 - p.z) + 255 * p.z),
+                (unsigned short) (this->color_.b * (1 - p.z) + 255 * p.z)
+            };
+        case COLOR_TYPE_CHECKERBOARD:
+            // Map the point to plane 2d space
+            float u = this->position_.x - p.x;
+            float v = this->position_.y - p.y;
+
+            // Map the point to a checkerboard
+            int i = (int) (u * 0.5);
+            int j = (int) (v * 0.5);
+
+            // Return the color
+            if ((i + j) % 2 == 0) {
+                return this->color_;
+            } else {
+                return {
+                    (unsigned short) (this->color_.r * 0.5),
+                    (unsigned short) (this->color_.g * 0.5),
+                    (unsigned short) (this->color_.b * 0.5)
+                };
+            }
+    }
+
+    return MISSING_COLOR;
 }
 
 float Object::translucency() {
@@ -76,7 +127,7 @@ Vector Object::newtonsMethod(Vector x0) {
         float f = this->equation(x0);
         Vector grad = this->gradient(x0);
 
-        Vector x1 = x0 - (grad * f).normalize3();
+        Vector x1 = x0 - (grad.normalize3() * f);
 
         if (x1.distance(x0) < EPSILON) {
             return x1;
@@ -87,4 +138,26 @@ Vector Object::newtonsMethod(Vector x0) {
     } while (i < MAX_ITER);
 
     return x0;
+}
+
+float Object::refractiveIndex() {
+    return 1;
+}
+
+char* Object::toString() {
+    char buffer[5000];
+
+    sprintf(buffer, "%s: [ position: %s, rotation: %s, scale: %s, color: (%d, %d, %d), translucency: %f, reflectivity: %f ]",
+        typeid(*this).name(),
+        this->position_.toString(),
+        this->rotation_.toString(),
+        this->scale_.toString(),
+        this->color_.r,
+        this->color_.g,
+        this->color_.b,
+        this->translucency_,
+        this->reflectivity_
+    );
+
+    return buffer;
 }

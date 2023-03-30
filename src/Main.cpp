@@ -9,7 +9,7 @@ Renderer *renderer = nullptr;
 
 int main(int argc, char **argv)
 {
-    printf("\033[0;36m");
+    //printf("\033[0;36m");
     printf("Setting up window...\n");
 
     GLFWwindow *window;

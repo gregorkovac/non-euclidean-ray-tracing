@@ -1,5 +1,9 @@
 #include "../include/ParametricObjects.h"
 
+Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) : Object(position, rotation, scale, color, translucency, reflectivity, colorType) {
+    this->radius = radius;
+}
+
 Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
     this->radius = radius;
 }
@@ -34,24 +38,27 @@ Vector Sphere::normal(Vector v) {
     return Vector(v.x - this->position_.x, v.y - this->position_.y, v.z - this->position_.z);
 }
 
-Plane::Plane(Vector normalParam, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
-    this->normal_ = normalParam;
+Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) : Object(position, rotation, scale, color, translucency, reflectivity, colorType) {
+    this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
 }
 
-Plane::Plane(Vector normalParam, Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color) {
-    this->normal_ = normalParam;
+Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
+    this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
+}
+
+Plane::Plane(Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color) {
+    this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
 }
 
 bool Plane::intersect(Vector a, Vector b) {
-    if (sign(this->equation(a)) != sign(this->equation(b))) {
+   if (sign(this->equation(a)) != sign(this->equation(b)))
         return true;
-    }
 
     return false;
 }
 
 float Plane::equation(Vector v) {
-    return this->normal_.x * (v.x - this->position_.x) + this->normal_.y * (v.y - this->position_.y) + this->normal_.z * (v.z - this->position_.z);
+    return this->normal_ * (v - this->position_);
 }
 
 float Plane::derivative(Vector v) {
