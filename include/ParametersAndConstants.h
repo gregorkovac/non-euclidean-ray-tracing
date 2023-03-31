@@ -7,13 +7,12 @@
 #define WINDOW_WIDTH 400
 #define WINDOW_HEIGHT 400
 
-// Image plane parameters
+// Camera parameters
 #define IMAGE_PLANE_WIDTH 200
 #define IMAGE_PLANE_HEIGHT 200
-
 #define FOCAL_LENGTH 1
-
 #define PIXEL_SIZE 0.01
+#define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
 #define MAX_ITER 300

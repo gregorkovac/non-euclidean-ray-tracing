@@ -13,7 +13,6 @@ class Sphere : public Object {
         Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType);
         bool intersect(Vector a, Vector b);
         float equation(Vector v);
-        float derivative(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
 };
@@ -28,7 +27,6 @@ class Plane : public Object {
         Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType);
         bool intersect(Vector a, Vector b);
         float equation(Vector v);
-        float derivative(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
 };

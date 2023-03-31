@@ -140,7 +140,7 @@ void Renderer::render(unsigned char *dataBuffer)
         for (int x = 0; x < IMAGE_PLANE_WIDTH; x++)
         {
             Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
-            Vector ray = (imagePlanePoint - camera->position());
+            Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
 
             Color color = trace(ray, camera->position(), 0);
 
@@ -257,6 +257,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
         for (int i = 0; i < this->numObjects; i++)
         {
+            //if (ray == Vector(0.99, -1, 1)) {
+            //    printf("%s %s\n", prev.toString(), curr.toString());
+            //    printf("%f %f\n\n", objects[i]->equation(prev), objects[i]->equation(curr));
+            //}
+
             if (objects[i]->intersect(prev, curr))
             {
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
@@ -314,7 +319,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                 // if (depth > 1) {
                 //     printf("%d (%d %d %d)\n", i, c.r, c.g, c.b);
                 // }
-
                 return c;
             }
         }

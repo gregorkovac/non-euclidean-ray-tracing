@@ -47,7 +47,7 @@ Vector Vector::operator-(Vector v) {
 }
 
 float Vector::operator*(Vector v) {
-    return this->x * v.x + this->y * v.y + this->z * v.z + this->w * v.w;
+    return this->x * v.x + this->y * v.y + this->z * v.z;
 }
 
 Vector Vector::normalize() {
@@ -99,4 +99,8 @@ float Vector::distance(Vector v) {
 
 float Vector::norm() {
     return sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));
+}
+
+bool Vector::operator==(Vector v) {
+    return this->x == v.x && this->y == v.y && this->z == v.z;
 }

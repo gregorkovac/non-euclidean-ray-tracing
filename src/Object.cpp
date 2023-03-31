@@ -144,6 +144,13 @@ float Object::refractiveIndex() {
     return 1;
 }
 
+bool Object::intersect(Vector a, Vector b) {
+    if (sign(this->equation(a)) != sign(this->equation(b)))
+        return true;
+
+    return false;
+}
+
 char* Object::toString() {
     char buffer[5000];
 

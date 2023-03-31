@@ -11,10 +11,6 @@ float Camera::equation(Vector v) {
     return 0;
 }
 
-float Camera::derivative(Vector v) {
-    return 0;
-}
-
 Vector Camera::gradient(Vector v) {
     return Vector(0, 0, 0);
 }

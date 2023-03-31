@@ -12,22 +12,8 @@ Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Col
     this->radius = radius;
 }
 
-bool Sphere::intersect(Vector a, Vector b) {
-    //printf("%d %d\n", (int)sign(this->equation(a)), (int)sign(this->equation(b)));
-    //printf("%s %s %f %f\n", a.toString(), b.toString(), this->equation(a), this->equation(b));
-    if (sign(this->equation(a)) != sign(this->equation(b))) {
-        return true;
-    }
-
-    return false;
-}
-
 float Sphere::equation(Vector v) {
     return pow((v.x - this->position_.x), 2) + pow(v.y - this->position_.y, 2) + pow(v.z - this->position_.z, 2) - pow(this->radius * this->scale_.x, 2);
-}
-
-float Sphere::derivative(Vector v) {
-    return 2 * (v.x - this->position_.x) + 2 * (v.y - this->position_.y) + 2 * (v.z - this->position_.z);
 }
 
 Vector Sphere::gradient(Vector v) {
@@ -40,8 +26,6 @@ Vector Sphere::normal(Vector v) {
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) : Object(position, rotation, scale, color, translucency, reflectivity, colorType) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
-
-    printf("%s\n", this->normal_.toString());
 }
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
@@ -52,19 +36,9 @@ Plane::Plane(Vector position, Vector rotation, Vector scale, Color color) : Obje
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
 }
 
-bool Plane::intersect(Vector a, Vector b) {
-    if (sign(this->equation(a)) != sign(this->equation(b)))
-        return true;
-
-    return false;
-}
-
 float Plane::equation(Vector v) {
+    //printf("%s * (%s - %s) = %s * %s = %f\n", this->normal_.toString(), v.toString(), this->position_.toString(), this->normal_.toString(), vec.toString(), this->normal_ * (v - this->position_));
     return this->normal_ * (v - this->position_);
-}
-
-float Plane::derivative(Vector v) {
-    return this->normal_.x + this->normal_.y + this->normal_.z;
 }
 
 Vector Plane::gradient(Vector v) {

@@ -9,7 +9,6 @@ class Camera : public Object {
         Camera(Vector position, Vector rotation, Vector scale);
         bool intersect(Vector a, Vector b);
         float equation(Vector v);
-        float derivative(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
 };
