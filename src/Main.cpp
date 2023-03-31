@@ -53,17 +53,20 @@ int main(int argc, char **argv)
 
     renderer->render(data);
 
-    printf("Done!\n");
+    printf("\033[0;35m\x1B[1m");
+    printf("DONE!\n");
+    printf("\x1B[0m\033[0m");
 
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
-    {
-        /* Render here */
+    /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
         glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
 
         /* Poll for and process events */
         glfwPollEvents();

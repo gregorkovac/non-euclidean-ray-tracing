@@ -13,11 +13,11 @@
 
 #define FOCAL_LENGTH 1
 
-#define PIXEL_SIZE 0.02
+#define PIXEL_SIZE 0.01
 
 // Ray tracing parameters
 #define MAX_ITER 300
-#define STEP_SIZE 0.02
+#define STEP_SIZE 0.01
 #define MAX_DEPTH 2
 
 // Newton's method parameters
@@ -32,5 +32,6 @@ const Color MISSING_COLOR = {250, 70, 250};
 
 // Debug parameters
 #define DRAW_GIZMOS false
+#define PRINT_OBJECTS_ON_STARTUP false
 
 #endif

@@ -40,6 +40,8 @@ Vector Sphere::normal(Vector v) {
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) : Object(position, rotation, scale, color, translucency, reflectivity, colorType) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
+
+    printf("%s\n", this->normal_.toString());
 }
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
@@ -51,7 +53,7 @@ Plane::Plane(Vector position, Vector rotation, Vector scale, Color color) : Obje
 }
 
 bool Plane::intersect(Vector a, Vector b) {
-   if (sign(this->equation(a)) != sign(this->equation(b)))
+    if (sign(this->equation(a)) != sign(this->equation(b)))
         return true;
 
     return false;

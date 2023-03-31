@@ -22,6 +22,8 @@ void Renderer::parseScene(char *sceneFilePath)
     this->numObjects = 0;
     this->numLights = 0;
 
+    bool cameraFound = false;
+
     while (fgets(line, sizeof(line), file))
     {
         if (line[0] == '#' || line[0] == '\n')
@@ -68,6 +70,7 @@ void Renderer::parseScene(char *sceneFilePath)
         }
         else if (strcmp(objectType, "Camera") == 0)
         {
+            cameraFound = true;
             sscanf(line, "%s (%f %f %f) (%f %f %f)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z);
             this->camera = new Camera(position, rotation, Vector(1, 1, 1));
             printf(" -> Camera\n");
@@ -98,10 +101,35 @@ void Renderer::parseScene(char *sceneFilePath)
     }
 
     fclose(file);
+
+    if (!cameraFound)
+    {
+        printf("\033[0;31m");
+        printf("\nERROR: No camera found in scene file %s\n", sceneFilePath);
+        printf("\033[0m");
+        exit(1);
+    }
+
+    if (this->numLights == 0)
+    {
+        printf("\033[0;31m");
+        printf("\nERROR: No lights found in scene file %s\n", sceneFilePath);
+        printf("\033[0m");
+        exit(1);
+    }
 }
+
+// TODO: Multiple rays per each pixel for soft edges
 
 void Renderer::render(unsigned char *dataBuffer)
 {
+    if (PRINT_OBJECTS_ON_STARTUP) {
+        printf("\nObjects:\n");
+        for (int i = 0; i < numObjects; i++) {
+            printf(" -> %s\n\n\n", objects[i]->toString());
+        }
+
+    }
 
     unsigned char data[IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT * 3];
 
@@ -112,7 +140,7 @@ void Renderer::render(unsigned char *dataBuffer)
         for (int x = 0; x < IMAGE_PLANE_WIDTH; x++)
         {
             Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
-            Vector ray = imagePlanePoint - camera->position();
+            Vector ray = (imagePlanePoint - camera->position());
 
             Color color = trace(ray, camera->position(), 0);
 
@@ -124,7 +152,7 @@ void Renderer::render(unsigned char *dataBuffer)
             int numTotal = IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT;
             int numPercent = (numRendered * 100) / numTotal;
 
-            printf("\r-> Rendered pixel %d/%d (%d%%) ", numRendered, numTotal, numPercent);
+            printf("\r -> Rendered pixel %d/%d (%d%%) ", numRendered, numTotal, numPercent);
 
             for (int i = 0; i < numPercent / 2; i++) {
                 printf("■");
@@ -220,10 +248,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
     //ray = ray.normalize3();
 
-    for (float h = 0; h < MAX_ITER; h += 1)
+    for (float h = 1; h < MAX_ITER; h += 1)
     {
         prev = curr;
-        curr = origin + ray * (h * STEP_SIZE);
+        curr = origin + ray * h * STEP_SIZE;
+
+        //printf("%s %s\n", prev.toString(), curr.toString());
 
         for (int i = 0; i < this->numObjects; i++)
         {
@@ -238,6 +268,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                 float translucency = objects[i]->translucency();
 
                 Vector inRay = (origin - intersection).normalize3();
+
+                // Phong - specular and diffuse
 
                 if (reflectivity > 0)
                 {

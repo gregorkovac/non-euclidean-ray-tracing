@@ -94,8 +94,8 @@ Color Object::color(Vector p) {
             float v = this->position_.y - p.y;
 
             // Map the point to a checkerboard
-            int i = (int) (u * 0.5);
-            int j = (int) (v * 0.5);
+            int i = (int) (u * 5);
+            int j = (int) (v * 5);
 
             // Return the color
             if ((i + j) % 2 == 0) {
@@ -127,7 +127,7 @@ Vector Object::newtonsMethod(Vector x0) {
         float f = this->equation(x0);
         Vector grad = this->gradient(x0);
 
-        Vector x1 = x0 - (grad.normalize3() * f);
+        Vector x1 = x0 - (grad / pow(grad.norm(), 2) * f);
 
         if (x1.distance(x0) < EPSILON) {
             return x1;

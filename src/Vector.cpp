@@ -96,3 +96,7 @@ char* Vector::toString() {
 float Vector::distance(Vector v) {
     return sqrt(pow(this->x - v.x, 2) + pow(this->y - v.y, 2) + pow(this->z - v.z, 2));
 }
+
+float Vector::norm() {
+    return sqrt(pow(this->x, 2) + pow(this->y, 2) + pow(this->z, 2));
+}

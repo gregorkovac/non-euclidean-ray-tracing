@@ -1,11 +1,10 @@
 #include "../include/Misc.h"
 
 int sign(float x) {
-    if (x > 0) {
+    if (x > 0)
         return 1;
-    } else if (x < 0) {
+    else if (x < 0)
         return -1;
-    } else {
+    else
         return 0;
-    }
 }

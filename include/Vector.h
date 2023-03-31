@@ -22,6 +22,7 @@ class Vector {
         Vector operator/(float s);
         char* toString();
         float distance(Vector v);
+        float norm();
 };
 
 #endif
