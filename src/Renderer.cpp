@@ -142,7 +142,7 @@ void Renderer::render(unsigned char *dataBuffer)
             Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
             Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
 
-            Color color = trace(ray, camera->position(), 0);
+            Color color = trace(ray, imagePlaneCenter, 0);
 
             data[(y * IMAGE_PLANE_WIDTH + x) * 3] = color.r * BRIGHTNESS > 255 ? 255 : color.r * BRIGHTNESS;
             data[(y * IMAGE_PLANE_WIDTH + x) * 3 + 1] = color.g * BRIGHTNESS > 255 ? 255 : color.g * BRIGHTNESS;
@@ -329,10 +329,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
 bool Renderer::isShadowed(Vector origin, Vector light)
 {
-
     Vector ray = (light - origin).normalize3();
 
-    Vector originMoved = origin + ray;
+    Vector originMoved = origin + ray * STEP_SIZE;
 
     Vector curr = originMoved;
     Vector prev = originMoved;
@@ -341,6 +340,9 @@ bool Renderer::isShadowed(Vector origin, Vector light)
     {
         prev = curr;
         curr = originMoved + ray * (h * STEP_SIZE);
+
+        if (curr.distance(light) < EPSILON)
+            return false;
 
         for (int i = 0; i < this->numObjects; i++)
             if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0) {

@@ -15,7 +15,7 @@
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-#define MAX_ITER 300
+#define MAX_ITER 1000
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 2
 
