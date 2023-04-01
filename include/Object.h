@@ -19,12 +19,13 @@ class Object {
         Vector scale_;
         Color color_;
         ColorType colorType_;
-        float translucency_;
         float reflectivity_;
+        float translucency_;
+        float refractiveIndex_;
 
     public:
-        Object(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType);
-        Object(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity);
+        Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
+        Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
         Object(Vector position, Vector rotation, Vector scale, Color color);
         Object(Vector position, Vector rotation, Vector scale);
         Vector position();
@@ -41,7 +42,7 @@ class Object {
         virtual Vector gradient(Vector v) = 0;
         virtual Vector normal(Vector v) = 0;
         Vector newtonsMethod(Vector x0);
-        float refractiveIndex();
+        float refractiveCoefficient(Vector p);
         char* toString();
 };
 

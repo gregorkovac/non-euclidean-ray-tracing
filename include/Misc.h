@@ -12,5 +12,7 @@ enum ColorType {
 };
 
 int sign(float x);
+int min(float a, float b);
+int max(float a, float b);
 
 #endif

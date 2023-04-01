@@ -56,8 +56,9 @@ void Renderer::parseScene(char *sceneFilePath)
         Vector scale;
         Color color;
         char colorType[20];
-        float reflectivity;
         float translucency;
+        float refractiveIndex;
+        float reflectivity;
 
         sscanf(line, "%s", objectType);
 
@@ -78,18 +79,18 @@ void Renderer::parseScene(char *sceneFilePath)
         else if (strcmp(objectType, "Sphere") == 0)
         {
             
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, colorType, &color.r, &color.g, &color.b);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
 
             //printf("%s %d %d %d %f %f\n", colorType, color.r, color.g, color.b, reflectivity, translucency);
 
-            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, colorType);
+            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
             objectIndex++;
             printf(" -> Sphere\n");
         }
         else if (strcmp(objectType, "Plane") == 0)
         {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, colorType, &color.r, &color.g, &color.b);
-            this->objects[objectIndex] = new Plane(position, rotation, scale, color, reflectivity, translucency, colorType);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Plane(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
 
             objectIndex++;
             printf(" -> Plane\n");
@@ -266,53 +267,84 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             {
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
                 Color c = objects[i]->color(intersection);
+                //Color c = {0,0,0};
 
                 Color reflectionColor = {0,0,0}, refractionColor = {0,0,0};
 
                 float reflectivity = objects[i]->reflectivity();
                 float translucency = objects[i]->translucency();
 
-                Vector inRay = (origin - intersection).normalize3();
+                Vector inRay = (intersection - origin).normalize3();
+                Vector normal = objects[i]->normal(intersection);
 
-                // Phong - specular and diffuse
+                // TODO: Phong - specular and diffuse
 
                 if (reflectivity > 0)
                 {
-                    Vector reflectionRay = inRay - objects[i]->normal(intersection) * 2 * (objects[i]->normal(intersection) * inRay);
+                    Vector reflectionRay = inRay - normal * 2 * (normal * inRay);
 
-                    reflectionColor = trace(reflectionRay, intersection + reflectionRay, depth + 1);
+                    reflectionColor = trace(reflectionRay, intersection + reflectionRay * STEP_SIZE, depth + 1);
                 }
 
                 if (translucency > 0)
                 {
-                    Vector refractionRay = objects[i]->normal(intersection) * sqrt(1 - pow(objects[i]->refractiveIndex(), 2) * (1 - pow(objects[i]->normal(intersection) * inRay, 2)));
+                    //Vector refractionRay = objects[i]->normal(intersection) * sqrt(1 - pow(objects[i]->refractiveIndex(), 2) * (1 - pow(objects[i]->normal(intersection) * inRay, 2)));
+                    Vector refractionRay = normal * sqrt(1 - objects[i]->refractiveCoefficient(curr) * (1 - pow(normal * inRay, 2)));
+                    //refractionRay = refractionRay.normalize3();
 
-                    refractionColor = trace(refractionRay, intersection + refractionRay, depth + 1);
+                    refractionColor = trace(refractionRay, intersection + refractionRay * STEP_SIZE, depth + 1);
                 }
 
-                c.r = c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
-                c.g = c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
-                c.b = c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
+                //float colorFactor = reflectivity == 0 && translucency == 0 ? 1 : min(1.0, reflectivity + translucency);
+
+                /* PHONG:
+                c = c_a * k_a + sum ( c_i * (k_d * (l_i * n) + k_s * (R_i * e) ^ p ))
+                c_i ... jakost luči
+                l_i ... vektor proti luči
+                k_d ... diffuse factor
+                k_s ... specular factor
+                R_i ... idealni odboj, R = 2 * (l * n) * n - l
+                e ... vektor proti kameri 
+                p ... parameter zrcalnega odboja
+                */
+
+                c.r = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.r + c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
+                c.g = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.g + c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
+                c.b = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.b + c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
 
                 for (int j = 0; j < this->numLights; j++)
                 {
-                    if (isShadowed(intersection, lights[j]->position()))
+                    if (!isShadowed(intersection, lights[j]->position()))
                     {
-                        c.r = c.r * 0.2;
-                        c.g = c.g * 0.2;
-                        c.b = c.b * 0.2;
-                    }
-                    else
-                    {
-                        float distToLight = intersection.normalize3().distance(lights[j]->position());
+                        //float distToLight = intersection.normalize3().distance(lights[j]->position());
+                        float distToLight = intersection.distance(lights[j]->position());
 
                         distToLight *= distToLight;
+
+                        // float k_d = 0.5;
+                        // float k_s = 0.5;
+                        // Vector l = (lights[j]->position() - intersection).normalize3();
+                        // Vector R = normal * 2 * (l * normal) - l;
+                        // Vector e = (origin - intersection).normalize3();
+                        // float p = 1;
+
+                        //c.r += lights[j]->color(intersection).r * (objects[i]->color(intersection).r * k_d * (l * normal) + objects[i]->color(intersection).r * k_s * pow((R * e), p));
+                        //c.g += lights[j]->color(intersection).g * (objects[i]->color(intersection).g * k_d * (l * normal) + objects[i]->color(intersection).g * k_s * pow((R * e), p));
+                        //c.b += lights[j]->color(intersection).b * (objects[i]->color(intersection).b * k_d * (l * normal) + objects[i]->color(intersection).b * k_s * pow((R * e), p));
 
                         // TODO: light color
 
                         c.r /= distToLight;
                         c.g /= distToLight;
                         c.b /= distToLight;
+
+                        // c.r += 0.05 * lights[j]->color(intersection).r;
+                        // c.g += 0.05 * lights[j]->color(intersection).g;
+                        // c.b += 0.05 * lights[j]->color(intersection).b;
+                    } else {
+                        c.r *= 0.05;
+                        c.g *= 0.05;
+                        c.b *= 0.05;
                     }
                 }
 

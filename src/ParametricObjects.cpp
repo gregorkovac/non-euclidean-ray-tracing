@@ -1,10 +1,10 @@
 #include "../include/ParametricObjects.h"
 
-Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) : Object(position, rotation, scale, color, translucency, reflectivity, colorType) {
+Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
     this->radius = radius;
 }
 
-Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
+Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex) {
     this->radius = radius;
 }
 
@@ -24,11 +24,11 @@ Vector Sphere::normal(Vector v) {
     return Vector(v.x - this->position_.x, v.y - this->position_.y, v.z - this->position_.z);
 }
 
-Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) : Object(position, rotation, scale, color, translucency, reflectivity, colorType) {
+Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
 }
 
-Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) : Object(position, rotation, scale, color, translucency, reflectivity) {
+Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
 }
 

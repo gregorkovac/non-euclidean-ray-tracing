@@ -9,8 +9,8 @@ class Sphere : public Object {
 
     public:
         Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color);
-        Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity);
-        Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType);
+        Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
+        Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
         bool intersect(Vector a, Vector b);
         float equation(Vector v);
         Vector gradient(Vector v);
@@ -23,8 +23,8 @@ class Plane : public Object {
 
     public:
         Plane(Vector position, Vector rotation, Vector scale, Color color);
-        Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity);
-        Plane(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType);
+        Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
+        Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
         bool intersect(Vector a, Vector b);
         float equation(Vector v);
         Vector gradient(Vector v);

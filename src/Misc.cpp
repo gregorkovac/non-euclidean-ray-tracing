@@ -8,3 +8,15 @@ int sign(float x) {
     else
         return 0;
 }
+
+int min(float a, float b) {
+    if (a < b)
+        return a;
+    return b; 
+}
+
+int max(float a, float b) {
+    if (a < b)
+        return b;
+    return a;
+}

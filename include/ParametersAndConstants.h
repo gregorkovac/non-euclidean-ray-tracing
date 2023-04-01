@@ -17,17 +17,21 @@
 // Ray tracing parameters
 #define MAX_ITER 1000
 #define STEP_SIZE 0.01
-#define MAX_DEPTH 2
+#define MAX_DEPTH 4
 
 // Newton's method parameters
 #define EPSILON 0.01
 
 // Light and color parameters
-#define BRIGHTNESS 1
+#define BRIGHTNESS 2
+#define AMBIENT_LIGHT_INTENSITY 0.2
+const Color AMBIENT_LIGHT_COLOR = {255, 255, 255};
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
 const Color SKY_COLOR = {255, 255, 255};
 const Color MISSING_COLOR = {250, 70, 250};
+
+#define AIR_REFRACTIVE_INDEX 1
 
 // Debug parameters
 #define DRAW_GIZMOS false

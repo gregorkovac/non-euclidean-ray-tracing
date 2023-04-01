@@ -1,6 +1,6 @@
 #include "../include/Object.h"
 
-Object::Object(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity, char* colorType) {
+Object::Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) {
     this->position_ = position;
     this->rotation_ = rotation;
     this->scale_ = scale;
@@ -13,6 +13,8 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
     if (reflectivity > 1) this->reflectivity_ = 1;
     else if (reflectivity < 0) this->reflectivity_ = 0;
     else this->reflectivity_ = reflectivity;
+
+    this->refractiveIndex_ = refractiveIndex;
 
     if (strcmp(colorType, "solid") == 0) this->colorType_ = COLOR_TYPE_SOLID;
     else if (strcmp(colorType, "gradient") == 0) this->colorType_ = COLOR_TYPE_GRADIENT;
@@ -20,7 +22,7 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
     else this->colorType_ = COLOR_TYPE_SOLID;
 }
 
-Object::Object(Vector position, Vector rotation, Vector scale, Color color, float translucency, float reflectivity) {
+Object::Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) {
     this->position_ = position;
     this->rotation_ = rotation;
     this->scale_ = scale;
@@ -33,6 +35,8 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
     if (reflectivity > 1) this->reflectivity_ = 1;
     else if (reflectivity < 0) this->reflectivity_ = 0;
     else this->reflectivity_ = reflectivity;
+
+    this->refractiveIndex_ = refractiveIndex;
 }
 
 Object::Object(Vector position, Vector rotation, Vector scale, Color color) {
@@ -42,6 +46,7 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color) {
     this->color_ = color;
     this->translucency_ = 0;
     this->reflectivity_ = 0;
+    this->refractiveIndex_ = 1;
 }
 
 Object::Object(Vector position, Vector rotation, Vector scale) {
@@ -51,6 +56,7 @@ Object::Object(Vector position, Vector rotation, Vector scale) {
     this->color_ = DEFAULT_OBJECT_COLOR;
     this->translucency_ = 0;
     this->reflectivity_ = 0;
+    this->refractiveIndex_ = 1;
 }
 
 Vector Object::position() {
@@ -140,8 +146,11 @@ Vector Object::newtonsMethod(Vector x0) {
     return x0;
 }
 
-float Object::refractiveIndex() {
-    return 1;
+float Object::refractiveCoefficient(Vector p) { 
+    if (this->equation(p) < 0)
+        return pow(AIR_REFRACTIVE_INDEX, 2) / pow(this->refractiveIndex_, 2);
+    else
+        return pow(this->refractiveIndex_, 2) / pow(AIR_REFRACTIVE_INDEX, 2);
 }
 
 bool Object::intersect(Vector a, Vector b) {
