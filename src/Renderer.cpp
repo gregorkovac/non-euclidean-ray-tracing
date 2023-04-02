@@ -64,8 +64,8 @@ void Renderer::parseScene(char *sceneFilePath)
 
         if (strcmp(objectType, "Light") == 0)
         {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &color.r, &color.g, &color.b);
-            this->lights[lightIndex] = new Sphere(1, position, rotation, scale, color);
+            sscanf(line, "%s (%f %f %f) (%d %d %d)", objectType, &position.x, &position.y, &position.z, &color.r, &color.g, &color.b);
+            this->lights[lightIndex] = new Sphere(1, position, Vector(0, 0, 0), Vector(1, 1, 1), color);
             lightIndex++;
             printf(" -> Light\n");
         }
@@ -78,10 +78,17 @@ void Renderer::parseScene(char *sceneFilePath)
         }
         else if (strcmp(objectType, "Sphere") == 0)
         {
-            
             sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
 
-            //printf("%s %d %d %d %f %f\n", colorType, color.r, color.g, color.b, reflectivity, translucency);
+            if (scale.x != scale.y || scale.x != scale.z || scale.y != scale.z)
+            {
+                printf("\033[0;31m");
+                printf("\nERROR: Sphere scale must be equal in all dimensions\n");
+                printf("\033[0m");
+                exit(1);
+            }
+
+            // printf("%s %d %d %d %f %f\n", colorType, color.r, color.g, color.b, reflectivity, translucency);
 
             this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
             objectIndex++;
@@ -111,10 +118,10 @@ void Renderer::parseScene(char *sceneFilePath)
         exit(1);
     }
 
-    if (this->numLights == 0)
+    if (this->numLights == 0 && !USE_DIRECTIONAL_LIGHT)
     {
         printf("\033[0;31m");
-        printf("\nERROR: No lights found in scene file %s\n", sceneFilePath);
+        printf("\nERROR: Directional light is disabled and no lights found in scene file %s\n", sceneFilePath);
         printf("\033[0m");
         exit(1);
     }
@@ -124,12 +131,13 @@ void Renderer::parseScene(char *sceneFilePath)
 
 void Renderer::render(unsigned char *dataBuffer)
 {
-    if (PRINT_OBJECTS_ON_STARTUP) {
+    if (PRINT_OBJECTS_ON_STARTUP)
+    {
         printf("\nObjects:\n");
-        for (int i = 0; i < numObjects; i++) {
+        for (int i = 0; i < numObjects; i++)
+        {
             printf(" -> %s\n\n\n", objects[i]->toString());
         }
-
     }
 
     unsigned char data[IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT * 3];
@@ -155,11 +163,13 @@ void Renderer::render(unsigned char *dataBuffer)
 
             printf("\r -> Rendered pixel %d/%d (%d%%) ", numRendered, numTotal, numPercent);
 
-            for (int i = 0; i < numPercent / 2; i++) {
+            for (int i = 0; i < numPercent / 2; i++)
+            {
                 printf("■");
             }
 
-            for (int i = 0; i < 50 - numPercent / 2; i++) {
+            for (int i = 0; i < 50 - numPercent / 2; i++)
+            {
                 printf("-");
             }
 
@@ -247,29 +257,36 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     Vector curr = origin;
     Vector prev = origin;
 
-    //ray = ray.normalize3();
+    // ray = ray.normalize3();
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
         prev = curr;
         curr = origin + ray * h * STEP_SIZE;
 
-        //printf("%s %s\n", prev.toString(), curr.toString());
+        // printf("%s %s\n", prev.toString(), curr.toString());
 
         for (int i = 0; i < this->numObjects; i++)
         {
-            //if (ray == Vector(0.99, -1, 1)) {
-            //    printf("%s %s\n", prev.toString(), curr.toString());
-            //    printf("%f %f\n\n", objects[i]->equation(prev), objects[i]->equation(curr));
-            //}
+            // if (ray == Vector(0.99, -1, 1)) {
+            //     printf("%s %s\n", prev.toString(), curr.toString());
+            //     printf("%f %f\n\n", objects[i]->equation(prev), objects[i]->equation(curr));
+            // }
 
             if (objects[i]->intersect(prev, curr))
             {
-                Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
-                Color c = objects[i]->color(intersection);
-                //Color c = {0,0,0};
 
-                Color reflectionColor = {0,0,0}, refractionColor = {0,0,0};
+                Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
+                //Color c = objects[i]->color(intersection);
+                // Color c = {0,0,0};
+
+                Color c = {
+                    AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
+                    AMBIENT_LIGHT_COLOR.g * AMBIENT_LIGHT_INTENSITY,
+                    AMBIENT_LIGHT_COLOR.b * AMBIENT_LIGHT_INTENSITY
+                };
+                Color objectColor = objects[i]->color(intersection);
+                Color reflectionColor = {0, 0, 0}, refractionColor = {0, 0, 0};
 
                 float reflectivity = objects[i]->reflectivity();
                 float translucency = objects[i]->translucency();
@@ -281,21 +298,38 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                 if (reflectivity > 0)
                 {
-                    Vector reflectionRay = inRay - normal * 2 * (normal * inRay);
+                    Vector reflectionRay = inRay - 2 * normal * (normal * inRay);
 
                     reflectionColor = trace(reflectionRay, intersection + reflectionRay * STEP_SIZE, depth + 1);
+
+                    c.r += reflectivity * reflectionColor.r;
+                    c.g += reflectivity * reflectionColor.g;
+                    c.b += reflectivity * reflectionColor.b;
                 }
 
                 if (translucency > 0)
                 {
-                    //Vector refractionRay = objects[i]->normal(intersection) * sqrt(1 - pow(objects[i]->refractiveIndex(), 2) * (1 - pow(objects[i]->normal(intersection) * inRay, 2)));
-                    Vector refractionRay = normal * sqrt(1 - objects[i]->refractiveCoefficient(curr) * (1 - pow(normal * inRay, 2)));
-                    //refractionRay = refractionRay.normalize3();
 
+                    // Vector refractionRay = objects[i]->refractiveCoefficient(curr) * (inRay - normal * (normal * inRay)) - normal * sqrt(1 - pow(objects[i]->refractiveCoefficient(curr), 2) * (1 - pow(normal * inRay, 2)));
+
+                    float inAngle = acos(-(inRay * normal));
+                    float outAngle = asin(objects[i]->refractiveCoefficient(curr) * sin(inAngle));
+                    Matrix rotation = Matrix::rotation(Vector(outAngle - inAngle, outAngle - inAngle, outAngle - inAngle));
+                    Vector refractionRay = rotation * inRay;
+
+                    // printf("it=%d obj_i=%d coef=%f vec=%s\n", depth, i, objects[i]->refractiveCoefficient(curr), refractionRay.toString());
+
+                    // printf("I:%s\nR:%s\n\n", inRay.toString(), refractionRay.toString());
+
+                    // refractionRay = refractionRay.normalize3();
                     refractionColor = trace(refractionRay, intersection + refractionRay * STEP_SIZE, depth + 1);
+
+                    c.r += translucency * refractionColor.r;
+                    c.g += translucency * refractionColor.g;
+                    c.b += translucency * refractionColor.b;
                 }
 
-                //float colorFactor = reflectivity == 0 && translucency == 0 ? 1 : min(1.0, reflectivity + translucency);
+                // float colorFactor = reflectivity == 0 && translucency == 0 ? 1 : min(1.0, reflectivity + translucency);
 
                 /* PHONG:
                 c = c_a * k_a + sum ( c_i * (k_d * (l_i * n) + k_s * (R_i * e) ^ p ))
@@ -304,19 +338,19 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                 k_d ... diffuse factor
                 k_s ... specular factor
                 R_i ... idealni odboj, R = 2 * (l * n) * n - l
-                e ... vektor proti kameri 
+                e ... vektor proti kameri
                 p ... parameter zrcalnega odboja
                 */
 
-                c.r = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.r + c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
-                c.g = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.g + c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
-                c.b = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.b + c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
+                //c.r = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.r + (1 - reflectivity) * (1 - translucency) * c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
+                //c.g = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.g + (1 - reflectivity) * (1 - translucency) * c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
+                //c.b = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.b + (1 - reflectivity) * (1 - translucency) * c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
 
                 for (int j = 0; j < this->numLights; j++)
                 {
                     if (!isShadowed(intersection, lights[j]->position()))
                     {
-                        //float distToLight = intersection.normalize3().distance(lights[j]->position());
+                        // float distToLight = intersection.normalize3().distance(lights[j]->position());
                         float distToLight = intersection.distance(lights[j]->position());
 
                         distToLight *= distToLight;
@@ -328,29 +362,51 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                         // Vector e = (origin - intersection).normalize3();
                         // float p = 1;
 
-                        //c.r += lights[j]->color(intersection).r * (objects[i]->color(intersection).r * k_d * (l * normal) + objects[i]->color(intersection).r * k_s * pow((R * e), p));
-                        //c.g += lights[j]->color(intersection).g * (objects[i]->color(intersection).g * k_d * (l * normal) + objects[i]->color(intersection).g * k_s * pow((R * e), p));
-                        //c.b += lights[j]->color(intersection).b * (objects[i]->color(intersection).b * k_d * (l * normal) + objects[i]->color(intersection).b * k_s * pow((R * e), p));
+                        // c.r += lights[j]->color(intersection).r * (objects[i]->color(intersection).r * k_d * (l * normal) + objects[i]->color(intersection).r * k_s * pow((R * e), p));
+                        // c.g += lights[j]->color(intersection).g * (objects[i]->color(intersection).g * k_d * (l * normal) + objects[i]->color(intersection).g * k_s * pow((R * e), p));
+                        // c.b += lights[j]->color(intersection).b * (objects[i]->color(intersection).b * k_d * (l * normal) + objects[i]->color(intersection).b * k_s * pow((R * e), p));
 
                         // TODO: light color
 
-                        c.r /= distToLight;
-                        c.g /= distToLight;
-                        c.b /= distToLight;
+                        // objectColor.r /= distToLight;
+                        // objectColor.g /= distToLight;
+                        // objectColor.b /= distToLight;
+
+                        c.r += lights[j]->color().r/255.0 * objectColor.r / distToLight;
+                        c.g += lights[j]->color().g/255.0 * objectColor.g / distToLight;
+                        c.b += lights[j]->color().b/255.0 * objectColor.b / distToLight;
+
+                        //printf("%d %d %d\n", lights[j]->color().r, lights[j]->color().g, lights[j]->color().b);
 
                         // c.r += 0.05 * lights[j]->color(intersection).r;
                         // c.g += 0.05 * lights[j]->color(intersection).g;
                         // c.b += 0.05 * lights[j]->color(intersection).b;
-                    } else {
-                        c.r *= 0.05;
-                        c.g *= 0.05;
-                        c.b *= 0.05;
                     }
+                    else
+                    {
+                        // objectColor.r *= 0.05;
+                        // objectColor.g *= 0.05;
+                        // objectColor.b *= 0.05;
+                    }
+                }
+
+                // Directional light
+                Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
+
+                if (!isShadowed(intersection, directionalLight)) {
+                    c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r/255.0 * objectColor.r;
+                    c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g/255.0 * objectColor.g;
+                    c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b/255.0 * objectColor.b;
                 }
 
                 // if (depth > 1) {
                 //     printf("%d (%d %d %d)\n", i, c.r, c.g, c.b);
                 // }
+
+                //c.r += objectColor.r;
+                //c.g += objectColor.g;
+                //c.b += objectColor.b;
+
                 return c;
             }
         }
@@ -377,8 +433,9 @@ bool Renderer::isShadowed(Vector origin, Vector light)
             return false;
 
         for (int i = 0; i < this->numObjects; i++)
-            if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0) {
-                //printf("%s\n\n", objects[i]->toString());
+            if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0)
+            {
+                // printf("%s\n\n", objects[i]->toString());
                 return true;
             }
     }

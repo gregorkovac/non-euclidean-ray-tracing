@@ -118,6 +118,10 @@ Color Object::color(Vector p) {
     return MISSING_COLOR;
 }
 
+Color Object::color() {
+    return this->color_;
+}
+
 float Object::translucency() {
     return this->translucency_;
 }
@@ -147,14 +151,15 @@ Vector Object::newtonsMethod(Vector x0) {
 }
 
 float Object::refractiveCoefficient(Vector p) { 
-    if (this->equation(p) < 0)
-        return pow(AIR_REFRACTIVE_INDEX, 2) / pow(this->refractiveIndex_, 2);
-    else
-        return pow(this->refractiveIndex_, 2) / pow(AIR_REFRACTIVE_INDEX, 2);
+    if (this->equation(p) < 0) {
+        return AIR_REFRACTIVE_INDEX / this->refractiveIndex_;
+    }
+    
+    return this->refractiveIndex_ / AIR_REFRACTIVE_INDEX;
 }
 
 bool Object::intersect(Vector a, Vector b) {
-    if (sign(this->equation(a)) != sign(this->equation(b)))
+    if (sign(this->equation(a)) != sign(this->equation(b))) 
         return true;
 
     return false;
@@ -176,4 +181,8 @@ char* Object::toString() {
     );
 
     return buffer;
+}
+
+char* Object::type() {
+    return this->type_;
 }

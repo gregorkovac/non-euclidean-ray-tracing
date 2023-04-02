@@ -26,4 +26,6 @@ class Vector {
         float norm();
 };
 
+Vector operator*(float f, Vector v);
+
 #endif

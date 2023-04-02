@@ -2,6 +2,7 @@
 #define PARAMETERSANDCONSTANTS_H
 
 #include "Misc.h"
+#include "Vector.h"
 
 // Window parameters
 #define WINDOW_WIDTH 400
@@ -17,15 +18,22 @@
 // Ray tracing parameters
 #define MAX_ITER 1000
 #define STEP_SIZE 0.01
-#define MAX_DEPTH 4
+#define MAX_DEPTH 10
 
 // Newton's method parameters
 #define EPSILON 0.01
 
 // Light and color parameters
-#define BRIGHTNESS 2
-#define AMBIENT_LIGHT_INTENSITY 0.2
+#define BRIGHTNESS 1
+#define AMBIENT_LIGHT_INTENSITY 0.1
 const Color AMBIENT_LIGHT_COLOR = {255, 255, 255};
+
+#define USE_DIRECTIONAL_LIGHT true
+const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
+#define DIRECTIONAL_LIGHT_INTENSITY 0.1
+#define DIRECTIONAL_LIGHT_DIRECTION_X -1
+#define DIRECTIONAL_LIGHT_DIRECTION_Y -1
+#define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
 const Color SKY_COLOR = {255, 255, 255};

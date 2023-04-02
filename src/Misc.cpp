@@ -20,3 +20,7 @@ int max(float a, float b) {
         return b;
     return a;
 }
+
+bool operator==(Color a, Color b) {
+    return a.r == b.r && a.g == b.g && a.b == b.b;
+}

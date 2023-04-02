@@ -14,6 +14,7 @@
 
 class Object {
     protected:
+        char type_[20];
         Vector position_;
         Vector rotation_;
         Vector scale_;
@@ -35,6 +36,7 @@ class Object {
         Vector right();
         Vector up();
         Color color(Vector p);
+        Color color();
         float translucency();
         float reflectivity();
         bool intersect(Vector a, Vector b);
@@ -44,6 +46,7 @@ class Object {
         Vector newtonsMethod(Vector x0);
         float refractiveCoefficient(Vector p);
         char* toString();
+        char* type();
 };
 
 #endif

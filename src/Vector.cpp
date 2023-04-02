@@ -50,6 +50,10 @@ float Vector::operator*(Vector v) {
     return this->x * v.x + this->y * v.y + this->z * v.z;
 }
 
+Vector operator*(float f, Vector v) {
+    return Vector(v.x * f, v.y * f, v.z * f);
+}
+
 Vector Vector::normalize() {
     float x = this->x / this->w;
     float y = this->y / this->w;

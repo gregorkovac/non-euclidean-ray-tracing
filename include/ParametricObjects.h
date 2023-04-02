@@ -15,6 +15,7 @@ class Sphere : public Object {
         float equation(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
+        bool inSphere(Vector v);
 };
 
 class Plane : public Object {

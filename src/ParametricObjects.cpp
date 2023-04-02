@@ -2,14 +2,17 @@
 
 Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
     this->radius = radius;
+    strcpy(this->type_, "Sphere");
 }
 
 Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex) {
     this->radius = radius;
+    strcpy(this->type_, "Sphere");
 }
 
 Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color) {
     this->radius = radius;
+    strcpy(this->type_, "Sphere");
 }
 
 float Sphere::equation(Vector v) {
@@ -24,16 +27,25 @@ Vector Sphere::normal(Vector v) {
     return Vector(v.x - this->position_.x, v.y - this->position_.y, v.z - this->position_.z);
 }
 
+bool Sphere::inSphere(Vector v) {
+    if (v.distance(this->position_) <= this->radius * this->scale_.x)
+        return true;
+    return false;
+}
+
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
+    strcpy(this->type_, "Plane");
 }
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
+    strcpy(this->type_, "Plane");
 }
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color) {
     this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
+    strcpy(this->type_, "Plane");
 }
 
 float Plane::equation(Vector v) {
