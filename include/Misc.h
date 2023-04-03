@@ -1,6 +1,11 @@
 #ifndef MISC_H
 #define MISC_H
 
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 struct Color {
     unsigned short r, g, b;
 };
@@ -14,6 +19,7 @@ enum ColorType {
 int sign(float x);
 int min(float a, float b);
 int max(float a, float b);
+float randomBetween(float a, float b);
 
 bool operator==(Color a, Color b);
 

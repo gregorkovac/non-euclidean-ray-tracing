@@ -39,7 +39,7 @@ void Renderer::parseScene(char *sceneFilePath)
     }
 
     this->objects = new Object *[numObjects];
-    this->lights = new Sphere *[numLights];
+    this->lights = new Light *[numLights];
 
     rewind(file);
 
@@ -59,13 +59,15 @@ void Renderer::parseScene(char *sceneFilePath)
         float translucency;
         float refractiveIndex;
         float reflectivity;
+        float intensity;
+        float innerRadius, outerRadius;
 
         sscanf(line, "%s", objectType);
 
         if (strcmp(objectType, "Light") == 0)
         {
-            sscanf(line, "%s (%f %f %f) (%d %d %d)", objectType, &position.x, &position.y, &position.z, &color.r, &color.g, &color.b);
-            this->lights[lightIndex] = new Sphere(1, position, Vector(0, 0, 0), Vector(1, 1, 1), color);
+            sscanf(line, "%s (%f %f %f) (%d %d %d) %f", objectType, &position.x, &position.y, &position.z, &color.r, &color.g, &color.b, &intensity);
+            this->lights[lightIndex] = new Light(position, color, intensity);
             lightIndex++;
             printf(" -> Light\n");
         }
@@ -102,6 +104,14 @@ void Renderer::parseScene(char *sceneFilePath)
             objectIndex++;
             printf(" -> Plane\n");
         }
+        else if (strcmp(objectType, "Torus") == 0) {
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &innerRadius, &outerRadius, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Torus(outerRadius, innerRadius, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+
+            objectIndex++;
+            printf(" -> Torus\n");
+        }
+
         else
         {
             printf(" -> Unknown object type: %s; skipping\n", objectType);
@@ -127,7 +137,7 @@ void Renderer::parseScene(char *sceneFilePath)
     }
 }
 
-// TODO: Multiple rays per each pixel for soft edges
+// TODO: Multiple shadow rays under different angles
 
 void Renderer::render(unsigned char *dataBuffer)
 {
@@ -148,10 +158,25 @@ void Renderer::render(unsigned char *dataBuffer)
     {
         for (int x = 0; x < IMAGE_PLANE_WIDTH; x++)
         {
-            Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
-            Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
+            Color color = {0, 0, 0};
+            for (int k = 0; k < RAYS_PER_PIXEL; k++) {
+                Vector offset = Vector(randomBetween(-PIXEL_SIZE/2, PIXEL_SIZE/2), randomBetween(-PIXEL_SIZE/2, PIXEL_SIZE/2), 0);
 
-            Color color = trace(ray, imagePlaneCenter, 0);
+                Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
+
+                imagePlanePoint = imagePlanePoint + offset;
+
+                Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
+
+                Color c = trace(ray, imagePlaneCenter, 0);
+                color.r += c.r;
+                color.g += c.g;
+                color.b += c.b;
+            }
+
+            color.r /= RAYS_PER_PIXEL;
+            color.g /= RAYS_PER_PIXEL;
+            color.b /= RAYS_PER_PIXEL;
 
             data[(y * IMAGE_PLANE_WIDTH + x) * 3] = color.r * BRIGHTNESS > 255 ? 255 : color.r * BRIGHTNESS;
             data[(y * IMAGE_PLANE_WIDTH + x) * 3 + 1] = color.g * BRIGHTNESS > 255 ? 255 : color.g * BRIGHTNESS;
@@ -372,9 +397,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                         // objectColor.g /= distToLight;
                         // objectColor.b /= distToLight;
 
-                        c.r += lights[j]->color().r/255.0 * objectColor.r / distToLight;
-                        c.g += lights[j]->color().g/255.0 * objectColor.g / distToLight;
-                        c.b += lights[j]->color().b/255.0 * objectColor.b / distToLight;
+                        c.r += lights[j]->intensity() * lights[j]->color().r/255.0 * objectColor.r / distToLight;
+                        c.g += lights[j]->intensity() * lights[j]->color().g/255.0 * objectColor.g / distToLight;
+                        c.b += lights[j]->intensity() * lights[j]->color().b/255.0 * objectColor.b / distToLight;
 
                         //printf("%d %d %d\n", lights[j]->color().r, lights[j]->color().g, lights[j]->color().b);
 

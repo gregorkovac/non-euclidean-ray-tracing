@@ -11,7 +11,6 @@ class Sphere : public Object {
         Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color);
         Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
         Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
-        bool intersect(Vector a, Vector b);
         float equation(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
@@ -26,7 +25,20 @@ class Plane : public Object {
         Plane(Vector position, Vector rotation, Vector scale, Color color);
         Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
         Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
-        bool intersect(Vector a, Vector b);
+        float equation(Vector v);
+        Vector gradient(Vector v);
+        Vector normal(Vector v);
+};
+
+class Torus : public Object {
+    private:
+        float majorRadius;
+        float minorRadius;
+
+    public:
+        Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color);
+        Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
+        Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
         float equation(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);

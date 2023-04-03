@@ -10,6 +10,7 @@
 #include "ParametricObjects.h"
 #include "Camera.h"
 #include "ParametersAndConstants.h"
+#include "Lights.h"
 
 class Renderer {
     private:
@@ -17,7 +18,7 @@ class Renderer {
         int frameHeight;
         Camera* camera;
         Object** objects;
-        Sphere** lights;
+        Light** lights;
         int numObjects;
         int numLights;
 

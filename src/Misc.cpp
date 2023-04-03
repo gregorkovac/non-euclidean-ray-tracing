@@ -21,6 +21,11 @@ int max(float a, float b) {
     return a;
 }
 
+float randomBetween(float a, float b) {
+    int randomNumber = rand() % ((int)b - (int)a + 1);
+    return randomNumber + a;
+}
+
 bool operator==(Color a, Color b) {
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }

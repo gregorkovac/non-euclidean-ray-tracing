@@ -60,3 +60,42 @@ Vector Plane::gradient(Vector v) {
 Vector Plane::normal(Vector v) {
     return this->normal_;
 }
+
+Torus::Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
+    this->majorRadius = majorRadius;
+    this->minorRadius = minorRadius;
+    strcpy(this->type_, "Torus");
+}
+
+Torus::Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex) {
+    this->majorRadius = majorRadius;
+    this->minorRadius = minorRadius;
+    strcpy(this->type_, "Torus");
+}
+
+Torus::Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color) {
+    this->majorRadius = majorRadius;
+    this->minorRadius = minorRadius;
+    strcpy(this->type_, "Torus");
+}
+
+float Torus::equation(Vector v) {
+    return pow(this->minorRadius - sqrt(pow(v.x - this->position_.x, 2) + pow(v.y - this->position_.y, 2)), 2) + pow(v.z - this->position_.z, 2) - pow(this->majorRadius, 2);
+    //return pow(pow((v.x - this->position_.x), 2) + pow(v.y - this->position_.y, 2) + pow(v.z - this->position_.z, 2) - pow(this->majorRadius * this->scale_.x, 2), 2) - 4 * pow(this->minorRadius * this->scale_.x, 2) * (pow(v.x - this->position_.x, 2) + pow(v.z - this->position_.z, 2));
+}
+
+Vector Torus::gradient(Vector v) {
+    return Vector(
+        (v.x - this->position_.x) * (2 - (2 * this->minorRadius) / (sqrt(pow(v.x - this->position_.x, 2) + pow(v.y - this->position_.y, 2)))),
+        (v.y - this->position_.y) * (2 - (2 * this->minorRadius) / (sqrt(pow(v.x - this->position_.x, 2) + pow(v.y - this->position_.y, 2)))),
+        2 * (v.z - this->position_.z)
+    );
+}
+
+Vector Torus::normal(Vector v) {
+    return Vector(
+        (v.x - this->position_.x) * (2 - (2 * this->minorRadius) / (sqrt(pow(v.x - this->position_.x, 2) + pow(v.y - this->position_.y, 2)))),
+        (v.y - this->position_.y) * (2 - (2 * this->minorRadius) / (sqrt(pow(v.x - this->position_.x, 2) + pow(v.y - this->position_.y, 2)))),
+        2 * (v.z - this->position_.z)
+    ).normalize3();
+}

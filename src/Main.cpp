@@ -9,6 +9,8 @@ Renderer *renderer = nullptr;
 
 int main(int argc, char **argv)
 {
+    srand(time(NULL));
+
     //printf("\033[0;36m");
     printf("Setting up window...\n");
 
