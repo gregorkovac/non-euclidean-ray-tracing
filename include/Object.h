@@ -23,6 +23,7 @@ class Object {
         float reflectivity_;
         float translucency_;
         float refractiveIndex_;
+        Matrix rotationMatrix;
 
     public:
         Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);

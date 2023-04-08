@@ -60,7 +60,7 @@ void Renderer::parseScene(char *sceneFilePath)
         float refractiveIndex;
         float reflectivity;
         float intensity;
-        float innerRadius, outerRadius;
+        float paramA, paramB, paramC;
 
         sscanf(line, "%s", objectType);
 
@@ -105,11 +105,17 @@ void Renderer::parseScene(char *sceneFilePath)
             printf(" -> Plane\n");
         }
         else if (strcmp(objectType, "Torus") == 0) {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &innerRadius, &outerRadius, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
-            this->objects[objectIndex] = new Torus(outerRadius, innerRadius, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Torus(paramB, paramA, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
 
             objectIndex++;
             printf(" -> Torus\n");
+        } else if (strcmp(objectType, "Hyperboloid") == 0) {
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &paramC, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Hyperboloid(paramA, paramB, paramC, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+
+            objectIndex++;
+            printf(" -> Hyperboloid\n");
         }
 
         else

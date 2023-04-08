@@ -44,4 +44,17 @@ class Torus : public Object {
         Vector normal(Vector v);
 };
 
+class Hyperboloid : public Object {
+    private:
+        float a, b, c;
+
+    public:
+        Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color);
+        Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
+        Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
+        float equation(Vector v);
+        Vector gradient(Vector v);
+        Vector normal(Vector v);
+};
+
 #endif

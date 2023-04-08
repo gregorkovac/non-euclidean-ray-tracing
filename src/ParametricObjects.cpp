@@ -99,3 +99,53 @@ Vector Torus::normal(Vector v) {
         2 * (v.z - this->position_.z)
     ).normalize3();
 }
+
+Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color){
+    this->a = a;
+    this->b = b;
+    this->c = c;
+    this->rotationMatrix = Matrix::rotation(rotation);
+    strcpy(this->type_, "Hyperboloid");
+}
+
+Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex){
+    this->a = a;
+    this->b = b;
+    this->c = c;
+    this->rotationMatrix = Matrix::rotation(rotation);
+    strcpy(this->type_, "Hyperboloid");
+}
+
+Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
+    this->a = a;
+    this->b = b;
+    this->c = c;
+    this->rotationMatrix = Matrix::rotation(rotation);
+    strcpy(this->type_, "Hyperboloid");
+}
+
+float Hyperboloid::equation(Vector v) {
+    v = this->rotationMatrix * v;
+
+    return pow(v.x-position_.x, 2)/pow(a, 2) + pow(v.y-position_.y, 2)/pow(b, 2) - pow(v.z-position_.z, 2)/pow(c, 2);
+}
+
+Vector Hyperboloid::gradient(Vector v) {
+    v = this->rotationMatrix * v;
+
+    return Vector(
+        2*(v.x-position_.x)/pow(a, 2),
+        2*(v.y-position_.y)/pow(b, 2),
+        -2*(v.z-position_.z)/pow(c, 2)
+    );
+}
+
+Vector Hyperboloid::normal(Vector v) {
+    v = this->rotationMatrix * v;
+
+    return Vector(
+        2*(v.x-position_.x)/pow(a, 2),
+        2*(v.y-position_.y)/pow(b, 2),
+        -2*(v.z-position_.z)/pow(c, 2)
+    ).normalize3();
+}

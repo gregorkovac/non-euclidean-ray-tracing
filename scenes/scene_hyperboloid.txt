@@ -1,0 +1,12 @@
+# SCENE FILE FORMAT:
+# Camera (Tx Ty Tz) (Rx Ry Rz)
+# Light (Tx Ty Tz) (Cx Cy Cz)
+# Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveIndex color_type (Cx Cy Cz)
+
+Camera (0 0 0) (0 0 0)
+Hyperboloid (0 1 2) (-1.57 0 0) (1 1 1) 2 2 1 0 0 1 solid (255 0 0)
+Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 checkerboard (200 0 255)
+Plane (0 0 6) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard (0 200 255)
+Plane (0 0 -0.1) (-1.8 0 0) (1 1 1) 0 0 1 solid (200 255 0)
+Light (0 0 0) (255 255 255) 2.0
+#Light (-1 1 1) (255 255 255) 1.0
