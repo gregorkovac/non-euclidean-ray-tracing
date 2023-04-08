@@ -11,12 +11,12 @@
 // Camera parameters
 #define IMAGE_PLANE_WIDTH 200
 #define IMAGE_PLANE_HEIGHT 200
-#define FOCAL_LENGTH 0.5
+#define FOCAL_LENGTH 1
 #define PIXEL_SIZE 0.02
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-#define MAX_ITER 2000
+#define MAX_ITER 700
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 4
 #define RAYS_PER_PIXEL 1

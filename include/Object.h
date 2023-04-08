@@ -24,6 +24,8 @@ class Object {
         float translucency_;
         float refractiveIndex_;
         Matrix rotationMatrix;
+        int textureWidth, textureHeight, textureChannels;
+        Color* textureData;
 
     public:
         Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);

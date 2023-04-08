@@ -1,5 +1,8 @@
 #include "../include/Object.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "../include/stb_image.h"
+
 Object::Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) {
     this->position_ = position;
     this->rotation_ = rotation;
@@ -19,6 +22,19 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
     if (strcmp(colorType, "solid") == 0) this->colorType_ = COLOR_TYPE_SOLID;
     else if (strcmp(colorType, "gradient") == 0) this->colorType_ = COLOR_TYPE_GRADIENT;
     else if (strcmp(colorType, "checkerboard") == 0) this->colorType_ = COLOR_TYPE_CHECKERBOARD;
+    else if (strcmp(colorType, "texture") == 0) {
+        this->colorType_ = COLOR_TYPE_TEXTURE;
+        
+        unsigned char* imageData = stbi_load("textures/tiles2.jpg", &this->textureWidth, &this->textureHeight, &this->textureChannels, 0);
+
+        this->textureData = new Color[this->textureWidth * this->textureHeight];
+
+        for (int i = 0; i < this->textureWidth * this->textureHeight; i++) {
+            this->textureData[i].r = imageData[i * 3];
+            this->textureData[i].g = imageData[i * 3 + 1];
+            this->textureData[i].b = imageData[i * 3 + 2];
+        }
+    }
     else this->colorType_ = COLOR_TYPE_SOLID;
 }
 
@@ -88,13 +104,26 @@ Color Object::color(Vector p) {
     switch (colorType_) {
         case COLOR_TYPE_SOLID:
             return this->color_;
-        case COLOR_TYPE_GRADIENT:
+        case COLOR_TYPE_GRADIENT: 
             return {
                 (unsigned short) (this->color_.r * (1 - p.z) + 255 * p.z),
                 (unsigned short) (this->color_.g * (1 - p.z) + 255 * p.z),
                 (unsigned short) (this->color_.b * (1 - p.z) + 255 * p.z)
             };
+        case COLOR_TYPE_TEXTURE:
+        {
+            int u = (int)((this->position_.x - p.x) * 1000) % this->textureWidth;
+            int v = (int)((this->position_.y - p.y) * 1000) % this->textureHeight;
+
+
+            if (u < 0) u += this->textureWidth;
+            if (v < 0) v += this->textureHeight;
+
+            return this->textureData[u + v * this->textureWidth];
+        }
+
         case COLOR_TYPE_CHECKERBOARD:
+        {
             // Map the point to plane 2d space
             float u = this->position_.x - p.x;
             float v = this->position_.y - p.y;
@@ -113,6 +142,7 @@ Color Object::color(Vector p) {
                     (unsigned short) (this->color_.b * 0.5)
                 };
             }
+        }
     }
 
     return MISSING_COLOR;

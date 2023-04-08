@@ -13,7 +13,8 @@ struct Color {
 enum ColorType {
     COLOR_TYPE_SOLID,
     COLOR_TYPE_GRADIENT,
-    COLOR_TYPE_CHECKERBOARD
+    COLOR_TYPE_CHECKERBOARD,
+    COLOR_TYPE_TEXTURE
 };
 
 int sign(float x);
