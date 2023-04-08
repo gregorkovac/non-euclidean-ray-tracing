@@ -29,3 +29,7 @@ float randomBetween(float a, float b) {
 bool operator==(Color a, Color b) {
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
+
+bool operator!=(Color a, Color b) {
+    return a.r != b.r || a.g != b.g || a.b != b.b;
+}

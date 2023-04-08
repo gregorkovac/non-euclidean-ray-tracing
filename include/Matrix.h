@@ -18,6 +18,7 @@ class Matrix {
         Matrix operator+(Matrix m);
         Matrix operator-(Matrix m);
         Matrix transpose();
+        Matrix inverse();
 
         static Matrix identity();
         static Matrix translation(Vector v);

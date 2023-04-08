@@ -2,6 +2,7 @@
 
 Light::Light(Vector position, Color color, float intensity) : Sphere(0, position, Vector(0,0,0), Vector(1,1,1), color) {
     this->intensity_ = intensity;
+    this->shade_ = false;
 }
 
 float Light::intensity() {

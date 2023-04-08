@@ -130,7 +130,7 @@ float Object::reflectivity() {
     return this->reflectivity_;
 }
 
-Vector Object::newtonsMethod(Vector x0) {
+Vector Object::gaussNewtonsMethod(Vector x0) {
     int i = 0;
 
     do {
@@ -185,4 +185,12 @@ char* Object::toString() {
 
 char* Object::type() {
     return this->type_;
+}
+
+bool Object::shade() {
+    return this->shade_;
+}
+
+bool Object::isEquationParametric() {
+    return this->isEquationParametric_;
 }

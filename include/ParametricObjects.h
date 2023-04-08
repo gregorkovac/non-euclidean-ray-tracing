@@ -42,6 +42,19 @@ class Torus : public Object {
         float equation(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
+        float x(float u, float v);
+        float y(float u, float v);
+        float z(float u, float v);
+        float xPartialU(float u, float v);
+        float yPartialU(float u, float v);
+        float zPartialU(float u, float v);
+        float xPartialV(float u, float v);
+        float yPartialV(float u, float v);
+        float zPartialV(float u, float v);
+        Vector F(float u, float v, float t, Vector U, Vector V);
+        Matrix JF(float u, float v, float t, Vector U, Vector V);
+        Vector solveParametric(Vector rayOrigin, Vector rayDirection, float rayStep);
+        Vector newtonsMethod(Vector x0, Vector U, Vector V);
 };
 
 #endif

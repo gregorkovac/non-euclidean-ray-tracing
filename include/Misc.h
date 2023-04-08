@@ -22,5 +22,6 @@ int max(float a, float b);
 float randomBetween(float a, float b);
 
 bool operator==(Color a, Color b);
+bool operator!=(Color a, Color b);
 
 #endif

@@ -23,6 +23,8 @@ class Object {
         float reflectivity_;
         float translucency_;
         float refractiveIndex_;
+        bool shade_ = true;
+        bool isEquationParametric_ = false;
 
     public:
         Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
@@ -43,10 +45,12 @@ class Object {
         virtual float equation(Vector v) = 0;
         virtual Vector gradient(Vector v) = 0;
         virtual Vector normal(Vector v) = 0;
-        Vector newtonsMethod(Vector x0);
+        Vector gaussNewtonsMethod(Vector x0);
         float refractiveCoefficient(Vector p);
         char* toString();
         char* type();
+        bool shade();
+        bool isEquationParametric();
 };
 
 #endif
