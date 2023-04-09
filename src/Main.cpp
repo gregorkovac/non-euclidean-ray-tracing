@@ -1,4 +1,8 @@
 #include <GLFW/glfw3.h>
+#include <stdio.h>
+#include <stdlib.h>
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../include/stb_image_write.h"
 
 #include "../include/ParametersAndConstants.h"
 #include "../include/Renderer.h"
@@ -54,6 +58,28 @@ int main(int argc, char **argv)
     }
 
     renderer->render(data);
+
+    if (strcmp(argv[2], "--save") == 0) {
+        char imagePath[100];
+        if (argc > 3)
+            strcpy(imagePath, argv[3]);
+        else
+            strcpy(imagePath, "./render.png");
+        
+        // Reverse the image
+        unsigned char dataReverse[frameWidth * frameHeight * 3];
+        for (int i = 0; i < frameHeight; i++) {
+            for (int j = 0; j < frameWidth; j++) {
+                dataReverse[i * frameWidth * 3 + j * 3 + 0] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 0];
+                dataReverse[i * frameWidth * 3 + j * 3 + 1] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 1];
+                dataReverse[i * frameWidth * 3 + j * 3 + 2] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 2];
+            }
+        }
+
+        stbi_write_png(imagePath, frameWidth, frameHeight, 3, dataReverse, frameWidth * 3);
+
+        printf("Saved image to %s\n", imagePath);
+    }
 
     printf("\033[0;35m\x1B[1m");
     printf("DONE!\n");

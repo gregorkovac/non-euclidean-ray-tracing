@@ -334,6 +334,10 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                     reflectionColor = trace(reflectionRay, intersection + reflectionRay * STEP_SIZE, depth + 1);
 
+                    c.r *= 1 - reflectivity;
+                    c.g *= 1 - reflectivity;
+                    c.b *= 1 - reflectivity;
+
                     c.r += reflectivity * reflectionColor.r;
                     c.g += reflectivity * reflectionColor.g;
                     c.b += reflectivity * reflectionColor.b;
