@@ -55,12 +55,13 @@ void Renderer::parseScene(char *sceneFilePath)
         Vector rotation;
         Vector scale;
         Color color;
-        char colorType[20];
+        char colorType[1000];
         float translucency;
         float refractiveIndex;
         float reflectivity;
         float intensity;
         float paramA, paramB, paramC;
+        char normalMap[1000];
 
         sscanf(line, "%s", objectType);
 
@@ -80,7 +81,7 @@ void Renderer::parseScene(char *sceneFilePath)
         }
         else if (strcmp(objectType, "Sphere") == 0)
         {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b);
 
             if (scale.x != scale.y || scale.x != scale.z || scale.y != scale.z)
             {
@@ -92,27 +93,27 @@ void Renderer::parseScene(char *sceneFilePath)
 
             // printf("%s %d %d %d %f %f\n", colorType, color.r, color.g, color.b, reflectivity, translucency);
 
-            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+            this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap);
             objectIndex++;
             printf(" -> Sphere\n");
         }
         else if (strcmp(objectType, "Plane") == 0)
         {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
-            this->objects[objectIndex] = new Plane(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Plane(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap);
 
             objectIndex++;
             printf(" -> Plane\n");
         }
         else if (strcmp(objectType, "Torus") == 0) {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
-            this->objects[objectIndex] = new Torus(paramB, paramA, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %s %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Torus(paramB, paramA, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, normalMap, colorType);
 
             objectIndex++;
             printf(" -> Torus\n");
         } else if (strcmp(objectType, "Hyperboloid") == 0) {
-            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %f %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &paramC, &reflectivity, &translucency, &refractiveIndex, colorType, &color.r, &color.g, &color.b);
-            this->objects[objectIndex] = new Hyperboloid(paramA, paramB, paramC, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType);
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %f %s %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &paramC, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b);
+            this->objects[objectIndex] = new Hyperboloid(paramA, paramB, paramC, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap);
 
             objectIndex++;
             printf(" -> Hyperboloid\n");
@@ -343,10 +344,19 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                     // Vector refractionRay = objects[i]->refractiveCoefficient(curr) * (inRay - normal * (normal * inRay)) - normal * sqrt(1 - pow(objects[i]->refractiveCoefficient(curr), 2) * (1 - pow(normal * inRay, 2)));
 
-                    float inAngle = acos(-(inRay * normal));
+                    /*float inAngle = acos(-(inRay * normal));
                     float outAngle = asin(objects[i]->refractiveCoefficient(curr) * sin(inAngle));
                     Matrix rotation = Matrix::rotation(Vector(outAngle - inAngle, outAngle - inAngle, outAngle - inAngle));
-                    Vector refractionRay = rotation * inRay;
+                    Vector refractionRay = rotation * inRay;*/
+
+                    float eta = objects[i]->refractiveCoefficient(curr);
+
+                    if (normal * inRay > 0) {
+                        eta = 1 / eta;
+                        normal = -1 * normal;
+                    }
+
+                    Vector refractionRay = (eta * (normal * inRay) - sqrt(1 - eta * eta * (1 - pow(normal * inRay, 2)))) * normal - eta * inRay;
 
                     // printf("it=%d obj_i=%d coef=%f vec=%s\n", depth, i, objects[i]->refractiveCoefficient(curr), refractionRay.toString());
 
@@ -354,6 +364,10 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                     // refractionRay = refractionRay.normalize3();
                     refractionColor = trace(refractionRay, intersection + refractionRay * STEP_SIZE, depth + 1);
+
+                    c.r *= 1 - translucency;
+                    c.g *= 1 - translucency;
+                    c.b *= 1 - translucency;
 
                     c.r += translucency * refractionColor.r;
                     c.g += translucency * refractionColor.g;

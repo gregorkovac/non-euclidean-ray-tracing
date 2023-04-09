@@ -1,5 +1,10 @@
 #include "../include/ParametricObjects.h"
 
+Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* normalMap) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap) {
+    this->radius = radius;
+    strcpy(this->type_, "Sphere");
+}
+
 Sphere::Sphere(float radius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
     this->radius = radius;
     strcpy(this->type_, "Sphere");
@@ -24,6 +29,16 @@ Vector Sphere::gradient(Vector v) {
 }
 
 Vector Sphere::normal(Vector v) {
+    if (this->hasNormalMap) {
+        int u_ = (int)(this->u(v) * this->textureScaleX) % this->textureWidth;
+        int v_ = (int)(this->v(v) * this->textureScaleY) % this->textureHeight;
+        
+        if (u_ < 0) u_ += this->textureWidth;
+        if (v_ < 0) v_ += this->textureHeight;
+
+        return this->normalMapData[u_ + v_ * this->textureWidth];
+    }
+
     return Vector(v.x - this->position_.x, v.y - this->position_.y, v.z - this->position_.z);
 }
 
@@ -31,6 +46,19 @@ bool Sphere::inSphere(Vector v) {
     if (v.distance(this->position_) <= this->radius * this->scale_.x)
         return true;
     return false;
+}
+
+float Sphere::u(Vector v) {
+    return atan2(v.z - this->position_.z, v.x - this->position_.x) / (2 * M_PI);
+}
+
+float Sphere::v(Vector v) {
+    return acos((v.y - this->position_.y) / (this->radius * this->scale_.x)) / M_PI;
+}
+
+Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* normalMap) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap) {
+    this->normal_ = (Matrix::rotation(rotation) * Vector(0, 1, 0)).normalize();
+    strcpy(this->type_, "Plane");
 }
 
 Plane::Plane(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
@@ -59,6 +87,20 @@ Vector Plane::gradient(Vector v) {
 
 Vector Plane::normal(Vector v) {
     return this->normal_;
+}
+
+float Plane::u(Vector v) {
+    return (v.x - this->position_.x);
+}
+
+float Plane::v(Vector v) {
+    return (v.z - this->position_.z);
+}
+
+Torus::Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* normalMap) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap) {
+    this->majorRadius = majorRadius;
+    this->minorRadius = minorRadius;
+    strcpy(this->type_, "Torus");
 }
 
 Torus::Torus(float majorRadius, float minorRadius, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
@@ -100,6 +142,14 @@ Vector Torus::normal(Vector v) {
     ).normalize3();
 }
 
+float Torus::u(Vector v) {
+    return (v.x - this->position_.x) / this->scale_.x;
+}
+
+float Torus::v(Vector v) {
+    return (v.z - this->position_.z) / this->scale_.z;
+}
+
 Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color) : Object(position, rotation, scale, color){
     this->a = a;
     this->b = b;
@@ -117,6 +167,14 @@ Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rota
 }
 
 Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType) {
+    this->a = a;
+    this->b = b;
+    this->c = c;
+    this->rotationMatrix = Matrix::rotation(rotation);
+    strcpy(this->type_, "Hyperboloid");
+}
+
+Hyperboloid::Hyperboloid(float a, float b, float c, Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* normalMap) : Object(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap) {
     this->a = a;
     this->b = b;
     this->c = c;
@@ -148,4 +206,12 @@ Vector Hyperboloid::normal(Vector v) {
         2*(v.y-position_.y)/pow(b, 2),
         -2*(v.z-position_.z)/pow(c, 2)
     ).normalize3();
+}
+
+float Hyperboloid::u(Vector v) {
+    return (v.x - this->position_.x) / this->scale_.x;
+}
+
+float Hyperboloid::v(Vector v) {
+    return (v.z - this->position_.z) / this->scale_.z;
 }

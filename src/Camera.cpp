@@ -18,3 +18,11 @@ Vector Camera::gradient(Vector v) {
 Vector Camera::normal(Vector v) {
     return Vector(0, 0, 0);
 }
+
+float Camera::u(Vector v) {
+    return 0;
+}
+
+float Camera::v(Vector v) {
+    return 0;
+}

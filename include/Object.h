@@ -25,9 +25,13 @@ class Object {
         float refractiveIndex_;
         Matrix rotationMatrix;
         int textureWidth, textureHeight, textureChannels;
+        float textureScaleX, textureScaleY;
         Color* textureData;
+        bool hasNormalMap = false;
+        Vector* normalMapData;
 
     public:
+        Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* normalMap);
         Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType);
         Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex);
         Object(Vector position, Vector rotation, Vector scale, Color color);
@@ -50,6 +54,10 @@ class Object {
         float refractiveCoefficient(Vector p);
         char* toString();
         char* type();
+        virtual float u(Vector p) = 0;
+        virtual float v(Vector p) = 0;
+        void parseColorType(char* colorType);
+        void parseNormalMap(char* normalMap);
 };
 
 #endif

@@ -11,6 +11,8 @@ class Camera : public Object {
         float equation(Vector v);
         Vector gradient(Vector v);
         Vector normal(Vector v);
+        float u(Vector v);
+        float v(Vector v);
 };
 
 #endif
