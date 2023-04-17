@@ -618,27 +618,38 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
 
 UV Renderer::VectorToUV(Vector v)
 {
+    // UV uv;
+
+    // float uArg = v.z;
+
+    // uArg = mapToSpace(uArg, -1, 1);
+
+    // uv.u = acos(uArg);
+
+    // float vArg = (v.y) / (cos(uv.u) + 0.00001);
+
+    // vArg = mapToSpace(vArg, -1, 1);
+
+    // uv.v = asin(vArg);
+
+    // return uv;
+
     UV uv;
 
     float uArg = v.z;
-
     uArg = mapToSpace(uArg, -1, 1);
-
     uv.u = acos(uArg);
 
-    float vArg = (v.y) / (cos(uv.u) + 0.00001);
-
+    float vArg = v.x / (sin(uv.u) + 0.00001);
     vArg = mapToSpace(vArg, -1, 1);
-
-    uv.v = asin(vArg);
-
+    uv.v = acos(vArg);
     return uv;
 }
 
 Vector Renderer::UVToVector(UV uv)
 {
     return Vector(
-        cos(uv.v) * cos(uv.u),
-        sin(uv.v) * cos(uv.u),
+        sin(uv.u) * cos(uv.v),
+        sin(uv.u) * sin(uv.v),
         cos(uv.u));
 }
