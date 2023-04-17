@@ -29,5 +29,6 @@ float randomBetween(float a, float b);
 bool operator==(Color a, Color b);
 
 float mapToSpace(float x, float a, float b);
+float mapToFundamentalDomain(float x, float a, float b);
 
 #endif

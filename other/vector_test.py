@@ -134,9 +134,9 @@ image_plane_center = origin + np.array([0, focal_length, 0])
 
 image_plane_points = []
 
-for x in np.linspace(-image_plane_width/2, image_plane_width/2, 5):
-    for y in np.linspace(-image_plane_height/2, image_plane_height/2, 5):
-        point = np.array([x, focal_length, y])
+for x in np.linspace(-image_plane_width/2, image_plane_width/2, 10):
+    for y in np.linspace(-image_plane_height/2, image_plane_height/2, 10):
+        point = np.array([x, origin[1] + focal_length, y])
         image_plane_points.append(point)
 
 image_plane_points = np.array(image_plane_points)
@@ -150,6 +150,7 @@ ax.scatter(origin[0], origin[1], origin[2], c='b', marker='o')
 
 for point in image_plane_points:
     vec = point - origin
+    #vec = point - np.array([point[0], origin[1], point[2]])
 
     #ax.plot([origin[0], point[0]], [origin[1], point[1]], [origin[2], point[2]], c='b')
 
@@ -179,6 +180,8 @@ for point in image_plane_points:
 
         ax.plot([point_prev[0], point_curr[0]], [point_prev[1], point_curr[1]], [point_prev[2], point_curr[2]], c=ray_color)
 
+
+ax.scatter(0, 0.8, -0.6, c='g', marker='+')
 
 ax.set_xlabel('X')
 ax.set_ylabel('Y')

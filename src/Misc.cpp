@@ -40,3 +40,14 @@ float mapToSpace(float x, float a, float b) {
 
     return x;
 }
+
+float mapToFundamentalDomain(float x, float a, float b) {
+    int m = int(abs(x)) / (b - a);
+
+    if (x < a)
+        return x + m * (b - a);
+    else if (x > b)
+        return x - m * (b - a);
+    else
+        return x;
+}

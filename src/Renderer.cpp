@@ -91,8 +91,6 @@ void Renderer::parseScene(char *sceneFilePath)
                 exit(1);
             }
 
-            // printf("%s %d %d %d %f %f\n", colorType, color.r, color.g, color.b, reflectivity, translucency);
-
             this->objects[objectIndex] = new Sphere(1, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap);
             objectIndex++;
             printf(" -> Sphere\n");
@@ -183,8 +181,6 @@ void Renderer::render(unsigned char *dataBuffer)
                 color.r += c.r;
                 color.g += c.g;
                 color.b += c.b;
-
-                //exit(0);
             }
 
             color.r /= RAYS_PER_PIXEL;
@@ -225,7 +221,6 @@ void Renderer::render(unsigned char *dataBuffer)
             float xf = (float)lights[i]->position().x;
             float yf = (float)lights[i]->position().y;
 
-            // Map x and y from world space to image space
             Vector image_plane_center = camera->position() + camera->forward() * FOCAL_LENGTH;
 
             int x = (int)((xf - image_plane_center.x) / PIXEL_SIZE + IMAGE_PLANE_WIDTH / 2);
@@ -292,35 +287,21 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
 
-    //ray = ray.normalize3();
     Vector curr = origin;
     Vector prev = origin;
 
-
     UV uvOrigin = this->VectorToUV(origin);
-
-    // UV uvRay = this->VectorToUV(origin + ray * STEP_SIZE);
-    // uvRay.u -= uvOrigin.u;
-    // uvRay.v -= uvOrigin.v;
-
     UV uvRay = this->VectorToUV(ray);
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
         prev = curr;
-        // curr = origin + ray * h * STEP_SIZE;
-
-        // printf("\n\nray = %s\n", (origin + ray * (h * STEP_SIZE)).toString());
 
         UV uvPrev = this->VectorToUV(prev);
         UV uvCurr;
         UV uvDir;
 
-        //printf("Before RK4: %f %f\n", uvRay.u, uvRay.v);
         uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
-        //printf("After RK4: %f %f\n", uvDir.u, uvDir.v);
-
-        // printf("%f %f\n", uvDir.u, uvDir.v);
 
         Vector dir = this->UVToVector(uvDir);
 
@@ -329,50 +310,17 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
         curr = prev + dir * STEP_SIZE;
 
-        //printf("%s\n", dir.toString());
-
-        /*uvCurr.u = uvPrev.u + uvDir.u;
-        uvCurr.v = uvPrev.v + uvDir.v;
-
-        uvRay.u = uvDir.u;
-        uvRay.v = uvDir.v;*/
-
-        //curr = this->UVToVector(uvCurr);
-
-        // uvRay.u = uvCurr.u - uvPrev.u;
-        // uvRay.v = uvCurr.v - uvPrev.v;
-
-        // printf("%s\n", curr.toString());
-
-        //printf("\n\n\n%s = (%f %f) - %s = [%f %f] -> (%f %f) = %s\n", prev.toString(), uvOrigin.u, uvOrigin.v, ray.toString(), uvRay.u, uvRay.v, uvCurr.u, uvCurr.v, curr.toString());
-
-        // printf("\n\nuvDir = %f %f\n", uvDir.u, uvDir.v);
-        // printf("uvOrigin = %f %f\n", uvOrigin.u, uvOrigin.v);
-        // printf("uvRay = %f %f\n", uvRay.u, uvRay.v);
-        // printf("uvCurr = %f %f\n", uvCurr.u, uvCurr.v);
-        // printf("curr = %s\n", curr.toString());
-
-        // printf("%s - %s -> %s\n\n\n", prev.toString(), ray.toString(), curr.toString());
-        // if (h == 2)
-        //     exit(0);
-
-        //exit(0);
-
         for (int i = 0; i < this->numObjects; i++)
         {
-            // if (ray == Vector(0.99, -1, 1)) {
-            //     printf("%s %s\n", prev.toString(), curr.toString());
-            //     printf("%f %f\n\n", objects[i]->equation(prev), objects[i]->equation(curr));
-            // }
 
             if (objects[i]->intersect(prev, curr))
             {
+
+
                 printf("Intersection with %s - %d\n", objects[i]->type(), i);
 
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
-                // Color c = objects[i]->color(intersection);
-                //  Color c = {0,0,0};
-
+                
                 Color c = {
                     AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
                     AMBIENT_LIGHT_COLOR.g * AMBIENT_LIGHT_INTENSITY,
@@ -406,14 +354,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                 if (translucency > 0)
                 {
-
-                    // Vector refractionRay = objects[i]->refractiveCoefficient(curr) * (inRay - normal * (normal * inRay)) - normal * sqrt(1 - pow(objects[i]->refractiveCoefficient(curr), 2) * (1 - pow(normal * inRay, 2)));
-
-                    /*float inAngle = acos(-(inRay * normal));
-                    float outAngle = asin(objects[i]->refractiveCoefficient(curr) * sin(inAngle));
-                    Matrix rotation = Matrix::rotation(Vector(outAngle - inAngle, outAngle - inAngle, outAngle - inAngle));
-                    Vector refractionRay = rotation * inRay;*/
-
                     float eta = objects[i]->refractiveCoefficient(curr);
 
                     if (normal * inRay > 0)
@@ -424,11 +364,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                     Vector refractionRay = (eta * (normal * inRay) - sqrt(1 - eta * eta * (1 - pow(normal * inRay, 2)))) * normal - eta * inRay;
 
-                    // printf("it=%d obj_i=%d coef=%f vec=%s\n", depth, i, objects[i]->refractiveCoefficient(curr), refractionRay.toString());
-
-                    // printf("I:%s\nR:%s\n\n", inRay.toString(), refractionRay.toString());
-
-                    // refractionRay = refractionRay.normalize3();
                     refractionColor = trace(refractionRay, intersection + refractionRay * STEP_SIZE, depth + 1);
 
                     c.r *= 1 - translucency;
@@ -440,68 +375,20 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                     c.b += translucency * refractionColor.b;
                 }
 
-                // float colorFactor = reflectivity == 0 && translucency == 0 ? 1 : min(1.0, reflectivity + translucency);
-
-                /* PHONG:
-                c = c_a * k_a + sum ( c_i * (k_d * (l_i * n) + k_s * (R_i * e) ^ p ))
-                c_i ... jakost luči
-                l_i ... vektor proti luči
-                k_d ... diffuse factor
-                k_s ... specular factor
-                R_i ... idealni odboj, R = 2 * (l * n) * n - l
-                e ... vektor proti kameri
-                p ... parameter zrcalnega odboja
-                */
-
-                // c.r = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.r + (1 - reflectivity) * (1 - translucency) * c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
-                // c.g = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.g + (1 - reflectivity) * (1 - translucency) * c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
-                // c.b = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.b + (1 - reflectivity) * (1 - translucency) * c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
-
                 for (int j = 0; j < this->numLights; j++)
                 {
                     if (!isShadowed(intersection, lights[j]->position()))
                     {
-                        // float distToLight = intersection.normalize3().distance(lights[j]->position());
                         float distToLight = intersection.distance(lights[j]->position());
 
                         distToLight *= distToLight;
 
-                        // float k_d = 0.5;
-                        // float k_s = 0.5;
-                        // Vector l = (lights[j]->position() - intersection).normalize3();
-                        // Vector R = normal * 2 * (l * normal) - l;
-                        // Vector e = (origin - intersection).normalize3();
-                        // float p = 1;
-
-                        // c.r += lights[j]->color(intersection).r * (objects[i]->color(intersection).r * k_d * (l * normal) + objects[i]->color(intersection).r * k_s * pow((R * e), p));
-                        // c.g += lights[j]->color(intersection).g * (objects[i]->color(intersection).g * k_d * (l * normal) + objects[i]->color(intersection).g * k_s * pow((R * e), p));
-                        // c.b += lights[j]->color(intersection).b * (objects[i]->color(intersection).b * k_d * (l * normal) + objects[i]->color(intersection).b * k_s * pow((R * e), p));
-
-                        // TODO: light color
-
-                        // objectColor.r /= distToLight;
-                        // objectColor.g /= distToLight;
-                        // objectColor.b /= distToLight;
-
                         c.r += lights[j]->intensity() * lights[j]->color().r / 255.0 * objectColor.r / distToLight;
                         c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
                         c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
-
-                        // printf("%d %d %d\n", lights[j]->color().r, lights[j]->color().g, lights[j]->color().b);
-
-                        // c.r += 0.05 * lights[j]->color(intersection).r;
-                        // c.g += 0.05 * lights[j]->color(intersection).g;
-                        // c.b += 0.05 * lights[j]->color(intersection).b;
-                    }
-                    else
-                    {
-                        // objectColor.r *= 0.05;
-                        // objectColor.g *= 0.05;
-                        // objectColor.b *= 0.05;
                     }
                 }
 
-                // Directional light
                 Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
 
                 if (!isShadowed(intersection, directionalLight))
@@ -511,19 +398,10 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                     c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
                 }
 
-                // if (depth > 1) {
-                //     printf("%d (%d %d %d)\n", i, c.r, c.g, c.b);
-                // }
-
-                // c.r += objectColor.r;
-                // c.g += objectColor.g;
-                // c.b += objectColor.b;
-
                 return c;
             }
         }
     }
-
 
     return SKY_COLOR;
 }
@@ -537,33 +415,32 @@ bool Renderer::isShadowed(Vector origin, Vector light)
     Vector curr = originMoved;
     Vector prev = originMoved;
 
+    UV uvOrigin = this->VectorToUV(originMoved);
+    UV uvRay = this->VectorToUV(ray);
+
     for (float h = 1; h < MAX_ITER; h += 1)
     {
         prev = curr;
-        curr = originMoved + ray * (h * STEP_SIZE);
+        
+        UV uvPrev = this->VectorToUV(prev);
+        UV uvCurr;
+        UV uvDir;
 
-        // UV uvOrigin = this->VectorToUV(originMoved);
-        // UV uvRay = this->VectorToUV(originMoved + ray * (h * STEP_SIZE));
-        // uvRay.u -= uvOrigin.u;
-        // uvRay.v -= uvOrigin.v;
+        uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
 
-        //UV uvDir = this->rungeKutta4(uvOrigin, uvRay, h * STEP_SIZE);
+        Vector dir = this->UVToVector(uvDir);
 
-        // UV uvCurr;
-        // uvCurr.u = uvOrigin.u + uvDir.u * h * STEP_SIZE;
-        // uvCurr.v = uvOrigin.v + uvDir.v * h * STEP_SIZE;
+        uvRay.u = uvDir.u;
+        uvRay.v = uvDir.v;
 
-        // curr = this->UVToVector(uvCurr);
+        curr = prev + dir * STEP_SIZE;
 
         if (curr.distance(light) < EPSILON)
             return false;
 
         for (int i = 0; i < this->numObjects; i++)
             if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0)
-            {
-                // printf("%s\n\n", objects[i]->toString());
                 return true;
-            }
     }
 
     return false;
@@ -571,16 +448,6 @@ bool Renderer::isShadowed(Vector origin, Vector light)
 
 UV F(UV x, UV y)
 {
-    // printf("cos(u) = %f\n", cos(x.u));
-    // printf("sin(u) = %f\n", sin(x.u));
-    // printf("cos(u) / sin(u) = %f\n", cos(x.u) / sin(x.u));
-    // printf("y.u = %f\n", y.u);
-    // printf("y.v = %f\n", y.v);
-    // printf("y.u * y.v = %f\n", y.u * y.v);
-    // printf("cos(u) * sin(u) = %f\n", cos(x.u) * sin(x.u));
-    // printf("cos(u) * sin(u) * y.v * y.v = %f\n", cos(x.u) * sin(x.u) * y.v * y.v);
-    // printf("cos(u) / sin(u) = %f\n", cos(x.u) / sin(x.u));
-
     return {
         cos(x.u) * sin(x.u) * y.v * y.v,
         -2 * (cos(x.u) / (sin(x.u) + 0.00001)) * y.u * y.v};
@@ -590,12 +457,6 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
 {
 
     // FIXME: This is now Euler's method; change to RK4
-
-    // UV k1 = F(x, y0);
-
-    // return {
-    //     y0.u + t * k1.u,
-    //     y0.v + t * k1.v};
 
     UV xNew = {
         x.u + (double)t * y.u,
@@ -609,40 +470,22 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
         y.v + (double)t * accelaration.v
     };
 
-    // printf("    x:(%f %f)->(%f %f)\n", x.u, x.v, xNew.u, xNew.v);
-    // printf("    accelaration:(%f %f)\n", accelaration.u, accelaration.v);
-    // printf("    y:(%f %f)->(%f %f)\n", y.u, y.v, yNew.u, yNew.v);
-
     return yNew;
 }
 
 UV Renderer::VectorToUV(Vector v)
 {
-    // UV uv;
-
-    // float uArg = v.z;
-
-    // uArg = mapToSpace(uArg, -1, 1);
-
-    // uv.u = acos(uArg);
-
-    // float vArg = (v.y) / (cos(uv.u) + 0.00001);
-
-    // vArg = mapToSpace(vArg, -1, 1);
-
-    // uv.v = asin(vArg);
-
-    // return uv;
 
     UV uv;
 
     float uArg = v.z;
-    uArg = mapToSpace(uArg, -1, 1);
+    uArg = mapToFundamentalDomain(uArg, -1, 1);
     uv.u = acos(uArg);
 
     float vArg = v.x / (sin(uv.u) + 0.00001);
-    vArg = mapToSpace(vArg, -1, 1);
+    vArg = mapToFundamentalDomain(vArg, -1, 1);
     uv.v = acos(vArg);
+
     return uv;
 }
 
