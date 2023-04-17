@@ -38,7 +38,7 @@ const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
 #define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {0, 0, 0};
+const Color SKY_COLOR = {250, 0, 250};
 const Color MISSING_COLOR = {250, 70, 250};
 
 #define AIR_REFRACTIVE_INDEX 1

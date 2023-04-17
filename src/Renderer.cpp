@@ -105,13 +105,16 @@ void Renderer::parseScene(char *sceneFilePath)
             objectIndex++;
             printf(" -> Plane\n");
         }
-        else if (strcmp(objectType, "Torus") == 0) {
+        else if (strcmp(objectType, "Torus") == 0)
+        {
             sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %s %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b);
             this->objects[objectIndex] = new Torus(paramB, paramA, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, normalMap, colorType);
 
             objectIndex++;
             printf(" -> Torus\n");
-        } else if (strcmp(objectType, "Hyperboloid") == 0) {
+        }
+        else if (strcmp(objectType, "Hyperboloid") == 0)
+        {
             sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %f %f %f %s %s (%d %d %d)", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &paramA, &paramB, &paramC, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b);
             this->objects[objectIndex] = new Hyperboloid(paramA, paramB, paramC, position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, normalMap);
 
@@ -166,8 +169,9 @@ void Renderer::render(unsigned char *dataBuffer)
         for (int x = 0; x < IMAGE_PLANE_WIDTH; x++)
         {
             Color color = {0, 0, 0};
-            for (int k = 0; k < RAYS_PER_PIXEL; k++) {
-                Vector offset = Vector(randomBetween(-PIXEL_SIZE/2, PIXEL_SIZE/2), randomBetween(-PIXEL_SIZE/2, PIXEL_SIZE/2), 0);
+            for (int k = 0; k < RAYS_PER_PIXEL; k++)
+            {
+                Vector offset = Vector(randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), 0);
 
                 Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
 
@@ -179,6 +183,8 @@ void Renderer::render(unsigned char *dataBuffer)
                 color.r += c.r;
                 color.g += c.g;
                 color.b += c.b;
+
+                //exit(0);
             }
 
             color.r /= RAYS_PER_PIXEL;
@@ -286,17 +292,71 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
 
+    //ray = ray.normalize3();
     Vector curr = origin;
     Vector prev = origin;
 
-    // ray = ray.normalize3();
+
+    UV uvOrigin = this->VectorToUV(origin);
+
+    // UV uvRay = this->VectorToUV(origin + ray * STEP_SIZE);
+    // uvRay.u -= uvOrigin.u;
+    // uvRay.v -= uvOrigin.v;
+
+    UV uvRay = this->VectorToUV(ray);
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
         prev = curr;
-        curr = origin + ray * h * STEP_SIZE;
+        // curr = origin + ray * h * STEP_SIZE;
 
-        // printf("%s %s\n", prev.toString(), curr.toString());
+        // printf("\n\nray = %s\n", (origin + ray * (h * STEP_SIZE)).toString());
+
+        UV uvPrev = this->VectorToUV(prev);
+        UV uvCurr;
+        UV uvDir;
+
+        //printf("Before RK4: %f %f\n", uvRay.u, uvRay.v);
+        uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
+        //printf("After RK4: %f %f\n", uvDir.u, uvDir.v);
+
+        // printf("%f %f\n", uvDir.u, uvDir.v);
+
+        Vector dir = this->UVToVector(uvDir);
+
+        uvRay.u = uvDir.u;
+        uvRay.v = uvDir.v;
+
+        curr = prev + dir * STEP_SIZE;
+
+        //printf("%s\n", dir.toString());
+
+        /*uvCurr.u = uvPrev.u + uvDir.u;
+        uvCurr.v = uvPrev.v + uvDir.v;
+
+        uvRay.u = uvDir.u;
+        uvRay.v = uvDir.v;*/
+
+        //curr = this->UVToVector(uvCurr);
+
+        // uvRay.u = uvCurr.u - uvPrev.u;
+        // uvRay.v = uvCurr.v - uvPrev.v;
+
+        // printf("%s\n", curr.toString());
+
+        //printf("\n\n\n%s = (%f %f) - %s = [%f %f] -> (%f %f) = %s\n", prev.toString(), uvOrigin.u, uvOrigin.v, ray.toString(), uvRay.u, uvRay.v, uvCurr.u, uvCurr.v, curr.toString());
+
+        // printf("\n\nuvDir = %f %f\n", uvDir.u, uvDir.v);
+        // printf("uvOrigin = %f %f\n", uvOrigin.u, uvOrigin.v);
+        // printf("uvRay = %f %f\n", uvRay.u, uvRay.v);
+        // printf("uvCurr = %f %f\n", uvCurr.u, uvCurr.v);
+        // printf("curr = %s\n", curr.toString());
+
+        // printf("%s - %s -> %s\n\n\n", prev.toString(), ray.toString(), curr.toString());
+        // if (h == 2)
+        //     exit(0);
+
+        //exit(0);
 
         for (int i = 0; i < this->numObjects; i++)
         {
@@ -307,17 +367,18 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
             if (objects[i]->intersect(prev, curr))
             {
+                printf("Intersection with %s - %d\n", objects[i]->type(), i);
 
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
-                //Color c = objects[i]->color(intersection);
-                // Color c = {0,0,0};
+                // Color c = objects[i]->color(intersection);
+                //  Color c = {0,0,0};
 
                 Color c = {
                     AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
                     AMBIENT_LIGHT_COLOR.g * AMBIENT_LIGHT_INTENSITY,
-                    AMBIENT_LIGHT_COLOR.b * AMBIENT_LIGHT_INTENSITY
-                };
+                    AMBIENT_LIGHT_COLOR.b * AMBIENT_LIGHT_INTENSITY};
                 Color objectColor = objects[i]->color(intersection);
+
                 Color reflectionColor = {0, 0, 0}, refractionColor = {0, 0, 0};
 
                 float reflectivity = objects[i]->reflectivity();
@@ -355,7 +416,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                     float eta = objects[i]->refractiveCoefficient(curr);
 
-                    if (normal * inRay > 0) {
+                    if (normal * inRay > 0)
+                    {
                         eta = 1 / eta;
                         normal = -1 * normal;
                     }
@@ -391,9 +453,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                 p ... parameter zrcalnega odboja
                 */
 
-                //c.r = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.r + (1 - reflectivity) * (1 - translucency) * c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
-                //c.g = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.g + (1 - reflectivity) * (1 - translucency) * c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
-                //c.b = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.b + (1 - reflectivity) * (1 - translucency) * c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
+                // c.r = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.r + (1 - reflectivity) * (1 - translucency) * c.r + reflectionColor.r * reflectivity + refractionColor.r * translucency;
+                // c.g = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.g + (1 - reflectivity) * (1 - translucency) * c.g + reflectionColor.g * reflectivity + refractionColor.g * translucency;
+                // c.b = AMBIENT_LIGHT_INTENSITY * AMBIENT_LIGHT_COLOR.b + (1 - reflectivity) * (1 - translucency) * c.b + reflectionColor.b * reflectivity + refractionColor.b * translucency;
 
                 for (int j = 0; j < this->numLights; j++)
                 {
@@ -421,11 +483,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                         // objectColor.g /= distToLight;
                         // objectColor.b /= distToLight;
 
-                        c.r += lights[j]->intensity() * lights[j]->color().r/255.0 * objectColor.r / distToLight;
-                        c.g += lights[j]->intensity() * lights[j]->color().g/255.0 * objectColor.g / distToLight;
-                        c.b += lights[j]->intensity() * lights[j]->color().b/255.0 * objectColor.b / distToLight;
+                        c.r += lights[j]->intensity() * lights[j]->color().r / 255.0 * objectColor.r / distToLight;
+                        c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
+                        c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
 
-                        //printf("%d %d %d\n", lights[j]->color().r, lights[j]->color().g, lights[j]->color().b);
+                        // printf("%d %d %d\n", lights[j]->color().r, lights[j]->color().g, lights[j]->color().b);
 
                         // c.r += 0.05 * lights[j]->color(intersection).r;
                         // c.g += 0.05 * lights[j]->color(intersection).g;
@@ -442,24 +504,26 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                 // Directional light
                 Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
 
-                if (!isShadowed(intersection, directionalLight)) {
-                    c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r/255.0 * objectColor.r;
-                    c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g/255.0 * objectColor.g;
-                    c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b/255.0 * objectColor.b;
+                if (!isShadowed(intersection, directionalLight))
+                {
+                    c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0 * objectColor.r;
+                    c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
+                    c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
                 }
 
                 // if (depth > 1) {
                 //     printf("%d (%d %d %d)\n", i, c.r, c.g, c.b);
                 // }
 
-                //c.r += objectColor.r;
-                //c.g += objectColor.g;
-                //c.b += objectColor.b;
+                // c.r += objectColor.r;
+                // c.g += objectColor.g;
+                // c.b += objectColor.b;
 
                 return c;
             }
         }
     }
+
 
     return SKY_COLOR;
 }
@@ -478,6 +542,19 @@ bool Renderer::isShadowed(Vector origin, Vector light)
         prev = curr;
         curr = originMoved + ray * (h * STEP_SIZE);
 
+        // UV uvOrigin = this->VectorToUV(originMoved);
+        // UV uvRay = this->VectorToUV(originMoved + ray * (h * STEP_SIZE));
+        // uvRay.u -= uvOrigin.u;
+        // uvRay.v -= uvOrigin.v;
+
+        //UV uvDir = this->rungeKutta4(uvOrigin, uvRay, h * STEP_SIZE);
+
+        // UV uvCurr;
+        // uvCurr.u = uvOrigin.u + uvDir.u * h * STEP_SIZE;
+        // uvCurr.v = uvOrigin.v + uvDir.v * h * STEP_SIZE;
+
+        // curr = this->UVToVector(uvCurr);
+
         if (curr.distance(light) < EPSILON)
             return false;
 
@@ -490,4 +567,78 @@ bool Renderer::isShadowed(Vector origin, Vector light)
     }
 
     return false;
+}
+
+UV F(UV x, UV y)
+{
+    // printf("cos(u) = %f\n", cos(x.u));
+    // printf("sin(u) = %f\n", sin(x.u));
+    // printf("cos(u) / sin(u) = %f\n", cos(x.u) / sin(x.u));
+    // printf("y.u = %f\n", y.u);
+    // printf("y.v = %f\n", y.v);
+    // printf("y.u * y.v = %f\n", y.u * y.v);
+    // printf("cos(u) * sin(u) = %f\n", cos(x.u) * sin(x.u));
+    // printf("cos(u) * sin(u) * y.v * y.v = %f\n", cos(x.u) * sin(x.u) * y.v * y.v);
+    // printf("cos(u) / sin(u) = %f\n", cos(x.u) / sin(x.u));
+
+    return {
+        cos(x.u) * sin(x.u) * y.v * y.v,
+        -2 * (cos(x.u) / (sin(x.u) + 0.00001)) * y.u * y.v};
+}
+
+UV Renderer::rungeKutta4(UV x, UV y, float t)
+{
+
+    // FIXME: This is now Euler's method; change to RK4
+
+    // UV k1 = F(x, y0);
+
+    // return {
+    //     y0.u + t * k1.u,
+    //     y0.v + t * k1.v};
+
+    UV xNew = {
+        x.u + (double)t * y.u,
+        x.v + (double)t * y.v
+    };
+
+    UV accelaration = F(xNew, y);
+
+    UV yNew = {
+        y.u + (double)t * accelaration.u,
+        y.v + (double)t * accelaration.v
+    };
+
+    // printf("    x:(%f %f)->(%f %f)\n", x.u, x.v, xNew.u, xNew.v);
+    // printf("    accelaration:(%f %f)\n", accelaration.u, accelaration.v);
+    // printf("    y:(%f %f)->(%f %f)\n", y.u, y.v, yNew.u, yNew.v);
+
+    return yNew;
+}
+
+UV Renderer::VectorToUV(Vector v)
+{
+    UV uv;
+
+    float uArg = v.z;
+
+    uArg = mapToSpace(uArg, -1, 1);
+
+    uv.u = acos(uArg);
+
+    float vArg = (v.y) / (cos(uv.u) + 0.00001);
+
+    vArg = mapToSpace(vArg, -1, 1);
+
+    uv.v = asin(vArg);
+
+    return uv;
+}
+
+Vector Renderer::UVToVector(UV uv)
+{
+    return Vector(
+        cos(uv.v) * cos(uv.u),
+        sin(uv.v) * cos(uv.u),
+        cos(uv.u));
 }

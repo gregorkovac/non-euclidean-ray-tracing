@@ -59,13 +59,17 @@ int main(int argc, char **argv)
 
     renderer->render(data);
 
-    if (strcmp(argv[2], "--save") == 0) {
+    if (argc > 2 && strcmp(argv[2], "--save") == 0) {
+        printf("0\n");
+
         char imagePath[100];
         if (argc > 3)
             strcpy(imagePath, argv[3]);
         else
             strcpy(imagePath, "./render.png");
         
+        printf("1\n");
+
         // Reverse the image
         unsigned char dataReverse[frameWidth * frameHeight * 3];
         for (int i = 0; i < frameHeight; i++) {
@@ -75,6 +79,8 @@ int main(int argc, char **argv)
                 dataReverse[i * frameWidth * 3 + j * 3 + 2] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 2];
             }
         }
+
+        printf("2\n");
 
         stbi_write_png(imagePath, frameWidth, frameHeight, 3, dataReverse, frameWidth * 3);
 

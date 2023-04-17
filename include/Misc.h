@@ -10,6 +10,10 @@ struct Color {
     unsigned short r, g, b;
 };
 
+struct UV {
+    double u, v;
+};
+
 enum ColorType {
     COLOR_TYPE_SOLID,
     COLOR_TYPE_GRADIENT,
@@ -23,5 +27,7 @@ int max(float a, float b);
 float randomBetween(float a, float b);
 
 bool operator==(Color a, Color b);
+
+float mapToSpace(float x, float a, float b);
 
 #endif

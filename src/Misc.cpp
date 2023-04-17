@@ -29,3 +29,14 @@ float randomBetween(float a, float b) {
 bool operator==(Color a, Color b) {
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
+
+float mapToSpace(float x, float a, float b) {
+    float spaceSize = b - a;
+
+    while (x < a)
+        x += spaceSize;
+    while (x > b)
+        x -= spaceSize;
+
+    return x;
+}

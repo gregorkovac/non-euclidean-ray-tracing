@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "Misc.h"
 #include "Object.h"
@@ -28,6 +29,9 @@ class Renderer {
         void render(unsigned char* dataBuffer);
         Color trace(Vector ray, Vector origin, int depth);
         bool isShadowed(Vector origin, Vector light);
+        UV rungeKutta4(UV x, UV y, float t);
+        UV VectorToUV(Vector v);
+        Vector UVToVector(UV uv);
 };
 
 #endif
