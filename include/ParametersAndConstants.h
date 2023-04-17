@@ -47,4 +47,7 @@ const Color MISSING_COLOR = {250, 70, 250};
 #define DRAW_GIZMOS false
 #define PRINT_OBJECTS_ON_STARTUP false
 
+// Other
+#define PRINT_PROJECT_INFO true
+
 #endif

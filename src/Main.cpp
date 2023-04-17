@@ -15,6 +15,25 @@ int main(int argc, char **argv)
 {
     srand(time(NULL));
 
+    if (PRINT_PROJECT_INFO) {
+        printf("\033[0;35m\x1B[1m");
+        printf("-----------------------------\n");
+        printf("-----------------------------\n");
+        printf("- NON EUCLIDEAN RAY TRACING -\n");
+        printf("------ Diploma thesis -------\n");
+        printf("-----------------------------\n");
+        printf("\033[0;35m\x1B[0m");
+        printf("        Gregor Kovač \n\n");
+        printf("  Faculty of computer and \n");
+        printf("    information science, \n");
+        printf("  University of Ljubljana\n\n");
+        printf("      Ljubljana, 2023\n");
+        printf("\033[0;35m\x1B[1m");
+        printf("-----------------------------\n");
+        printf("-----------------------------\n\n\n");
+        printf("\033[0;35m\x1B[0m");
+    }
+
     //printf("\033[0;36m");
     printf("Setting up window...\n");
 

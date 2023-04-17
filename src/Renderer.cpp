@@ -145,8 +145,6 @@ void Renderer::parseScene(char *sceneFilePath)
     }
 }
 
-// TODO: Multiple shadow rays under different angles
-
 void Renderer::render(unsigned char *dataBuffer)
 {
     if (PRINT_OBJECTS_ON_STARTUP)
@@ -287,28 +285,37 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
 
-    Vector curr = origin;
-    Vector prev = origin;
+    // Vector curr = origin;
+    // Vector prev = origin;
+
+    // UV uvOrigin = this->VectorToUV(origin);
+    // UV uvRay = this->VectorToUV(ray);
+
+    Vector prev, curr;
+    UV uvPrev, uvCurr;
+
+    prev = curr = origin;
+    uvPrev = uvCurr = this->VectorToUV(origin);
 
     UV uvOrigin = this->VectorToUV(origin);
     UV uvRay = this->VectorToUV(ray);
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
-        prev = curr;
+        // prev = curr;
 
-        UV uvPrev = this->VectorToUV(prev);
-        UV uvCurr;
-        UV uvDir;
+        // UV uvPrev = this->VectorToUV(prev);
+        // UV uvCurr;
+        // UV uvDir;
 
-        uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
+        // uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
 
-        Vector dir = this->UVToVector(uvDir);
+        // Vector dir = this->UVToVector(uvDir);
 
-        uvRay.u = uvDir.u;
-        uvRay.v = uvDir.v;
+        // uvRay.u = uvDir.u;
+        // uvRay.v = uvDir.v;
 
-        curr = prev + dir * STEP_SIZE;
+        // curr = prev + dir * STEP_SIZE;
 
         for (int i = 0; i < this->numObjects; i++)
         {
@@ -334,8 +341,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                 Vector inRay = (intersection - origin).normalize3();
                 Vector normal = objects[i]->normal(intersection);
-
-                // TODO: Phong - specular and diffuse
 
                 if (reflectivity > 0)
                 {
@@ -455,8 +460,6 @@ UV F(UV x, UV y)
 
 UV Renderer::rungeKutta4(UV x, UV y, float t)
 {
-
-    // FIXME: This is now Euler's method; change to RK4
 
     UV xNew = {
         x.u + (double)t * y.u,
