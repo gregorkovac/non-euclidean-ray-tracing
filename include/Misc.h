@@ -31,4 +31,10 @@ bool operator==(Color a, Color b);
 float mapToSpace(float x, float a, float b);
 float mapToFundamentalDomain(float x, float a, float b);
 
+enum SpaceType {
+    EUCLIDEAN,
+    FUNDAMENTAL_DOMAIN,
+    SPHERICAL
+};
+
 #endif

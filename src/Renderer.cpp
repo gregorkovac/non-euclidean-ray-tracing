@@ -292,13 +292,14 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     // UV uvRay = this->VectorToUV(ray);
 
     Vector prev, curr;
-    UV uvPrev, uvCurr;
+    //UV uvPrev, uvCurr;
 
-    prev = curr = origin;
-    uvPrev = uvCurr = this->VectorToUV(origin);
+    prev = origin;
+    curr = origin;
+    // uvPrev = uvCurr = this->VectorToUV(origin);
 
-    UV uvOrigin = this->VectorToUV(origin);
-    UV uvRay = this->VectorToUV(ray);
+    // UV uvOrigin = this->VectorToUV(origin);
+    // UV uvRay = this->VectorToUV(ray);
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
@@ -317,6 +318,19 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
         // curr = prev + dir * STEP_SIZE;
 
+        switch (SPACE_TYPE) {
+            case EUCLIDEAN:
+                prev = curr;
+                curr = origin + ray * h * STEP_SIZE;
+            break;
+
+            case FUNDAMENTAL_DOMAIN:
+            break;
+
+            case SPHERICAL:
+            break;
+        }
+
         for (int i = 0; i < this->numObjects; i++)
         {
 
@@ -324,7 +338,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             {
 
 
-                printf("Intersection with %s - %d\n", objects[i]->type(), i);
+                //printf("Intersection with %s - %d\n", objects[i]->type(), i);
 
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
                 
@@ -420,25 +434,40 @@ bool Renderer::isShadowed(Vector origin, Vector light)
     Vector curr = originMoved;
     Vector prev = originMoved;
 
-    UV uvOrigin = this->VectorToUV(originMoved);
-    UV uvRay = this->VectorToUV(ray);
+    // UV uvOrigin = this->VectorToUV(originMoved);
+    // UV uvRay = this->VectorToUV(ray);
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
-        prev = curr;
+        switch (SPACE_TYPE) {
+            case EUCLIDEAN:
+                prev = curr;
+                curr = originMoved + ray * h * STEP_SIZE;
+            break;
+
+            case FUNDAMENTAL_DOMAIN:
+                // TODO:
+            break;
+
+            case SPHERICAL:
+                // TODO:
+            break;
+        }
+
+        // prev = curr;
         
-        UV uvPrev = this->VectorToUV(prev);
-        UV uvCurr;
-        UV uvDir;
+        // UV uvPrev = this->VectorToUV(prev);
+        // UV uvCurr;
+        // UV uvDir;
 
-        uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
+        // uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
 
-        Vector dir = this->UVToVector(uvDir);
+        // Vector dir = this->UVToVector(uvDir);
 
-        uvRay.u = uvDir.u;
-        uvRay.v = uvDir.v;
+        // uvRay.u = uvDir.u;
+        // uvRay.v = uvDir.v;
 
-        curr = prev + dir * STEP_SIZE;
+        // curr = prev + dir * STEP_SIZE;
 
         if (curr.distance(light) < EPSILON)
             return false;
