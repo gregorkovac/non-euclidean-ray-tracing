@@ -147,6 +147,7 @@ void Renderer::parseScene(char *sceneFilePath)
 
 void Renderer::render(unsigned char *dataBuffer)
 {
+
     if (PRINT_OBJECTS_ON_STARTUP)
     {
         printf("\nObjects:\n");

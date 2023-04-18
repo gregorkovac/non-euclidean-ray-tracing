@@ -71,12 +71,10 @@ int main(int argc, char **argv)
     printf("Rendering...\n");
     unsigned char data[frameWidth * frameHeight * 3];
 
-    printf("1\n");
     for (int i = 0; i < frameWidth * frameHeight * 3; i++)
     {
         data[i] = 0;
     }
-
 
     renderer->render(data);
 
