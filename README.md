@@ -7,4 +7,5 @@
 ## To do - optional
 - [ ] Multiple shadow rays under different angles
 - [ ] Phong lighting - specular and diffuse
+- [ ] Saved image flipping
 - [ ] Write this README

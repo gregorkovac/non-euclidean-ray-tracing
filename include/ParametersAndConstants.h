@@ -16,7 +16,15 @@
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = EUCLIDEAN;
+const SpaceType SPACE_TYPE = FUNDAMENTAL_DOMAIN;
+/* Fundamental domain parameters */
+#define FUNDAMENTAL_DOMAIN_X_MIN -2
+#define FUNDAMENTAL_DOMAIN_X_MAX 2
+#define FUNDAMENTAL_DOMAIN_Y_MIN -2
+#define FUNDAMENTAL_DOMAIN_Y_MAX 2
+#define FUNDAMENTAL_DOMAIN_Z_MIN -2
+#define FUNDAMENTAL_DOMAIN_Z_MAX 2
+
 #define MAX_ITER 1000
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 4
@@ -39,7 +47,7 @@ const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
 #define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {0, 0, 0};
+const Color SKY_COLOR = {255, 255, 255};
 const Color MISSING_COLOR = {250, 70, 250};
 
 #define AIR_REFRACTIVE_INDEX 1

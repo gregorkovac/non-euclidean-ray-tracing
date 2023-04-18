@@ -15,7 +15,8 @@ int main(int argc, char **argv)
 {
     srand(time(NULL));
 
-    if (PRINT_PROJECT_INFO) {
+    if (PRINT_PROJECT_INFO)
+    {
         printf("\033[0;35m\x1B[1m");
         printf("-----------------------------\n");
         printf("-----------------------------\n");
@@ -34,7 +35,7 @@ int main(int argc, char **argv)
         printf("\033[0;35m\x1B[0m");
     }
 
-    //printf("\033[0;36m");
+    // printf("\033[0;36m");
     printf("Setting up window...\n");
 
     GLFWwindow *window;
@@ -58,7 +59,6 @@ int main(int argc, char **argv)
     glfwGetFramebufferSize(window, &frameWidth, &frameHeight);
     glViewport(0, 0, frameWidth, frameHeight);
 
-
     renderer = new Renderer(frameWidth, frameHeight);
 
     printf("Parsing scene...\n");
@@ -78,30 +78,16 @@ int main(int argc, char **argv)
 
     renderer->render(data);
 
-    if (argc > 2 && strcmp(argv[2], "--save") == 0) {
-        printf("0\n");
+    if (argc > 2 && strcmp(argv[2], "--save") == 0)
+    {
 
         char imagePath[100];
         if (argc > 3)
             strcpy(imagePath, argv[3]);
         else
-            strcpy(imagePath, "./render.png");
-        
-        printf("1\n");
+            strcpy(imagePath, "./renders/render.png");
 
-        // Reverse the image
-        unsigned char dataReverse[frameWidth * frameHeight * 3];
-        for (int i = 0; i < frameHeight; i++) {
-            for (int j = 0; j < frameWidth; j++) {
-                dataReverse[i * frameWidth * 3 + j * 3 + 0] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 0];
-                dataReverse[i * frameWidth * 3 + j * 3 + 1] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 1];
-                dataReverse[i * frameWidth * 3 + j * 3 + 2] = data[(frameHeight - i - 1) * frameWidth * 3 + j * 3 + 2];
-            }
-        }
-
-        printf("2\n");
-
-        stbi_write_png(imagePath, frameWidth, frameHeight, 3, dataReverse, frameWidth * 3);
+        stbi_write_png(imagePath, frameWidth, frameHeight, 3, data, frameWidth * 3);
 
         printf("Saved image to %s\n", imagePath);
     }
@@ -111,11 +97,11 @@ int main(int argc, char **argv)
     printf("\x1B[0m\033[0m");
 
     /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-        glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
+    /* Swap front and back buffers */
+    glfwSwapBuffers(window);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window))

@@ -325,6 +325,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             break;
 
             case FUNDAMENTAL_DOMAIN:
+                prev = curr;
+                curr = origin + ray * h * STEP_SIZE;
+
+                curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+                curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+                curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
             break;
 
             case SPHERICAL:
@@ -446,7 +452,15 @@ bool Renderer::isShadowed(Vector origin, Vector light)
             break;
 
             case FUNDAMENTAL_DOMAIN:
-                // TODO:
+                prev = curr;
+                curr = originMoved + ray * h * STEP_SIZE;
+
+                curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+                curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+                curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+                
+                printf("%s\n", curr.toString());
+
             break;
 
             case SPHERICAL:
