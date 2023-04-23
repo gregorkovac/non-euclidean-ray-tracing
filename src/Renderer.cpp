@@ -476,7 +476,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             if (objects[i]->intersect(prev, curr))
             {
 
-                printf("Intersection with %s - %d\n", objects[i]->type(), i);
+                //printf("Intersection with %s - %d\n", objects[i]->type(), i);
 
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
 
@@ -684,7 +684,10 @@ UV Renderer::VectorToUV(Vector v)
     uArg = mapToFundamentalDomain(uArg, -1, 1);
     uv.u = acos(uArg);
 
-    float vArg = v.x / (sin(uv.u) + 0.00001);
+    if (v.y < 0)
+        uv.u = 2 * PI - uv.u;
+
+    float vArg = v.x / (sin(uv.u));
     vArg = mapToFundamentalDomain(vArg, -1, 1);
     uv.v = acos(vArg);
 

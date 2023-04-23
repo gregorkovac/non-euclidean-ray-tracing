@@ -4,6 +4,7 @@
 - [ ] Replace Euler's method with Runge Kutta
 - [ ] Code comments/documentation
 - [ ] Explain/rewrite the function `mapToFundamentalDomain`
+- [ ] Mesh objects
 
 ## To do - optional
 - [ ] Multiple shadow rays under different angles
