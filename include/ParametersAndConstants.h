@@ -5,8 +5,8 @@
 #include "Vector.h"
 
 // Window parameters
-#define WINDOW_WIDTH 400
-#define WINDOW_HEIGHT 400
+#define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT 800
 
 // Camera parameters
 #define IMAGE_PLANE_WIDTH 200
@@ -16,7 +16,7 @@
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = FUNDAMENTAL_DOMAIN;
+const SpaceType SPACE_TYPE = SPHERICAL;
 /* Fundamental domain parameters */
 #define FUNDAMENTAL_DOMAIN_X_MIN -3
 #define FUNDAMENTAL_DOMAIN_X_MAX 3
@@ -25,7 +25,7 @@ const SpaceType SPACE_TYPE = FUNDAMENTAL_DOMAIN;
 #define FUNDAMENTAL_DOMAIN_Z_MIN -3
 #define FUNDAMENTAL_DOMAIN_Z_MAX 3
 
-#define MAX_ITER 2000
+#define MAX_ITER 1000
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 4
 #define RAYS_PER_PIXEL 1
@@ -47,7 +47,7 @@ const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
 #define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {0, 0, 0};
+const Color SKY_COLOR = {250, 0, 250};
 const Color MISSING_COLOR = {250, 70, 250};
 
 #define AIR_REFRACTIVE_INDEX 1
@@ -55,8 +55,11 @@ const Color MISSING_COLOR = {250, 70, 250};
 // Debug parameters
 #define DRAW_GIZMOS false
 #define PRINT_OBJECTS_ON_STARTUP false
+#define DRAW_IMAGE true
+#define PLOT_RAYS false
 
 // Other
 #define PRINT_PROJECT_INFO true
+#define PI 3.14159265358979323846
 
 #endif

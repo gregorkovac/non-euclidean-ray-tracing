@@ -108,3 +108,7 @@ float Vector::norm() {
 bool Vector::operator==(Vector v) {
     return this->x == v.x && this->y == v.y && this->z == v.z;
 }
+
+bool Vector::operator!=(Vector v) {
+    return this->x != v.x || this->y != v.y || this->z != v.z;
+}

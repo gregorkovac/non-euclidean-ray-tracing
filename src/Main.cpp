@@ -96,19 +96,22 @@ int main(int argc, char **argv)
     printf("DONE!\n");
     printf("\x1B[0m\033[0m");
 
-    /* Render here */
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-    /* Swap front and back buffers */
-    glfwSwapBuffers(window);
-
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window))
+    if (DRAW_IMAGE)
     {
+        /* Render here */
+        glClear(GL_COLOR_BUFFER_BIT);
+        glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
 
-        /* Poll for and process events */
-        glfwPollEvents();
+        /* Swap front and back buffers */
+        glfwSwapBuffers(window);
+
+        /* Loop until the user closes the window */
+        while (!glfwWindowShouldClose(window))
+        {
+
+            /* Poll for and process events */
+            glfwPollEvents();
+        }
     }
 
     glfwTerminate();

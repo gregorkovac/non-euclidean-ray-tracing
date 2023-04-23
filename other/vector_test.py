@@ -1,13 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def map_to_range(x, min, max):
-    if x < min:
-        x = max - (min - x) % (max - min)
-    elif x > max:
-        x = min + (x - min) % (max - min)
-
-    return x
+def map_to_range(x, a, b):
+    range = b - a;
+    quotient = (x - a) / range;
+    fractionalPart = quotient - np.floor(quotient);
+    return a + fractionalPart * range;
 
 def xyz_to_uv(x):
     #u = np.arccos(map_to_range(x[2], -1, 1))
@@ -16,14 +14,18 @@ def xyz_to_uv(x):
     # u = np.arcsin(map_to_range(x[2], -1, 1))
     # v = np.arccos(map_to_range(x[0] / (np.sin(u) + 0.000001), -1, 1))
 
-    u = np.arccos(x[2])
+    u = np.arccos(map_to_range(x[2], -1, 1))
 
     # if (x[2] == -1):
     #     v = 0
     # elif (x[2] == 1):
     #     v = np.pi
     # else:
-    v = np.arccos(map_to_range(x[0] / (np.sin(u) + 0.000001), -1, 1))
+
+    if np.sin(u) == 0:
+        v = 0
+    else:
+        v = np.arccos(map_to_range(x[0] / np.sin(u), -1, 1))
 
     #print(u, v)
 
@@ -128,7 +130,7 @@ def next_point(x, vel, t):
 # exit(0)
 origin = np.array([0, 0, 0])
 focal_length = 1
-image_plane_width, image_plane_height = 1, 1
+image_plane_width, image_plane_height = 5, 5
 
 image_plane_center = origin + np.array([0, focal_length, 0])
 
@@ -156,11 +158,12 @@ for point in image_plane_points:
 
     point_prev, point_curr = point, point
     point_prev_uv, point_curr_uv = xyz_to_uv(point_prev), xyz_to_uv(point_curr)
+
     vel = xyz_to_uv(vec)
 
     #ray_color = np.array([1, 0, 0])
 
-    for i in range(3):
+    for i in range(5):
         point_prev = point_curr
         point_prev_uv = point_curr_uv
 
@@ -168,7 +171,17 @@ for point in image_plane_points:
 
         point_curr_uv, vel = next_point(point_curr_uv, vel, 0.1)
 
-        point_curr = uv_to_xyz(point_curr_uv)
+        prev_uv_norm = np.array([0,0])
+        curr_uv_norm = point_curr_uv - point_prev_uv
+
+        #print(vel_uv)
+
+        vel_xyz = uv_to_xyz(vel)
+
+
+        point_curr = point_prev + vel_xyz * 0.2
+
+        #point_curr = uv_to_xyz(point_curr_uv)
         #ray_color[0] -= 0.2
 
         if i == 0:

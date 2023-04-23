@@ -145,8 +145,13 @@ void Renderer::parseScene(char *sceneFilePath)
     }
 }
 
+FILE *pointFile;
+
 void Renderer::render(unsigned char *dataBuffer)
 {
+
+    if (PLOT_RAYS)
+        pointFile = fopen("points.txt", "w");
 
     if (PRINT_OBJECTS_ON_STARTUP)
     {
@@ -168,7 +173,8 @@ void Renderer::render(unsigned char *dataBuffer)
             Color color = {0, 0, 0};
             for (int k = 0; k < RAYS_PER_PIXEL; k++)
             {
-                Vector offset = Vector(randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), 0);
+                // Vector offset = Vector(randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), 0);
+                Vector offset = Vector(0, 0, 0);
 
                 Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
 
@@ -176,7 +182,7 @@ void Renderer::render(unsigned char *dataBuffer)
 
                 Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
 
-                Color c = trace(ray, imagePlaneCenter, 0);
+                Color c = trace(ray, camera->position(), 0);
                 color.r += c.r;
                 color.g += c.g;
                 color.b += c.b;
@@ -279,6 +285,12 @@ void Renderer::render(unsigned char *dataBuffer)
             dataBuffer[(y * frameWidth + x) * 3 + 2] = data[(yPlane * IMAGE_PLANE_WIDTH + xPlane) * 3 + 2];
         }
     }
+
+    if (PLOT_RAYS)
+    {
+        fclose(pointFile);
+        system("python3 other/plot_rays.py");
+    }
 }
 
 Color Renderer::trace(Vector ray, Vector origin, int depth)
@@ -293,14 +305,59 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     // UV uvRay = this->VectorToUV(ray);
 
     Vector prev, curr;
-    //UV uvPrev, uvCurr;
+    // UV uvPrev, uvCurr;
+
+    Vector originOffset = Vector(0, 0, 0);
 
     prev = origin;
     curr = origin;
-    // uvPrev = uvCurr = this->VectorToUV(origin);
 
-    // UV uvOrigin = this->VectorToUV(origin);
-    // UV uvRay = this->VectorToUV(ray);
+    if (SPACE_TYPE == SPHERICAL)
+    {
+        curr = origin + ray;
+
+        if (abs(curr.x) > 1)
+        {
+            int wholePart = int(floor(abs(curr.x)));
+            float decimal = abs(curr.x) - wholePart;
+            int s = sign(curr.x);
+
+            originOffset.x = s * wholePart;
+            curr.x = s * decimal;
+        }
+
+        if (abs(curr.y) > 1)
+        {
+            int wholePart = int(floor(abs(curr.y)));
+            float decimal = abs(curr.y) - wholePart;
+            int s = sign(curr.y);
+
+            originOffset.y = s * wholePart;
+            curr.y = s * decimal;
+        }
+
+        if (abs(curr.z) > 1)
+        {
+            int wholePart = int(floor(abs(curr.z)));
+            float decimal = abs(curr.z) - wholePart;
+            int s = sign(curr.z);
+
+            originOffset.z = s * wholePart;
+            curr.z = s * decimal;
+        }
+    }
+
+    // printf("%s %s\n", curr.toString(), originOffset.toString());
+
+    if (PLOT_RAYS)
+        fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
+
+    UV uvPrev = this->VectorToUV(origin);
+    UV uvCurr = this->VectorToUV(origin);
+    UV uvOrigin = this->VectorToUV(origin);
+    UV uvRay = this->VectorToUV(ray);
+
+    UV fundamentalDomainOffset = {0, 0};
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
@@ -319,22 +376,97 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
         // curr = prev + dir * STEP_SIZE;
 
-        switch (SPACE_TYPE) {
-            case EUCLIDEAN:
-                prev = curr;
-                curr = origin + ray * h * STEP_SIZE;
+        switch (SPACE_TYPE)
+        {
+        case EUCLIDEAN:
+            prev = curr;
+            curr = origin + ray * h * STEP_SIZE;
             break;
 
-            case FUNDAMENTAL_DOMAIN:
-                prev = curr;
-                curr = origin + ray * h * STEP_SIZE;
+        case FLAT_TORUS:
+            prev = curr;
+            curr = origin + ray * h * STEP_SIZE;
 
-                curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-                curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-                curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+            curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+            curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+            curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
             break;
 
-            case SPHERICAL:
+        case MIRRORED_CUBE:
+        {
+            // TODO:
+            prev = curr;
+            curr = origin + ray * h * STEP_SIZE;
+
+            Vector newCurr = Vector(0, 0, 0);
+
+            newCurr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+            newCurr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+            newCurr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+
+            if (newCurr != curr)
+            {
+                newCurr = -1 * newCurr;
+            }
+
+            curr = newCurr;
+        }
+        break;
+
+        case SPHERICAL:
+            uvPrev = uvCurr;
+            prev = curr;
+
+            uvRay = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
+
+            Vector rayXYZ = this->UVToVector(uvRay);
+
+            curr = prev + rayXYZ * STEP_SIZE;
+            // uvCurr = this->VectorToUV(curr);
+
+            uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
+            uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
+
+            curr = curr + originOffset;
+
+            if (PLOT_RAYS)
+                fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
+
+            curr = curr - originOffset;
+
+            // printf("%s %s\n", prev.toString(), curr.toString());
+
+            // printf("%s\n", curr.toString());
+
+            // uvCurr.u += uvRay.u * STEP_SIZE;
+            // uvCurr.v += uvRay.v * STEP_SIZE;
+
+            // if (uvCurr.u > 2 * PI) {
+            //     uvCurr.u -= 2 * PI;
+            //     fundamentalDomainOffset.u += 2 * PI;
+            // } else if (uvCurr.u < 2 * PI) {
+            //     uvCurr.u += 2 * PI;
+            //     fundamentalDomainOffset.u -= 2 * PI;
+            // }
+
+            // if (uvCurr.v > PI) {
+            //     uvCurr.v -= 2 * PI;
+            //     fundamentalDomainOffset.v += 2 * PI;
+            // } else if (uvCurr.v < -PI) {
+            //     uvCurr.v += 2 * PI;
+            //     fundamentalDomainOffset.v -= 2 * PI;
+            // }
+
+            // curr = this->UVToVector(uvCurr);
+
+            // Vector offsetXYZ = this->UVToVector(fundamentalDomainOffset);
+
+            // curr.x += offsetXYZ.x;
+            // curr.y += offsetXYZ.y;
+            // curr.z += offsetXYZ.z;
+
+            // printf("%s\n", curr.toString());
+
             break;
         }
 
@@ -344,11 +476,13 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             if (objects[i]->intersect(prev, curr))
             {
 
-
-                //printf("Intersection with %s - %d\n", objects[i]->type(), i);
+                printf("Intersection with %s - %d\n", objects[i]->type(), i);
 
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
-                
+
+                // printf("%d\n", h);
+                // printf("%s %s\n\n", prev.toString(), curr.toString());
+
                 Color c = {
                     AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
                     AMBIENT_LIGHT_COLOR.g * AMBIENT_LIGHT_INTENSITY,
@@ -429,6 +563,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
         }
     }
 
+    // printf("NO INTERSECTION\n");
+    // printf("%s %s\n\n", prev.toString(), curr.toString());
+
     return SKY_COLOR;
 }
 
@@ -446,32 +583,51 @@ bool Renderer::isShadowed(Vector origin, Vector light)
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
-        switch (SPACE_TYPE) {
-            case EUCLIDEAN:
-                prev = curr;
-                curr = originMoved + ray * h * STEP_SIZE;
+        switch (SPACE_TYPE)
+        {
+        case EUCLIDEAN:
+            prev = curr;
+            curr = originMoved + ray * h * STEP_SIZE;
             break;
 
-            case FUNDAMENTAL_DOMAIN:
-                prev = curr;
-                curr = originMoved + ray * h * STEP_SIZE;
+        case FLAT_TORUS:
+            prev = curr;
+            curr = originMoved + ray * h * STEP_SIZE;
 
-                //printf("%s -> ", curr.toString());
-
-                curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-                curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-                curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-
-                //printf("%s\n", curr.toString());
+            curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+            curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+            curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
             break;
 
-            case SPHERICAL:
-                // TODO:
+        case MIRRORED_CUBE:
+        {
+            prev = curr;
+            curr = originMoved + ray * h * STEP_SIZE;
+
+            Vector newCurr = Vector(0, 0, 0);
+
+            newCurr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+            newCurr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+            newCurr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+
+            if (newCurr != curr)
+            {
+                newCurr = -1 * newCurr;
+            }
+
+            curr = newCurr;
+        }
+        break;
+
+        case SPHERICAL:
+            // TODO:
+            prev = curr;
+            curr = originMoved + ray * h * STEP_SIZE;
             break;
         }
 
         // prev = curr;
-        
+
         // UV uvPrev = this->VectorToUV(prev);
         // UV uvCurr;
         // UV uvDir;
@@ -508,15 +664,13 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
 
     UV xNew = {
         x.u + (double)t * y.u,
-        x.v + (double)t * y.v
-    };
+        x.v + (double)t * y.v};
 
     UV accelaration = F(xNew, y);
 
     UV yNew = {
         y.u + (double)t * accelaration.u,
-        y.v + (double)t * accelaration.v
-    };
+        y.v + (double)t * accelaration.v};
 
     return yNew;
 }

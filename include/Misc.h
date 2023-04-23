@@ -33,7 +33,8 @@ float mapToFundamentalDomain(float x, float a, float b);
 
 enum SpaceType {
     EUCLIDEAN,
-    FUNDAMENTAL_DOMAIN,
+    FLAT_TORUS,
+    MIRRORED_CUBE,
     SPHERICAL
 };
 

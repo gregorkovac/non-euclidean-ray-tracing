@@ -21,6 +21,7 @@ class Vector {
         Vector operator*(float s);
         Vector operator/(float s);
         bool operator==(Vector v);
+        bool operator!=(Vector v);
         char* toString();
         float distance(Vector v);
         float norm();

@@ -5,10 +5,10 @@
 
 Camera (0 0 -3) (0 0 0)
 Sphere (0 0 0) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
-Sphere (0.5 0.5 -1) (0 0 0) (0.3 0.3 0.3) 0 0 1 solid normalmap-none (70 190 90)
+#Sphere (0.5 0.5 -1) (0 0 0) (0.3 0.3 0.3) 0 0 1 solid normalmap-none (70 190 90)
 #Sphere (-0.5 0 2) (0 0 0) (0.3 0.3 0.3) 0 0 1 solid normalmap-none (0 255 0)
-#Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 0 255)
-Plane (0 0 6) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (0 200 255)
-#Plane (0 0 -0.1) (-1.8 0 0) (1 1 1) 0 0 1 solid normalmap-none (200 255 0)
+Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 0 255)
+Plane (0 0 1) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (0 200 255)
+Plane (0 0 -5) (-1.8 0 0) (1 1 1) 0 0 1 solid normalmap-none (200 255 0)
 #Light (1 1 1) (255 255 255) 2.0
 Light (-1 1 -1.5) (255 255 255) 1.0
