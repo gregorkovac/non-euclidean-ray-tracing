@@ -481,7 +481,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
 
                 // printf("%d\n", h);
-                // printf("%s %s\n\n", prev.toString(), curr.toString());
+                 //printf("%s %s\n\n", prev.toString(), curr.toString());
 
                 Color c = {
                     AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
@@ -677,27 +677,51 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
 
 UV Renderer::VectorToUV(Vector v)
 {
-
     UV uv;
 
-    float uArg = v.z;
-    uArg = mapToFundamentalDomain(uArg, -1, 1);
-    uv.u = acos(uArg);
+    float theta, phi;
 
-    if (v.y < 0)
-        uv.u = 2 * PI - uv.u;
+    theta = acos(mapToFundamentalDomain(v.z, -1, 1));
+    phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
 
-    float vArg = v.x / (sin(uv.u));
-    vArg = mapToFundamentalDomain(vArg, -1, 1);
-    uv.v = acos(vArg);
+    uv.u = theta;
+    uv.v = phi;
 
     return uv;
+
+
+    // UV uv;
+
+    // float uArg = v.z;
+    // uArg = mapToFundamentalDomain(uArg, -1, 1);
+    // uv.u = acos(uArg);
+
+    // if (v.y < 0)
+    //     uv.u = 2 * PI - uv.u;
+
+    // float vArg = v.x / (sin(uv.u));
+    // vArg = mapToFundamentalDomain(vArg, -1, 1);
+    // uv.v = acos(vArg);
+
+    // return uv;
 }
 
 Vector Renderer::UVToVector(UV uv)
 {
+    
+    float theta, phi;
+
+    theta = uv.v;
+    phi = uv.u;
+
     return Vector(
-        sin(uv.u) * cos(uv.v),
-        sin(uv.u) * sin(uv.v),
-        cos(uv.u));
+        sin(theta) * cos(phi),
+        sin(theta) * sin(phi),
+        cos(theta)
+    );
+
+    // return Vector(
+    //     sin(uv.u) * cos(uv.v),
+    //     sin(uv.u) * sin(uv.v),
+    //     cos(uv.u));
 }
