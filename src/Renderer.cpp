@@ -316,7 +316,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     {
         curr = origin + ray;
 
-        if (abs(curr.x) > 1)
+         if (abs(curr.x) > 1)
         {
             int wholePart = int(floor(abs(curr.x)));
             float decimal = abs(curr.x) - wholePart;
@@ -427,12 +427,14 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
             uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
 
-            curr = curr + originOffset;
+            // curr = curr + originOffset;
 
-            if (PLOT_RAYS)
-                fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
+            // if (PLOT_RAYS)
+            //     fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
 
-            curr = curr - originOffset;
+            // curr = curr - originOffset;
+
+            
 
             // printf("%s %s\n", prev.toString(), curr.toString());
 
@@ -681,8 +683,15 @@ UV Renderer::VectorToUV(Vector v)
 
     float theta, phi;
 
-    theta = acos(mapToFundamentalDomain(v.z, -1, 1));
-    phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
+    // theta = acos(mapToFundamentalDomain(v.z, -1, 1));
+    // phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
+
+
+    //v = v.normalize3();
+
+    theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
+    phi = atan2(v.y, v.x);
+
 
     uv.u = theta;
     uv.v = phi;
@@ -692,14 +701,14 @@ UV Renderer::VectorToUV(Vector v)
 
     // UV uv;
 
-    // float uArg = v.z;
+    // float uArg = v.z / SPHERICAL_SPACE_RADIUS;
     // uArg = mapToFundamentalDomain(uArg, -1, 1);
     // uv.u = acos(uArg);
 
     // if (v.y < 0)
     //     uv.u = 2 * PI - uv.u;
 
-    // float vArg = v.x / (sin(uv.u));
+    // float vArg = v.x / (SPHERICAL_SPACE_RADIUS * sin(uv.u));
     // vArg = mapToFundamentalDomain(vArg, -1, 1);
     // uv.v = acos(vArg);
 
@@ -715,13 +724,13 @@ Vector Renderer::UVToVector(UV uv)
     phi = uv.u;
 
     return Vector(
-        sin(theta) * cos(phi),
-        sin(theta) * sin(phi),
-        cos(theta)
+        sin(theta) * cos(phi) / SPHERICAL_SPACE_RADIUS,
+        sin(theta) * sin(phi) / SPHERICAL_SPACE_RADIUS,
+        cos(theta) / SPHERICAL_SPACE_RADIUS
     );
 
     // return Vector(
-    //     sin(uv.u) * cos(uv.v),
-    //     sin(uv.u) * sin(uv.v),
-    //     cos(uv.u));
+    //     SPHERICAL_SPACE_RADIUS * sin(uv.u) * cos(uv.v),
+    //     SPHERICAL_SPACE_RADIUS * sin(uv.u) * sin(uv.v),
+    //     SPHERICAL_SPACE_RADIUS * cos(uv.u));
 }
