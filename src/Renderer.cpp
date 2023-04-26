@@ -147,7 +147,7 @@ void Renderer::parseScene(char *sceneFilePath)
 
 FILE *pointFile;
 
-float sphereRadius = 1.0;
+float sphereRadius;
 
 void Renderer::render(unsigned char *dataBuffer)
 {
@@ -318,35 +318,35 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     {
         curr = origin + ray;
 
-         if (abs(curr.x) > 1)
-        {
-            int wholePart = int(floor(abs(curr.x)));
-            float decimal = abs(curr.x) - wholePart;
-            int s = sign(curr.x);
+        //  if (abs(curr.x) > 1)
+        // {
+        //     int wholePart = int(floor(abs(curr.x)));
+        //     float decimal = abs(curr.x) - wholePart;
+        //     int s = sign(curr.x);
 
-            originOffset.x = s * wholePart;
-            curr.x = s * decimal;
-        }
+        //     originOffset.x = s * wholePart;
+        //     curr.x = s * decimal;
+        // }
 
-        if (abs(curr.y) > 1)
-        {
-            int wholePart = int(floor(abs(curr.y)));
-            float decimal = abs(curr.y) - wholePart;
-            int s = sign(curr.y);
+        // if (abs(curr.y) > 1)
+        // {
+        //     int wholePart = int(floor(abs(curr.y)));
+        //     float decimal = abs(curr.y) - wholePart;
+        //     int s = sign(curr.y);
 
-            originOffset.y = s * wholePart;
-            curr.y = s * decimal;
-        }
+        //     originOffset.y = s * wholePart;
+        //     curr.y = s * decimal;
+        // }
 
-        if (abs(curr.z) > 1)
-        {
-            int wholePart = int(floor(abs(curr.z)));
-            float decimal = abs(curr.z) - wholePart;
-            int s = sign(curr.z);
+        // if (abs(curr.z) > 1)
+        // {
+        //     int wholePart = int(floor(abs(curr.z)));
+        //     float decimal = abs(curr.z) - wholePart;
+        //     int s = sign(curr.z);
 
-            originOffset.z = s * wholePart;
-            curr.z = s * decimal;
-        }
+        //     originOffset.z = s * wholePart;
+        //     curr.z = s * decimal;
+        // }
     }
 
     // printf("%s %s\n", curr.toString(), originOffset.toString());

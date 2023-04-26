@@ -27,8 +27,8 @@ const SpaceType SPACE_TYPE = SPHERICAL;
 #define FUNDAMENTAL_DOMAIN_Z_MIN -2
 #define FUNDAMENTAL_DOMAIN_Z_MAX 2
 
-#define MAX_ITER 2000
-#define STEP_SIZE 0.001
+#define MAX_ITER 1000
+#define STEP_SIZE 0.01
 #define MAX_DEPTH 4
 #define RAYS_PER_PIXEL 1
 #define SHADOW_RAY_COUNT 5
@@ -49,7 +49,7 @@ const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
 #define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {0, 255, 0};
+const Color SKY_COLOR = {255, 255, 255};
 const Color MISSING_COLOR = {250, 70, 250};
 
 #define AIR_REFRACTIVE_INDEX 1
@@ -57,7 +57,7 @@ const Color MISSING_COLOR = {250, 70, 250};
 // Debug parameters
 #define DRAW_GIZMOS false
 #define PRINT_OBJECTS_ON_STARTUP false
-#define DRAW_IMAGE true
+#define DRAW_IMAGE false
 #define PLOT_RAYS false
 
 // Other
