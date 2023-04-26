@@ -6,6 +6,7 @@
 - [ ] Explain/rewrite the function `mapToFundamentalDomain`
 - [ ] Mesh objects
 - [ ] Reflective -> smoothness (blend between diffuse and specular reflections)
+- [ ] Implementation on the GPU
 
 ## To do - optional
 - [ ] Multiple shadow rays under different angles

@@ -147,6 +147,8 @@ void Renderer::parseScene(char *sceneFilePath)
 
 FILE *pointFile;
 
+float sphereRadius = 1.0;
+
 void Renderer::render(unsigned char *dataBuffer)
 {
 
@@ -422,15 +424,25 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             Vector rayXYZ = this->UVToVector(uvRay);
 
             curr = prev + rayXYZ * STEP_SIZE;
+
+            // curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+            // curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+            // curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+
             // uvCurr = this->VectorToUV(curr);
 
             uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
             uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
 
+            // if (uvCurr.u > 1 || uvCurr.v > 1) {
+            //     h = MAX_ITER + 1;
+            //     break;
+            // }
+
             // curr = curr + originOffset;
 
-            // if (PLOT_RAYS)
-            //     fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
+            if (PLOT_RAYS)
+                fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
 
             // curr = curr - originOffset;
 
@@ -625,6 +637,7 @@ bool Renderer::isShadowed(Vector origin, Vector light)
             // TODO:
             prev = curr;
             curr = originMoved + ray * h * STEP_SIZE;
+
             break;
         }
 
@@ -658,7 +671,11 @@ UV F(UV x, UV y)
 {
     return {
         cos(x.u) * sin(x.u) * y.v * y.v,
-        -2 * (cos(x.u) / (sin(x.u) + 0.00001)) * y.u * y.v};
+        -2 * atan(x.u) * y.u * y.v};
+
+    // return {
+    //     cos(x.u) * sin(x.u) * y.v * y.v,
+    //     -2 * (cos(x.u) / (sin(x.u) + 0.00001)) * y.u * y.v};
 }
 
 UV Renderer::rungeKutta4(UV x, UV y, float t)
@@ -681,20 +698,26 @@ UV Renderer::VectorToUV(Vector v)
 {
     UV uv;
 
-    float theta, phi;
+    // float theta, phi;
 
     // theta = acos(mapToFundamentalDomain(v.z, -1, 1));
     // phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
 
-
     //v = v.normalize3();
 
-    theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
-    phi = atan2(v.y, v.x);
+    // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
+    // phi = atan2(v.y, v.x);
 
+    sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 
-    uv.u = theta;
-    uv.v = phi;
+    uv.u = acos(v.z/sphereRadius);
+    uv.v = atan2(v.y, v.x);
+
+    // uv.u = mapToFundamentalDomain(uv.u, -1, 1);
+    // uv.v = mapToFundamentalDomain(uv.v, -1, 1);
+
+    // uv.u = (phi + PI) / (2 * PI);
+    // uv.v = (theta + PI/2) / PI;
 
     return uv;
 
@@ -718,19 +741,34 @@ UV Renderer::VectorToUV(Vector v)
 Vector Renderer::UVToVector(UV uv)
 {
     
-    float theta, phi;
+    // float theta, phi;
 
-    theta = uv.v;
-    phi = uv.u;
-
-    return Vector(
-        sin(theta) * cos(phi) / SPHERICAL_SPACE_RADIUS,
-        sin(theta) * sin(phi) / SPHERICAL_SPACE_RADIUS,
-        cos(theta) / SPHERICAL_SPACE_RADIUS
-    );
+    // theta = uv.v;
+    // phi = uv.u;
 
     // return Vector(
-    //     SPHERICAL_SPACE_RADIUS * sin(uv.u) * cos(uv.v),
-    //     SPHERICAL_SPACE_RADIUS * sin(uv.u) * sin(uv.v),
-    //     SPHERICAL_SPACE_RADIUS * cos(uv.u));
+    //     sin(theta) * cos(phi) / SPHERICAL_SPACE_RADIUS,
+    //     sin(theta) * sin(phi) / SPHERICAL_SPACE_RADIUS,
+    //     cos(theta) / SPHERICAL_SPACE_RADIUS
+    // );
+
+    // return Vector(
+    //     sin(uv.u) * cos(uv.v) / SPHERICAL_SPACE_RADIUS,
+    //     sin(uv.u) * sin(uv.v) / SPHERICAL_SPACE_RADIUS,
+    //     cos(uv.u) / SPHERICAL_SPACE_RADIUS);
+
+    return Vector(
+        sphereRadius * sin(uv.u) * cos(uv.v),
+        sphereRadius * sin(uv.u) * sin(uv.v),
+        sphereRadius * cos(uv.u));
+
+    // float theta, phi;
+
+    // phi = PI * (uv.v - 0.5);
+    // theta = 2 * PI * uv.u - PI;
+
+    // return Vector(
+    //     SPHERICAL_SPACE_RADIUS * sin(phi) * cos(theta),
+    //     SPHERICAL_SPACE_RADIUS * sin(phi) * sin(theta),
+    //     SPHERICAL_SPACE_RADIUS * cos(phi));
 }
