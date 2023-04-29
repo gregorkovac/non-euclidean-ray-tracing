@@ -29,6 +29,8 @@ class Object {
         Color* textureData;
         bool hasNormalMap = false;
         Vector* normalMapData;
+        float smoothness_;
+        float emissionStrength_;
 
     public:
         Object(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* normalMap);
@@ -58,6 +60,8 @@ class Object {
         virtual float v(Vector p) = 0;
         void parseColorType(char* colorType);
         void parseNormalMap(char* normalMap);
+        float smoothness();
+        float emissionStrength();
 };
 
 #endif

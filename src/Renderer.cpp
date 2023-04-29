@@ -8,6 +8,7 @@ Renderer::Renderer(int frameWidth, int frameHeight)
 
 void Renderer::parseScene(char *sceneFilePath)
 {
+
     FILE *file = fopen(sceneFilePath, "r");
 
     if (file == NULL)
@@ -361,218 +362,150 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
     UV fundamentalDomainOffset = {0, 0};
 
-    for (float h = 1; h < MAX_ITER; h += 1)
+    Color rayColor = {255, 255, 255};
+    Color incomingLight = {0, 0, 0};
+
+    for (int d = 0; d < MAX_DEPTH; d++)
     {
-        // prev = curr;
-
-        // UV uvPrev = this->VectorToUV(prev);
-        // UV uvCurr;
-        // UV uvDir;
-
-        // uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
-
-        // Vector dir = this->UVToVector(uvDir);
-
-        // uvRay.u = uvDir.u;
-        // uvRay.v = uvDir.v;
-
-        // curr = prev + dir * STEP_SIZE;
-
-        switch (SPACE_TYPE)
+        for (float h = 1; h < MAX_ITER; h += 1)
         {
-        case EUCLIDEAN:
-            prev = curr;
-            curr = origin + ray * h * STEP_SIZE;
-            break;
 
-        case FLAT_TORUS:
-            prev = curr;
-            curr = origin + ray * h * STEP_SIZE;
-
-            curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-            curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-            curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-            break;
-
-        case MIRRORED_CUBE:
-        {
-            // TODO:
-            prev = curr;
-            curr = origin + ray * h * STEP_SIZE;
-
-            Vector newCurr = Vector(0, 0, 0);
-
-            newCurr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-            newCurr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-            newCurr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-
-            if (newCurr != curr)
+            switch (SPACE_TYPE)
             {
-                newCurr = -1 * newCurr;
+            case EUCLIDEAN:
+                prev = curr;
+                curr = origin + ray * h * STEP_SIZE;
+                break;
+
+            case FLAT_TORUS:
+                prev = curr;
+                curr = origin + ray * h * STEP_SIZE;
+
+                curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+                curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+                curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+                break;
+
+            case MIRRORED_CUBE:
+            {
+                // TODO:
+                prev = curr;
+                curr = origin + ray * h * STEP_SIZE;
+
+                Vector newCurr = Vector(0, 0, 0);
+
+                newCurr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
+                newCurr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
+                newCurr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
+
+                if (newCurr != curr)
+                {
+                    newCurr = -1 * newCurr;
+                }
+
+                curr = newCurr;
+            }
+            break;
+
+            case SPHERICAL:
+                uvPrev = uvCurr;
+                prev = curr;
+
+                uvRay = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
+
+                Vector rayXYZ = this->UVToVector(uvRay);
+
+                curr = prev + rayXYZ * STEP_SIZE;
+
+
+                uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
+                uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
+
+                if (PLOT_RAYS)
+                    fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
+
+                break;
             }
 
-            curr = newCurr;
-        }
-        break;
-
-        case SPHERICAL:
-            uvPrev = uvCurr;
-            prev = curr;
-
-            uvRay = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
-
-            Vector rayXYZ = this->UVToVector(uvRay);
-
-            curr = prev + rayXYZ * STEP_SIZE;
-
-            // curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-            // curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-            // curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-
-            // uvCurr = this->VectorToUV(curr);
-
-            uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
-            uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
-
-            // if (uvCurr.u > 1 || uvCurr.v > 1) {
-            //     h = MAX_ITER + 1;
-            //     break;
-            // }
-
-            // curr = curr + originOffset;
-
-            if (PLOT_RAYS)
-                fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
-
-            // curr = curr - originOffset;
-
-            
-
-            // printf("%s %s\n", prev.toString(), curr.toString());
-
-            // printf("%s\n", curr.toString());
-
-            // uvCurr.u += uvRay.u * STEP_SIZE;
-            // uvCurr.v += uvRay.v * STEP_SIZE;
-
-            // if (uvCurr.u > 2 * PI) {
-            //     uvCurr.u -= 2 * PI;
-            //     fundamentalDomainOffset.u += 2 * PI;
-            // } else if (uvCurr.u < 2 * PI) {
-            //     uvCurr.u += 2 * PI;
-            //     fundamentalDomainOffset.u -= 2 * PI;
-            // }
-
-            // if (uvCurr.v > PI) {
-            //     uvCurr.v -= 2 * PI;
-            //     fundamentalDomainOffset.v += 2 * PI;
-            // } else if (uvCurr.v < -PI) {
-            //     uvCurr.v += 2 * PI;
-            //     fundamentalDomainOffset.v -= 2 * PI;
-            // }
-
-            // curr = this->UVToVector(uvCurr);
-
-            // Vector offsetXYZ = this->UVToVector(fundamentalDomainOffset);
-
-            // curr.x += offsetXYZ.x;
-            // curr.y += offsetXYZ.y;
-            // curr.z += offsetXYZ.z;
-
-            // printf("%s\n", curr.toString());
-
-            break;
-        }
-
-        for (int i = 0; i < this->numObjects; i++)
-        {
-
-            if (objects[i]->intersect(prev, curr))
+            for (int i = 0; i < this->numObjects; i++)
             {
 
-                //printf("Intersection with %s - %d\n", objects[i]->type(), i);
-
-                Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
-
-                // printf("%d\n", h);
-                 //printf("%s %s\n\n", prev.toString(), curr.toString());
-
-                Color c = {
-                    AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
-                    AMBIENT_LIGHT_COLOR.g * AMBIENT_LIGHT_INTENSITY,
-                    AMBIENT_LIGHT_COLOR.b * AMBIENT_LIGHT_INTENSITY};
-                Color objectColor = objects[i]->color(intersection);
-
-                Color reflectionColor = {0, 0, 0}, refractionColor = {0, 0, 0};
-
-                float reflectivity = objects[i]->reflectivity();
-                float translucency = objects[i]->translucency();
-
-                Vector inRay = (intersection - origin).normalize3();
-                Vector normal = objects[i]->normal(intersection);
-
-                if (reflectivity > 0)
+                if (objects[i]->intersect(prev, curr))
                 {
-                    Vector reflectionRay = inRay - 2 * normal * (normal * inRay);
 
-                    reflectionColor = trace(reflectionRay, intersection + reflectionRay * STEP_SIZE, depth + 1);
+                    Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
 
-                    c.r *= 1 - reflectivity;
-                    c.g *= 1 - reflectivity;
-                    c.b *= 1 - reflectivity;
+                    // Color c = {
+                    //     AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
+                    //     AMBIENT_LIGHT_COLOR.g * AMBIENT_LIGHT_INTENSITY,
+                    //     AMBIENT_LIGHT_COLOR.b * AMBIENT_LIGHT_INTENSITY};
+                    Color objectColor = objects[i]->color(intersection);
 
-                    c.r += reflectivity * reflectionColor.r;
-                    c.g += reflectivity * reflectionColor.g;
-                    c.b += reflectivity * reflectionColor.b;
-                }
+                    float smoothness = objects[i]->smoothness();
+                    float emissionStrength = objects[i]->emissionStrength();
 
-                if (translucency > 0)
-                {
-                    float eta = objects[i]->refractiveCoefficient(curr);
+                    Vector inRay = (intersection - origin).normalize3();
+                    Vector normal = objects[i]->normal(intersection);
 
-                    if (normal * inRay > 0)
+                    // Diffuse vector
+                    // Generate a random point on a unit sphere
+                    Vector diffuse = Vector(0, 0, 0);
+
+                    int iterCount = 0;
+                    while (iterCount < 1000)
                     {
-                        eta = 1 / eta;
-                        normal = -1 * normal;
+                        Vector rand = Vector(
+                            randomBetween(-1, 1),
+                            randomBetween(-1, 1),
+                            randomBetween(-1, 1));
+
+                        if (rand.norm() <= 1)
+                        {
+                            //printf("Random before norm: %s\n", rand.toString());
+                            diffuse = rand.normalize3();
+                            break;
+                        }
+
+                        iterCount++;
                     }
 
-                    Vector refractionRay = (eta * (normal * inRay) - sqrt(1 - eta * eta * (1 - pow(normal * inRay, 2)))) * normal - eta * inRay;
+                    // printf("Intersection: %s\n", intersection.toString());
+                    // printf("Normal: %s\n", normal.toString());
+                    // printf("Random sphere point: %s\n", diffuse.toString());
+                    //diffuse = intersection + normal + diffuse;
 
-                    refractionColor = trace(refractionRay, intersection + refractionRay * STEP_SIZE, depth + 1);
+                    // printf("Diffuse: %s\n", diffuse.toString());
+                    // printf("--------------------\n");
 
-                    c.r *= 1 - translucency;
-                    c.g *= 1 - translucency;
-                    c.b *= 1 - translucency;
+                    //printf("%s\n", diffuse.toString());
 
-                    c.r += translucency * refractionColor.r;
-                    c.g += translucency * refractionColor.g;
-                    c.b += translucency * refractionColor.b;
-                }
-
-                for (int j = 0; j < this->numLights; j++)
-                {
-                    if (!isShadowed(intersection, lights[j]->position()))
+                    if (normal * diffuse < 0)
                     {
-                        float distToLight = intersection.distance(lights[j]->position());
-
-                        distToLight *= distToLight;
-
-                        c.r += lights[j]->intensity() * lights[j]->color().r / 255.0 * objectColor.r / distToLight;
-                        c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
-                        c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
+                        diffuse = -1 * diffuse;
                     }
+
+                    origin = intersection;
+                    ray = diffuse;
+                    
+                    rayColor.r = (unsigned short)(rayColor.r * objectColor.r);
+                    rayColor.g = (unsigned short)(rayColor.g * objectColor.g);
+                    rayColor.b = (unsigned short)(rayColor.b * objectColor.b);
+                    
+                    incomingLight.r = (unsigned short)(incomingLight.r + rayColor.r * emissionStrength);
+                    incomingLight.g = (unsigned short)(incomingLight.g + rayColor.g * emissionStrength);
+                    incomingLight.b = (unsigned short)(incomingLight.b + rayColor.b * emissionStrength);
+
+                    // Color diffuseColor = trace(intersection, diffuse, depth + 1);
+
+                    // Color ret = {
+                    //     objectColor.r * diffuseColor.r + emissionStrength * objectColor.r,
+                    //     objectColor.g * diffuseColor.g + emissionStrength * objectColor.g,
+                    //     objectColor.b * diffuseColor.b + emissionStrength * objectColor.b};
+
+
+                    break;
+                    //return ret;
                 }
-
-                Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
-
-                if (!isShadowed(intersection, directionalLight))
-                {
-                    c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0 * objectColor.r;
-                    c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
-                    c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
-                }
-
-                return c;
             }
         }
     }
@@ -580,7 +513,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     // printf("NO INTERSECTION\n");
     // printf("%s %s\n\n", prev.toString(), curr.toString());
 
-    return SKY_COLOR;
+    return incomingLight;
 }
 
 bool Renderer::isShadowed(Vector origin, Vector light)
@@ -703,14 +636,14 @@ UV Renderer::VectorToUV(Vector v)
     // theta = acos(mapToFundamentalDomain(v.z, -1, 1));
     // phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
 
-    //v = v.normalize3();
+    // v = v.normalize3();
 
     // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
     // phi = atan2(v.y, v.x);
 
     sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 
-    uv.u = acos(v.z/sphereRadius);
+    uv.u = acos(v.z / sphereRadius);
     uv.v = atan2(v.y, v.x);
 
     // uv.u = mapToFundamentalDomain(uv.u, -1, 1);
@@ -720,7 +653,6 @@ UV Renderer::VectorToUV(Vector v)
     // uv.v = (theta + PI/2) / PI;
 
     return uv;
-
 
     // UV uv;
 
@@ -740,7 +672,7 @@ UV Renderer::VectorToUV(Vector v)
 
 Vector Renderer::UVToVector(UV uv)
 {
-    
+
     // float theta, phi;
 
     // theta = uv.v;

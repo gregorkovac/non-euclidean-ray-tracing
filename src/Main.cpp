@@ -76,7 +76,45 @@ int main(int argc, char **argv)
         data[i] = 0;
     }
 
-    renderer->render(data);
+    unsigned char newData[frameWidth * frameHeight * 3];
+
+    for (int i = 0; i < 5; i++)
+    {
+        if (i == 0)
+            renderer->render(data);
+        else
+        {
+            renderer->render(newData);
+            for (int j = 0; j < frameWidth * frameHeight * 3; j++)
+            {
+                data[j] = (data[j] + newData[j]) / 2;
+            }
+        }
+
+        printf("\033[0;35m\x1B[1m");
+        printf("DONE!\n");
+        printf("\x1B[0m\033[0m");
+
+        if (DRAW_IMAGE)
+        {
+            /* Render here */
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(window);
+
+            glfwPollEvents();
+        }
+    }
+
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window))
+    {
+
+        /* Poll for and process events */
+        glfwPollEvents();
+    }
 
     if (argc > 2 && strcmp(argv[2], "--save") == 0)
     {
@@ -90,28 +128,6 @@ int main(int argc, char **argv)
         stbi_write_png(imagePath, frameWidth, frameHeight, 3, data, frameWidth * 3);
 
         printf("Saved image to %s\n", imagePath);
-    }
-
-    printf("\033[0;35m\x1B[1m");
-    printf("DONE!\n");
-    printf("\x1B[0m\033[0m");
-
-    if (DRAW_IMAGE)
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-        glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Loop until the user closes the window */
-        while (!glfwWindowShouldClose(window))
-        {
-
-            /* Poll for and process events */
-            glfwPollEvents();
-        }
     }
 
     glfwTerminate();

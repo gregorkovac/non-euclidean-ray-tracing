@@ -16,7 +16,7 @@
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = SPHERICAL;
+const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define SPHERICAL_SPACE_RADIUS 2
 
 /* Fundamental domain parameters */
@@ -43,13 +43,13 @@ const Color AMBIENT_LIGHT_COLOR = {255, 255, 255};
 
 #define USE_DIRECTIONAL_LIGHT true
 const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
-#define DIRECTIONAL_LIGHT_INTENSITY 0.02
+#define DIRECTIONAL_LIGHT_INTENSITY 0.1
 #define DIRECTIONAL_LIGHT_DIRECTION_X -1
 #define DIRECTIONAL_LIGHT_DIRECTION_Y -1
 #define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {255, 255, 255};
+const Color SKY_COLOR = {0, 0, 0};
 const Color MISSING_COLOR = {250, 70, 250};
 
 #define AIR_REFRACTIVE_INDEX 1
@@ -57,7 +57,7 @@ const Color MISSING_COLOR = {250, 70, 250};
 // Debug parameters
 #define DRAW_GIZMOS false
 #define PRINT_OBJECTS_ON_STARTUP false
-#define DRAW_IMAGE false
+#define DRAW_IMAGE true
 #define PLOT_RAYS false
 
 // Other

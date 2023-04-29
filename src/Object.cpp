@@ -19,6 +19,9 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
 
     this->refractiveIndex_ = refractiveIndex;
 
+    this->smoothness_ = this->reflectivity_;
+    this->emissionStrength_ = this->translucency_;
+
     parseColorType(colorType);
     parseNormalMap(normalMap);
 }
@@ -38,6 +41,9 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
     else this->reflectivity_ = reflectivity;
 
     this->refractiveIndex_ = refractiveIndex;
+
+    this->smoothness_ = this->reflectivity_;
+    this->emissionStrength_ = this->translucency_;
 
     parseColorType(colorType);
 }
@@ -108,6 +114,9 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color, floa
     else this->reflectivity_ = reflectivity;
 
     this->refractiveIndex_ = refractiveIndex;
+
+    this->smoothness_ = this->reflectivity_;
+    this->emissionStrength_ = this->translucency_;
 }
 
 Object::Object(Vector position, Vector rotation, Vector scale, Color color) {
@@ -118,6 +127,7 @@ Object::Object(Vector position, Vector rotation, Vector scale, Color color) {
     this->translucency_ = 0;
     this->reflectivity_ = 0;
     this->refractiveIndex_ = 1;
+    this->smoothness_ = 0;
 }
 
 Object::Object(Vector position, Vector rotation, Vector scale) {
@@ -128,6 +138,8 @@ Object::Object(Vector position, Vector rotation, Vector scale) {
     this->translucency_ = 0;
     this->reflectivity_ = 0;
     this->refractiveIndex_ = 1;
+    this->smoothness_ = 0;
+    this->emissionStrength_ = 0;
 }
 
 Vector Object::position() {
@@ -276,4 +288,12 @@ char* Object::toString() {
 
 char* Object::type() {
     return this->type_;
+}
+
+float Object::smoothness() {
+    return this->smoothness_;
+}
+
+float Object::emissionStrength() {
+    return this->emissionStrength_;
 }

@@ -31,6 +31,9 @@ bool operator==(Color a, Color b);
 float mapToSpace(float x, float a, float b);
 float mapToFundamentalDomain(float x, float a, float b);
 
+Color colorToRange1(Color c);
+Color colorToRange255(Color c);
+
 enum SpaceType {
     EUCLIDEAN,
     FLAT_TORUS,

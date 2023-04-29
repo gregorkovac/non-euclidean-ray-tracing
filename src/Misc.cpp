@@ -26,8 +26,8 @@ int max(float a, float b)
 
 float randomBetween(float a, float b)
 {
-    int randomNumber = rand() % ((int)b - (int)a + 1);
-    return randomNumber + a;
+    float s = rand() / (float)RAND_MAX;
+    return a + s * (b - a);
 }
 
 bool operator==(Color a, Color b)
@@ -53,4 +53,24 @@ float mapToFundamentalDomain(float x, float a, float b)
     double quotient = (x - a) / range;
     double fractionalPart = quotient - floor(quotient);
     return a + fractionalPart * range;
+}
+
+Color colorToRange1(Color c) {
+    c.r /= 255.0;
+    c.g /= 255.0;
+    c.b /= 255.0;
+
+    return c;
+}
+
+Color colorToRange255(Color c) {
+    c.r *= 255;
+    c.g *= 255;
+    c.b *= 255;
+
+    c.r = (unsigned short) c.r;
+    c.g = (unsigned short) c.g;
+    c.b = (unsigned short) c.b;
+
+    return c;
 }
