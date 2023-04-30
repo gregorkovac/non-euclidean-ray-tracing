@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../include/stb_image_write.h"
+#include <chrono>
 
 #include "../include/ParametersAndConstants.h"
 #include "../include/Renderer.h"
@@ -80,6 +81,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < 5; i++)
     {
+        auto start = chrono::high_resolution_clock::now();
         if (i == 0)
             renderer->render(data);
         else
@@ -91,9 +93,13 @@ int main(int argc, char **argv)
             }
         }
 
+        auto stop = chrono::high_resolution_clock::now();
+
         printf("\033[0;35m\x1B[1m");
         printf("DONE!\n");
         printf("\x1B[0m\033[0m");
+
+        printf("Execution time: %f s\n", (float)chrono::duration_cast<chrono::milliseconds>(stop - start).count() / 1000.0);
 
         if (DRAW_IMAGE)
         {

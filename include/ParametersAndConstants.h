@@ -30,7 +30,7 @@ const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define MAX_ITER 1000
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 4
-#define RAYS_PER_PIXEL 1
+#define RAYS_PER_PIXEL 5
 #define SHADOW_RAY_COUNT 5
 
 // Newton's method parameters

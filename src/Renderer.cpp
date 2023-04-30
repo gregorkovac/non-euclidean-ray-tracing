@@ -176,8 +176,8 @@ void Renderer::render(unsigned char *dataBuffer)
             Color color = {0, 0, 0};
             for (int k = 0; k < RAYS_PER_PIXEL; k++)
             {
-                // Vector offset = Vector(randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), 0);
-                Vector offset = Vector(0, 0, 0);
+                Vector offset = Vector(randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), randomBetween(-PIXEL_SIZE / 2, PIXEL_SIZE / 2), 0);
+                //Vector offset = Vector(0, 0, 0);
 
                 Vector imagePlanePoint = imagePlaneCenter + camera->right() * ((x - IMAGE_PLANE_WIDTH / 2) * PIXEL_SIZE) + camera->up() * ((y - IMAGE_PLANE_HEIGHT / 2) * PIXEL_SIZE);
 
@@ -486,14 +486,16 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
                     origin = intersection;
                     ray = diffuse;
-                    
+
+                    //printf("%s\n", ray.toString());
+
+                    incomingLight.r = (unsigned short)((incomingLight.r + rayColor.r * emissionStrength));
+                    incomingLight.g = (unsigned short)((incomingLight.g + rayColor.g * emissionStrength));
+                    incomingLight.b = (unsigned short)((incomingLight.b + rayColor.b * emissionStrength));
+
                     rayColor.r = (unsigned short)(rayColor.r * objectColor.r);
                     rayColor.g = (unsigned short)(rayColor.g * objectColor.g);
                     rayColor.b = (unsigned short)(rayColor.b * objectColor.b);
-                    
-                    incomingLight.r = (unsigned short)(incomingLight.r + rayColor.r * emissionStrength);
-                    incomingLight.g = (unsigned short)(incomingLight.g + rayColor.g * emissionStrength);
-                    incomingLight.b = (unsigned short)(incomingLight.b + rayColor.b * emissionStrength);
 
                     // Color diffuseColor = trace(intersection, diffuse, depth + 1);
 
@@ -502,6 +504,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                     //     objectColor.g * diffuseColor.g + emissionStrength * objectColor.g,
                     //     objectColor.b * diffuseColor.b + emissionStrength * objectColor.b};
 
+                    h = MAX_ITER + 1;
+
+                    incomingLight.r = (unsigned short)(incomingLight.r);
+                    incomingLight.g = (unsigned short)(incomingLight.g);
+                    incomingLight.b = (unsigned short)(incomingLight.b);
 
                     break;
                     //return ret;
@@ -514,90 +521,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
     // printf("%s %s\n\n", prev.toString(), curr.toString());
 
     return incomingLight;
-}
-
-bool Renderer::isShadowed(Vector origin, Vector light)
-{
-    Vector ray = (light - origin).normalize3();
-
-    Vector originMoved = origin + ray * STEP_SIZE;
-
-    Vector curr = originMoved;
-    Vector prev = originMoved;
-
-    // UV uvOrigin = this->VectorToUV(originMoved);
-    // UV uvRay = this->VectorToUV(ray);
-
-    for (float h = 1; h < MAX_ITER; h += 1)
-    {
-        switch (SPACE_TYPE)
-        {
-        case EUCLIDEAN:
-            prev = curr;
-            curr = originMoved + ray * h * STEP_SIZE;
-            break;
-
-        case FLAT_TORUS:
-            prev = curr;
-            curr = originMoved + ray * h * STEP_SIZE;
-
-            curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-            curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-            curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-            break;
-
-        case MIRRORED_CUBE:
-        {
-            prev = curr;
-            curr = originMoved + ray * h * STEP_SIZE;
-
-            Vector newCurr = Vector(0, 0, 0);
-
-            newCurr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-            newCurr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-            newCurr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-
-            if (newCurr != curr)
-            {
-                newCurr = -1 * newCurr;
-            }
-
-            curr = newCurr;
-        }
-        break;
-
-        case SPHERICAL:
-            // TODO:
-            prev = curr;
-            curr = originMoved + ray * h * STEP_SIZE;
-
-            break;
-        }
-
-        // prev = curr;
-
-        // UV uvPrev = this->VectorToUV(prev);
-        // UV uvCurr;
-        // UV uvDir;
-
-        // uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
-
-        // Vector dir = this->UVToVector(uvDir);
-
-        // uvRay.u = uvDir.u;
-        // uvRay.v = uvDir.v;
-
-        // curr = prev + dir * STEP_SIZE;
-
-        if (curr.distance(light) < EPSILON)
-            return false;
-
-        for (int i = 0; i < this->numObjects; i++)
-            if (objects[i]->intersect(prev, curr) && objects[i]->translucency() == 0)
-                return true;
-    }
-
-    return false;
 }
 
 UV F(UV x, UV y)
