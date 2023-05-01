@@ -16,7 +16,7 @@
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = SPHERICAL;
+const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define SPHERICAL_SPACE_RADIUS 2
 
 /* Fundamental domain parameters */
@@ -29,9 +29,12 @@ const SpaceType SPACE_TYPE = SPHERICAL;
 
 #define MAX_ITER 1000
 #define STEP_SIZE 0.01
-#define MAX_DEPTH 4
+#define MAX_DEPTH 2
 #define RAYS_PER_PIXEL 1
 #define SHADOW_RAY_COUNT 5
+#define RANDOM_RAY_COUNT 20
+#define RANDOM_RAY_ABSORPTION_FACTOR 0.4
+#define SUB_IMAGE_COUNT 10
 
 // Newton's method parameters
 #define EPSILON 0.01
@@ -57,7 +60,7 @@ const Color MISSING_COLOR = {250, 70, 250};
 // Debug parameters
 #define DRAW_GIZMOS false
 #define PRINT_OBJECTS_ON_STARTUP false
-#define DRAW_IMAGE false
+#define DRAW_IMAGE true
 #define PLOT_RAYS false
 
 // Other

@@ -76,7 +76,39 @@ int main(int argc, char **argv)
         data[i] = 0;
     }
 
-    renderer->render(data);
+    unsigned char newData[frameWidth * frameHeight * 3];
+
+    renderer->initExecutionTime();
+
+    for (int i = 0; i < SUB_IMAGE_COUNT; i++)
+    {
+        if (i == 0)
+        {
+            renderer->render(data);
+        }
+        else
+        {
+            renderer->render(newData);
+            for (int j = 0; j < frameWidth * frameHeight * 3; j++)
+            {
+                data[j] = (data[j] + newData[j]) / 2;
+            }
+        }
+
+        if (DRAW_IMAGE)
+        {
+            /* Render here */
+            glClear(GL_COLOR_BUFFER_BIT);
+            glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(window);
+
+            glfwPollEvents();
+        }
+
+        printf("Rendered sub-image %d/%d\n", i + 1, SUB_IMAGE_COUNT);
+    }
 
     if (argc > 2 && strcmp(argv[2], "--save") == 0)
     {
@@ -92,27 +124,16 @@ int main(int argc, char **argv)
         printf("Saved image to %s\n", imagePath);
     }
 
+    /* Loop until the user closes the window */
+    while (!glfwWindowShouldClose(window)) {
+    
+        /* Poll for and process events */
+        glfwPollEvents();
+    }
+
     printf("\033[0;35m\x1B[1m");
     printf("DONE!\n");
     printf("\x1B[0m\033[0m");
-
-    if (DRAW_IMAGE)
-    {
-        /* Render here */
-        glClear(GL_COLOR_BUFFER_BIT);
-        glDrawPixels(frameWidth, frameHeight, GL_RGB, GL_UNSIGNED_BYTE, data);
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(window);
-
-        /* Loop until the user closes the window */
-        while (!glfwWindowShouldClose(window))
-        {
-
-            /* Poll for and process events */
-            glfwPollEvents();
-        }
-    }
 
     glfwTerminate();
 

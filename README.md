@@ -14,4 +14,4 @@
 - [ ] Saved image flipping
 - [ ] Write this README
 - [ ] Side by side video
-- [ ] Parameters in separate file
+- [ ] Parameters in separate file (XML maybe?)

@@ -26,8 +26,8 @@ int max(float a, float b)
 
 float randomBetween(float a, float b)
 {
-    int randomNumber = rand() % ((int)b - (int)a + 1);
-    return randomNumber + a;
+    float s = rand() / (float)RAND_MAX;
+    return a + s * (b - a);
 }
 
 bool operator==(Color a, Color b)

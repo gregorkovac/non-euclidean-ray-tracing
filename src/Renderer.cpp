@@ -202,7 +202,12 @@ void Renderer::render(unsigned char *dataBuffer)
             int numTotal = IMAGE_PLANE_WIDTH * IMAGE_PLANE_HEIGHT;
             int numPercent = (numRendered * 100) / numTotal;
 
-            printf("\r -> Rendered pixel %d/%d (%d%%) ", numRendered, numTotal, numPercent);
+            auto now = std::chrono::high_resolution_clock::now();
+            float elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->executionStart).count() / 1000.0f;
+            int seconds = (int)elapsed % 60;
+            int minutes = (int)elapsed / 60;
+
+            printf("\r [%02d:%02d] Rendered pixel %d/%d (%d%%) ", minutes, seconds, numRendered, numTotal, numPercent);
 
             for (int i = 0; i < numPercent / 2; i++)
             {
@@ -295,7 +300,7 @@ void Renderer::render(unsigned char *dataBuffer)
     }
 }
 
-Color Renderer::trace(Vector ray, Vector origin, int depth)
+Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float* distanceTravelled, Color* unlitColor)
 {
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
@@ -361,22 +366,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
     UV fundamentalDomainOffset = {0, 0};
 
-    for (float h = 1; h < MAX_ITER; h += 1)
+    for (float h = 1; h < maxIter; h += 1)
     {
-        // prev = curr;
-
-        // UV uvPrev = this->VectorToUV(prev);
-        // UV uvCurr;
-        // UV uvDir;
-
-        // uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
-
-        // Vector dir = this->UVToVector(uvDir);
-
-        // uvRay.u = uvDir.u;
-        // uvRay.v = uvDir.v;
-
-        // curr = prev + dir * STEP_SIZE;
 
         switch (SPACE_TYPE)
         {
@@ -425,62 +416,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
 
             curr = prev + rayXYZ * STEP_SIZE;
 
-            // curr.x = mapToFundamentalDomain(curr.x, FUNDAMENTAL_DOMAIN_X_MIN, FUNDAMENTAL_DOMAIN_X_MAX);
-            // curr.y = mapToFundamentalDomain(curr.y, FUNDAMENTAL_DOMAIN_Y_MIN, FUNDAMENTAL_DOMAIN_Y_MAX);
-            // curr.z = mapToFundamentalDomain(curr.z, FUNDAMENTAL_DOMAIN_Z_MIN, FUNDAMENTAL_DOMAIN_Z_MAX);
-
-            // uvCurr = this->VectorToUV(curr);
-
             uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
             uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
 
-            // if (uvCurr.u > 1 || uvCurr.v > 1) {
-            //     h = MAX_ITER + 1;
-            //     break;
-            // }
-
-            // curr = curr + originOffset;
-
             if (PLOT_RAYS)
                 fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
-
-            // curr = curr - originOffset;
-
-            
-
-            // printf("%s %s\n", prev.toString(), curr.toString());
-
-            // printf("%s\n", curr.toString());
-
-            // uvCurr.u += uvRay.u * STEP_SIZE;
-            // uvCurr.v += uvRay.v * STEP_SIZE;
-
-            // if (uvCurr.u > 2 * PI) {
-            //     uvCurr.u -= 2 * PI;
-            //     fundamentalDomainOffset.u += 2 * PI;
-            // } else if (uvCurr.u < 2 * PI) {
-            //     uvCurr.u += 2 * PI;
-            //     fundamentalDomainOffset.u -= 2 * PI;
-            // }
-
-            // if (uvCurr.v > PI) {
-            //     uvCurr.v -= 2 * PI;
-            //     fundamentalDomainOffset.v += 2 * PI;
-            // } else if (uvCurr.v < -PI) {
-            //     uvCurr.v += 2 * PI;
-            //     fundamentalDomainOffset.v -= 2 * PI;
-            // }
-
-            // curr = this->UVToVector(uvCurr);
-
-            // Vector offsetXYZ = this->UVToVector(fundamentalDomainOffset);
-
-            // curr.x += offsetXYZ.x;
-            // curr.y += offsetXYZ.y;
-            // curr.z += offsetXYZ.z;
-
-            // printf("%s\n", curr.toString());
-
             break;
         }
 
@@ -490,12 +430,10 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             if (objects[i]->intersect(prev, curr))
             {
 
-                //printf("Intersection with %s - %d\n", objects[i]->type(), i);
-
                 Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
 
-                // printf("%d\n", h);
-                 //printf("%s %s\n\n", prev.toString(), curr.toString());
+                if (distanceTravelled != NULL)
+                    *distanceTravelled = h * STEP_SIZE;
 
                 Color c = {
                     AMBIENT_LIGHT_COLOR.r * AMBIENT_LIGHT_INTENSITY,
@@ -549,6 +487,65 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
                     c.b += translucency * refractionColor.b;
                 }
 
+                if (unlitColor != NULL)
+                {
+                    *unlitColor = c;
+                }
+
+                c.r *= (1 - RANDOM_RAY_ABSORPTION_FACTOR);
+                c.g *= (1 - RANDOM_RAY_ABSORPTION_FACTOR);
+                c.b *= (1 - RANDOM_RAY_ABSORPTION_FACTOR);
+
+                for (int j = 0; j < RANDOM_RAY_COUNT; j++) {
+                    Vector diffuse = Vector(0, 0, 0);
+
+                    int iterCount = 0;
+                    while (iterCount < 1000)
+                    {
+                        Vector rand = Vector(
+                            randomBetween(-1, 1),
+                            randomBetween(-1, 1),
+                            randomBetween(-1, 1));
+
+                        if (rand.norm() <= 1)
+                        {
+                            diffuse = rand.normalize3();
+                            break;
+                        }
+
+                        iterCount++;
+                    }
+
+                    if (normal * diffuse < 0)
+                    {
+                        diffuse = -1 * diffuse;
+                    }
+
+                    float* distTravelled = new float(0);
+                    Color* unlitColor = new Color;
+                    unlitColor->r = 0;
+                    unlitColor->g = 0;
+                    unlitColor->b = 0;
+                    
+                    Color diffuseColor = trace(diffuse, intersection + diffuse * STEP_SIZE, depth + 1, maxIter = 100, distanceTravelled = distTravelled);
+
+                    if (diffuseColor == SKY_COLOR)
+                        c.r += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.r;
+                        c.g += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.g;
+                        c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.b;
+                        continue;
+
+                    //printf("%f\n", *distTravelled * 10);
+
+                    float diffuseFactor = (*distTravelled) * (*distTravelled);
+                    if (diffuseFactor < 1)
+                        diffuseFactor = 1;
+
+                    c.r += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * diffuseColor.r / diffuseFactor;
+                    c.g += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * diffuseColor.g / diffuseFactor;
+                    c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * diffuseColor.b / diffuseFactor;
+                }
+
                 for (int j = 0; j < this->numLights; j++)
                 {
                     if (!isShadowed(intersection, lights[j]->position()))
@@ -576,9 +573,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth)
             }
         }
     }
-
-    // printf("NO INTERSECTION\n");
-    // printf("%s %s\n\n", prev.toString(), curr.toString());
 
     return SKY_COLOR;
 }
@@ -641,20 +635,6 @@ bool Renderer::isShadowed(Vector origin, Vector light)
             break;
         }
 
-        // prev = curr;
-
-        // UV uvPrev = this->VectorToUV(prev);
-        // UV uvCurr;
-        // UV uvDir;
-
-        // uvDir = this->rungeKutta4(uvPrev, uvRay, STEP_SIZE);
-
-        // Vector dir = this->UVToVector(uvDir);
-
-        // uvRay.u = uvDir.u;
-        // uvRay.v = uvDir.v;
-
-        // curr = prev + dir * STEP_SIZE;
 
         if (curr.distance(light) < EPSILON)
             return false;
@@ -771,4 +751,8 @@ Vector Renderer::UVToVector(UV uv)
     //     SPHERICAL_SPACE_RADIUS * sin(phi) * cos(theta),
     //     SPHERICAL_SPACE_RADIUS * sin(phi) * sin(theta),
     //     SPHERICAL_SPACE_RADIUS * cos(phi));
+}
+
+void Renderer::initExecutionTime() {
+    this->executionStart = std::chrono::high_resolution_clock::now();
 }
