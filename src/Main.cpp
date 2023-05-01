@@ -124,16 +124,16 @@ int main(int argc, char **argv)
         printf("Saved image to %s\n", imagePath);
     }
 
+    printf("\033[0;35m\x1B[1m");
+    printf("DONE!\n");
+    printf("\x1B[0m\033[0m");
+
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)) {
     
         /* Poll for and process events */
         glfwPollEvents();
     }
-
-    printf("\033[0;35m\x1B[1m");
-    printf("DONE!\n");
-    printf("\x1B[0m\033[0m");
 
     glfwTerminate();
 

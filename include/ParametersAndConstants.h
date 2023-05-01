@@ -9,10 +9,10 @@
 #define WINDOW_HEIGHT 800
 
 // Camera parameters
-#define IMAGE_PLANE_WIDTH 200
-#define IMAGE_PLANE_HEIGHT 200
+#define IMAGE_PLANE_WIDTH 400
+#define IMAGE_PLANE_HEIGHT 400
 #define FOCAL_LENGTH 1
-#define PIXEL_SIZE 0.01
+#define PIXEL_SIZE 0.005
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
@@ -31,10 +31,10 @@ const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 2
 #define RAYS_PER_PIXEL 1
-#define SHADOW_RAY_COUNT 5
-#define RANDOM_RAY_COUNT 20
+#define SHADOW_RAY_COUNT 10
+#define RANDOM_RAY_COUNT 10
 #define RANDOM_RAY_ABSORPTION_FACTOR 0.4
-#define SUB_IMAGE_COUNT 10
+#define SUB_IMAGE_COUNT 5
 
 // Newton's method parameters
 #define EPSILON 0.01

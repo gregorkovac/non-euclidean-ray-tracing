@@ -300,7 +300,7 @@ void Renderer::render(unsigned char *dataBuffer)
     }
 }
 
-Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float* distanceTravelled, Color* unlitColor)
+Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *distanceTravelled, Color *unlitColor)
 {
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
@@ -496,7 +496,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float* 
                 c.g *= (1 - RANDOM_RAY_ABSORPTION_FACTOR);
                 c.b *= (1 - RANDOM_RAY_ABSORPTION_FACTOR);
 
-                for (int j = 0; j < RANDOM_RAY_COUNT; j++) {
+                for (int j = 0; j < RANDOM_RAY_COUNT; j++)
+                {
                     Vector diffuse = Vector(0, 0, 0);
 
                     int iterCount = 0;
@@ -521,21 +522,21 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float* 
                         diffuse = -1 * diffuse;
                     }
 
-                    float* distTravelled = new float(0);
-                    Color* unlitColor = new Color;
+                    float *distTravelled = new float(0);
+                    Color *unlitColor = new Color;
                     unlitColor->r = 0;
                     unlitColor->g = 0;
                     unlitColor->b = 0;
-                    
+
                     Color diffuseColor = trace(diffuse, intersection + diffuse * STEP_SIZE, depth + 1, maxIter = 100, distanceTravelled = distTravelled);
 
                     if (diffuseColor == SKY_COLOR)
                         c.r += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.r;
-                        c.g += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.g;
-                        c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.b;
-                        continue;
+                    c.g += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.g;
+                    c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.b;
+                    continue;
 
-                    //printf("%f\n", *distTravelled * 10);
+                    // printf("%f\n", *distTravelled * 10);
 
                     float diffuseFactor = (*distTravelled) * (*distTravelled);
                     if (diffuseFactor < 1)
@@ -546,19 +547,53 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float* 
                     c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * diffuseColor.b / diffuseFactor;
                 }
 
+
                 for (int j = 0; j < this->numLights; j++)
                 {
-                    if (!isShadowed(intersection, lights[j]->position()))
+                    //Color shadowColor = {0, 0, 0};
+                    float shadowR = 0, shadowG = 0, shadowB = 0;
+                    for (int k = 0; k < SHADOW_RAY_COUNT; k++)
                     {
-                        float distToLight = intersection.distance(lights[j]->position());
+                        Vector offset;
+                        float weight;
 
-                        distToLight *= distToLight;
+                        if (k == 0) {
+                            offset = Vector(0, 0, 0);
+                            weight = (255 * SHADOW_RAY_COUNT) / (2 * SHADOW_RAY_COUNT);
+                        } else {
+                            offset = Vector(
+                                randomBetween(-1, 1),
+                                randomBetween(-1, 1),
+                                randomBetween(-1, 1));
 
-                        c.r += lights[j]->intensity() * lights[j]->color().r / 255.0 * objectColor.r / distToLight;
-                        c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
-                        c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
+                            weight = 255 / (2 * SHADOW_RAY_COUNT);
+                        }
+
+                        Vector lightPosition = lights[j]->position() + offset;
+
+
+                        if (!isShadowed(intersection, lightPosition))
+                        {
+                            float distToLight = intersection.distance(lights[j]->position());
+
+                            distToLight *= distToLight;
+
+                            // c.r += lights[j]->intensity() * lights[j]->color().r / 255.0 * objectColor.r / distToLight;
+                            // c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
+                            // c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
+
+                            shadowR += (255 / SHADOW_RAY_COUNT * lights[j]->intensity() * lights[j]->color().r / 255.0 * 1 / distToLight) / 255;
+                            shadowG += (255 / SHADOW_RAY_COUNT * lights[j]->intensity() * lights[j]->color().g / 255.0 * 1 / distToLight) / 255;
+                            shadowB += (255 / SHADOW_RAY_COUNT * lights[j]->intensity() * lights[j]->color().b / 255.0 * 1 / distToLight) / 255;
+                        }
                     }
+
+
+                    c.r += shadowR * objectColor.r;
+                    c.g += shadowG * objectColor.g;
+                    c.b += shadowB * objectColor.b;
                 }
+
 
                 Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
 
@@ -635,7 +670,6 @@ bool Renderer::isShadowed(Vector origin, Vector light)
             break;
         }
 
-
         if (curr.distance(light) < EPSILON)
             return false;
 
@@ -683,14 +717,14 @@ UV Renderer::VectorToUV(Vector v)
     // theta = acos(mapToFundamentalDomain(v.z, -1, 1));
     // phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
 
-    //v = v.normalize3();
+    // v = v.normalize3();
 
     // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
     // phi = atan2(v.y, v.x);
 
     sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 
-    uv.u = acos(v.z/sphereRadius);
+    uv.u = acos(v.z / sphereRadius);
     uv.v = atan2(v.y, v.x);
 
     // uv.u = mapToFundamentalDomain(uv.u, -1, 1);
@@ -700,7 +734,6 @@ UV Renderer::VectorToUV(Vector v)
     // uv.v = (theta + PI/2) / PI;
 
     return uv;
-
 
     // UV uv;
 
@@ -720,7 +753,7 @@ UV Renderer::VectorToUV(Vector v)
 
 Vector Renderer::UVToVector(UV uv)
 {
-    
+
     // float theta, phi;
 
     // theta = uv.v;
@@ -753,6 +786,7 @@ Vector Renderer::UVToVector(UV uv)
     //     SPHERICAL_SPACE_RADIUS * cos(phi));
 }
 
-void Renderer::initExecutionTime() {
+void Renderer::initExecutionTime()
+{
     this->executionStart = std::chrono::high_resolution_clock::now();
 }
