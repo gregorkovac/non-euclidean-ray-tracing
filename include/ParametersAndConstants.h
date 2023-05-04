@@ -9,14 +9,14 @@
 #define WINDOW_HEIGHT 800
 
 // Camera parameters
-#define IMAGE_PLANE_WIDTH 400
-#define IMAGE_PLANE_HEIGHT 400
-#define FOCAL_LENGTH 1
-#define PIXEL_SIZE 0.005
+#define IMAGE_PLANE_WIDTH 200
+#define IMAGE_PLANE_HEIGHT 200
+#define FOCAL_LENGTH 0.5
+#define PIXEL_SIZE 0.01
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = EUCLIDEAN;
+const SpaceType SPACE_TYPE = SPHERICAL;
 #define SPHERICAL_SPACE_RADIUS 2
 
 /* Fundamental domain parameters */
@@ -31,17 +31,17 @@ const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 2
 #define RAYS_PER_PIXEL 1
-#define SHADOW_RAY_COUNT 10
-#define RANDOM_RAY_COUNT 10
-#define RANDOM_RAY_ABSORPTION_FACTOR 0.4
+#define SHADOW_RAY_COUNT 1
+#define RANDOM_RAY_COUNT 0
+#define RANDOM_RAY_ABSORPTION_FACTOR 0.3
 #define SUB_IMAGE_COUNT 5
 
 // Newton's method parameters
 #define EPSILON 0.01
 
 // Light and color parameters
-#define BRIGHTNESS 1
-#define AMBIENT_LIGHT_INTENSITY 0.1
+#define BRIGHTNESS 2
+#define AMBIENT_LIGHT_INTENSITY 0
 const Color AMBIENT_LIGHT_COLOR = {255, 255, 255};
 
 #define USE_DIRECTIONAL_LIGHT true

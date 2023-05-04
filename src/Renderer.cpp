@@ -322,39 +322,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     if (SPACE_TYPE == SPHERICAL)
     {
         curr = origin + ray;
-
-        //  if (abs(curr.x) > 1)
-        // {
-        //     int wholePart = int(floor(abs(curr.x)));
-        //     float decimal = abs(curr.x) - wholePart;
-        //     int s = sign(curr.x);
-
-        //     originOffset.x = s * wholePart;
-        //     curr.x = s * decimal;
-        // }
-
-        // if (abs(curr.y) > 1)
-        // {
-        //     int wholePart = int(floor(abs(curr.y)));
-        //     float decimal = abs(curr.y) - wholePart;
-        //     int s = sign(curr.y);
-
-        //     originOffset.y = s * wholePart;
-        //     curr.y = s * decimal;
-        // }
-
-        // if (abs(curr.z) > 1)
-        // {
-        //     int wholePart = int(floor(abs(curr.z)));
-        //     float decimal = abs(curr.z) - wholePart;
-        //     int s = sign(curr.z);
-
-        //     originOffset.z = s * wholePart;
-        //     curr.z = s * decimal;
-        // }
     }
-
-    // printf("%s %s\n", curr.toString(), originOffset.toString());
 
     if (PLOT_RAYS)
         fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
@@ -550,6 +518,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
                 for (int j = 0; j < this->numLights; j++)
                 {
+                    
                     //Color shadowColor = {0, 0, 0};
                     float shadowR = 0, shadowG = 0, shadowB = 0;
                     for (int k = 0; k < SHADOW_RAY_COUNT; k++)
@@ -569,10 +538,10 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                             weight = 255 / (2 * SHADOW_RAY_COUNT);
                         }
 
-                        Vector lightPosition = lights[j]->position() + offset;
+                        //Vector lightPosition = lights[j]->position() + offset;
+                        Vector shadowRay = ((lights[j]->position() + offset) - intersection).normalize3();
 
-
-                        if (!isShadowed(intersection, lightPosition))
+                        if (!isShadowed(intersection, lights[j]->position(), shadowRay))
                         {
                             float distToLight = intersection.distance(lights[j]->position());
 
@@ -582,9 +551,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                             // c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
                             // c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
 
-                            shadowR += (255 / SHADOW_RAY_COUNT * lights[j]->intensity() * lights[j]->color().r / 255.0 * 1 / distToLight) / 255;
-                            shadowG += (255 / SHADOW_RAY_COUNT * lights[j]->intensity() * lights[j]->color().g / 255.0 * 1 / distToLight) / 255;
-                            shadowB += (255 / SHADOW_RAY_COUNT * lights[j]->intensity() * lights[j]->color().b / 255.0 * 1 / distToLight) / 255;
+                            shadowR += (weight * lights[j]->intensity() * lights[j]->color().r / 255.0 * 1 / distToLight) / 255;
+                            shadowG += (weight * lights[j]->intensity() * lights[j]->color().g / 255.0 * 1 / distToLight) / 255;
+                            shadowB += (weight * lights[j]->intensity() * lights[j]->color().b / 255.0 * 1 / distToLight) / 255;
                         }
                     }
 
@@ -597,7 +566,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
                 Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
 
-                if (!isShadowed(intersection, directionalLight))
+                Vector directionalLightShadowRay = (directionalLight - intersection).normalize3();
+
+                if (!isShadowed(intersection, directionalLight, directionalLightShadowRay))
                 {
                     c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0 * objectColor.r;
                     c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
@@ -612,9 +583,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     return SKY_COLOR;
 }
 
-bool Renderer::isShadowed(Vector origin, Vector light)
+bool Renderer::isShadowed(Vector origin, Vector light, Vector ray)
 {
-    Vector ray = (light - origin).normalize3();
+    //Vector ray = (light - origin).normalize3();
 
     Vector originMoved = origin + ray * STEP_SIZE;
 
@@ -623,6 +594,11 @@ bool Renderer::isShadowed(Vector origin, Vector light)
 
     // UV uvOrigin = this->VectorToUV(originMoved);
     // UV uvRay = this->VectorToUV(ray);
+
+    UV uvPrev = this->VectorToUV(origin);
+    UV uvCurr = this->VectorToUV(origin);
+    UV uvOrigin = this->VectorToUV(origin);
+    UV uvRay = this->VectorToUV(ray);
 
     for (float h = 1; h < MAX_ITER; h += 1)
     {
@@ -663,14 +639,25 @@ bool Renderer::isShadowed(Vector origin, Vector light)
         break;
 
         case SPHERICAL:
-            // TODO:
             prev = curr;
             curr = originMoved + ray * h * STEP_SIZE;
+
+            // uvPrev = uvCurr;
+            // prev = curr;
+
+            // uvRay = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
+
+            // Vector rayXYZ = this->UVToVector(uvRay);
+
+            // curr = prev + rayXYZ * STEP_SIZE;
+
+            // uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
+            // uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
 
             break;
         }
 
-        if (curr.distance(light) < EPSILON)
+        if (curr.distance(light) < 0.1)
             return false;
 
         for (int i = 0; i < this->numObjects; i++)
