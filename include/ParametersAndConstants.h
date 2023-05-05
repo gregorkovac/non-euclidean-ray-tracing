@@ -16,7 +16,7 @@
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = SPHERICAL;
+const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define SPHERICAL_SPACE_RADIUS 2
 
 /* Fundamental domain parameters */
@@ -40,7 +40,7 @@ const SpaceType SPACE_TYPE = SPHERICAL;
 #define EPSILON 0.01
 
 // Light and color parameters
-#define BRIGHTNESS 2
+#define BRIGHTNESS 4
 #define AMBIENT_LIGHT_INTENSITY 0
 const Color AMBIENT_LIGHT_COLOR = {255, 255, 255};
 
@@ -54,6 +54,8 @@ const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
 const Color SKY_COLOR = {255, 255, 255};
 const Color MISSING_COLOR = {250, 70, 250};
+
+#define BRIGHTEN_SHADOWS true
 
 #define AIR_REFRACTIVE_INDEX 1
 

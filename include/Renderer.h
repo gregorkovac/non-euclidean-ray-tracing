@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "ParametersAndConstants.h"
 #include "Lights.h"
+#include "Mesh.h"
 
 class Renderer {
     private:

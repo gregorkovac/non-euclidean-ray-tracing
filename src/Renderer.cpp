@@ -118,6 +118,13 @@ void Renderer::parseScene(char *sceneFilePath)
 
             objectIndex++;
             printf(" -> Hyperboloid\n");
+        } else if (strcmp(objectType, "Mesh") == 0) {
+            char objFilePath[1000];
+            sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s %s (%d %d %d) %s", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b, objFilePath);
+            this->objects[objectIndex] = new Mesh(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, objFilePath);
+
+            objectIndex++;
+            printf(" -> Mesh\n");
         }
 
         else
@@ -563,6 +570,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                     c.b += shadowB * objectColor.b;
                 }
 
+                // if (BRIGHTEN_SHADOWS && c.r <= 10 && c.g <= 10 && c.b <= 10) {
+                //     c.r = 0.1 * objectColor.r;
+                //     c.g = 0.1 * objectColor.g;
+                //     c.b = 0.1 * objectColor.b;
+                // }
 
                 Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
 
@@ -574,6 +586,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                     c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
                     c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
                 }
+
+                // if (BRIGHTEN_SHADOWS && c.r <= 10 && c.g <= 10 && c.b <= 10) {
+                //     c.r = 0.1 * objectColor.r;
+                //     c.g = 0.1 * objectColor.g;
+                //     c.b = 0.1 * objectColor.b;
+                // }
 
                 return c;
             }

@@ -112,3 +112,11 @@ bool Vector::operator==(Vector v) {
 bool Vector::operator!=(Vector v) {
     return this->x != v.x || this->y != v.y || this->z != v.z;
 }
+
+Vector Vector::cross(Vector v) {
+    float x = this->y * v.z - this->z * v.y;
+    float y = this->z * v.x - this->x * v.z;
+    float z = this->x * v.y - this->y * v.x;
+
+    return Vector(x, y, z);
+}

@@ -25,6 +25,7 @@ class Vector {
         char* toString();
         float distance(Vector v);
         float norm();
+        Vector cross(Vector v);
 };
 
 Vector operator*(float f, Vector v);
