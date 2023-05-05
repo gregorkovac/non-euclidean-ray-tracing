@@ -122,6 +122,7 @@ void Renderer::parseScene(char *sceneFilePath)
             char objFilePath[1000];
             sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s %s (%d %d %d) %s", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b, objFilePath);
             this->objects[objectIndex] = new Mesh(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, objFilePath);
+            ((Mesh*)this->objects[objectIndex])->cullBackFaces(this->camera);
 
             objectIndex++;
             printf(" -> Mesh\n");

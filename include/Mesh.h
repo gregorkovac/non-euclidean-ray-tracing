@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "Object.h"
+#include "Camera.h"
 
 struct Triangle {
     Vector a, b, c;
@@ -26,6 +27,7 @@ class Mesh : public Object {
         Vector normal(Vector v);
         float u(Vector v);
         float v(Vector v);
+        void cullBackFaces(Camera* camera);
 };
 
 #endif

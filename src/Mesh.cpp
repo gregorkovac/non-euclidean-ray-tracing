@@ -122,3 +122,19 @@ float Mesh::u(Vector v) {
 float Mesh::v(Vector v) {
     return 0;
 }
+
+void Mesh::cullBackFaces(Camera* camera) {
+    Vector cameraNormal = camera->forward();
+
+    for (int i = 0; i < this->numTriangles; i++) {
+        Vector triangleNormal = this->triangles[i].normal;
+
+        if (triangleNormal * cameraNormal > 0) {
+            for (int j = i; j < this->numTriangles; j++)
+                this->triangles[j] = this->triangles[j + 1];
+            
+            this->numTriangles--;
+            i--;
+        }
+    }
+}
