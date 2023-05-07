@@ -36,6 +36,8 @@ void Mesh::parseObjFile(char* objFilePath) {
     int vertexIndex = 0;
     int triangleIndex = 0;
 
+    float maxRadius = 0;
+
     while (fgets(line, sizeof(line), objFile)) {
         if (line[0] == 'v' && line[1] == ' ') {
             sscanf(line, "v %f %f %f", &vertices[vertexIndex].x, &vertices[vertexIndex].y, &vertices[vertexIndex].z);
@@ -53,12 +55,21 @@ void Mesh::parseObjFile(char* objFilePath) {
             triangles[triangleIndex].b = M * triangles[triangleIndex].b;
             triangles[triangleIndex].c = M * triangles[triangleIndex].c;
 
-            triangles[triangleIndex].normal = (triangles[triangleIndex].b - triangles[triangleIndex].a).cross(triangles[triangleIndex].c - triangles[triangleIndex].a).normalize();
+            if (this->position_.distance(triangles[triangleIndex].a) > maxRadius)
+                maxRadius = this->position_.distance(triangles[triangleIndex].a);
+            if (this->position_.distance(triangles[triangleIndex].b) > maxRadius)
+                maxRadius = this->position_.distance(triangles[triangleIndex].b);
+            if (this->position_.distance(triangles[triangleIndex].c) > maxRadius)
+                maxRadius = this->position_.distance(triangles[triangleIndex].c);
+
+            triangles[triangleIndex].normal = (triangles[triangleIndex].b - triangles[triangleIndex].a).cross(triangles[triangleIndex].c - triangles[triangleIndex].a);
             triangleIndex++;
         }
     }
 
     fclose(objFile);
+
+    this->boundingSphereRadius = maxRadius;
 
     this->numTriangles = numFaces;
     
@@ -126,8 +137,12 @@ float Mesh::v(Vector v) {
 void Mesh::cullBackFaces(Camera* camera) {
     Vector cameraNormal = camera->forward();
 
+    printf("before: %d\n", this->numTriangles);
+
     for (int i = 0; i < this->numTriangles; i++) {
         Vector triangleNormal = this->triangles[i].normal;
+
+        printf("Normal: %s\n", triangleNormal.toString());
 
         if (triangleNormal * cameraNormal > 0) {
             for (int j = i; j < this->numTriangles; j++)
@@ -137,4 +152,17 @@ void Mesh::cullBackFaces(Camera* camera) {
             i--;
         }
     }
+
+    printf("after: %d\n", this->numTriangles);
+}
+
+bool Mesh::intersect(Vector a, Vector b) {
+    if (a.distance(this->position_) > this->boundingSphereRadius && b.distance(this->position_) > this->boundingSphereRadius)
+        return false;
+    // return true;
+
+    if (sign(this->equation(a)) != sign(this->equation(b)))
+        return true;
+
+    return false;
 }

@@ -46,7 +46,7 @@ class Object {
         Color color();
         float translucency();
         float reflectivity();
-        bool intersect(Vector a, Vector b);
+        virtual bool intersect(Vector a, Vector b);
         virtual float equation(Vector v) = 0;
         virtual Vector gradient(Vector v) = 0;
         virtual Vector normal(Vector v) = 0;

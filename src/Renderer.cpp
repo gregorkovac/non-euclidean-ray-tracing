@@ -198,6 +198,7 @@ void Renderer::render(unsigned char *dataBuffer)
                 color.b += c.b;
             }
 
+
             color.r /= RAYS_PER_PIXEL;
             color.g /= RAYS_PER_PIXEL;
             color.b /= RAYS_PER_PIXEL;
@@ -329,7 +330,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
     if (SPACE_TYPE == SPHERICAL)
     {
-        curr = origin + ray;
+        //curr = origin + ray;
+        sphereRadius = sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z);
     }
 
     if (PLOT_RAYS)
@@ -341,6 +343,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     UV uvRay = this->VectorToUV(ray);
 
     UV fundamentalDomainOffset = {0, 0};
+
+    //printf("=========== NEW RAY ============\n");
 
     for (float h = 1; h < maxIter; h += 1)
     {
@@ -392,8 +396,14 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
             curr = prev + rayXYZ * STEP_SIZE;
 
-            uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
-            uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
+            //curr = curr.normalize3() * sphereRadius;
+
+            //printf("%f\n", sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z));
+
+            // uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
+            // uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
+
+            uvCurr = this->VectorToUV(curr);
 
             if (PLOT_RAYS)
                 fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
@@ -708,8 +718,8 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
     UV accelaration = F(xNew, y);
 
     UV yNew = {
-        y.u + (double)t * accelaration.u,
-        y.v + (double)t * accelaration.v};
+        y.u + t * accelaration.u,
+        y.v + t * accelaration.v};
 
     return yNew;
 }
@@ -728,7 +738,9 @@ UV Renderer::VectorToUV(Vector v)
     // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
     // phi = atan2(v.y, v.x);
 
-    sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    //sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+
+    //printf("sphereRadius: %f\n", sphereRadius);
 
     uv.u = acos(v.z / sphereRadius);
     uv.v = atan2(v.y, v.x);

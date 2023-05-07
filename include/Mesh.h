@@ -7,6 +7,7 @@
 
 #include "Object.h"
 #include "Camera.h"
+#include "ParametricObjects.h"
 
 struct Triangle {
     Vector a, b, c;
@@ -18,6 +19,7 @@ class Mesh : public Object {
         int numTriangles;
         Triangle triangles[10000];
         int lastIntersectionTriangleIndex;
+        float boundingSphereRadius;
 
     public:
         Mesh(Vector position, Vector rotation, Vector scale, Color color, float reflectivity, float translucency, float refractiveIndex, char* colorType, char* objFilePath);
@@ -28,6 +30,7 @@ class Mesh : public Object {
         float u(Vector v);
         float v(Vector v);
         void cullBackFaces(Camera* camera);
+        bool intersect(Vector a, Vector b);
 };
 
 #endif
