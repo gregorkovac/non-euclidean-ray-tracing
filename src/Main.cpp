@@ -128,14 +128,18 @@ int main(int argc, char **argv)
     printf("DONE!\n");
     printf("\x1B[0m\033[0m");
 
-    /* Loop until the user closes the window */
-    while (!glfwWindowShouldClose(window)) {
-    
-        /* Poll for and process events */
-        glfwPollEvents();
-    }
+    if (DRAW_IMAGE)
+    {
+        /* Loop until the user closes the window */
+        while (!glfwWindowShouldClose(window))
+        {
 
-    glfwTerminate();
+            /* Poll for and process events */
+            glfwPollEvents();
+        }
+
+        glfwTerminate();
+    }
 
     printf("Terminated.\n");
 

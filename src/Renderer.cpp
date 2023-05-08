@@ -330,8 +330,15 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
     if (SPACE_TYPE == SPHERICAL)
     {
-        //curr = origin + ray;
-        sphereRadius = sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z);
+        sphereRadius = sqrt(origin.x * origin.x + origin.y * origin.y + origin.z * origin.z);
+        
+        // TODO: FAKE NEEVKLIDSKI PROSTOR S KOTOM
+
+        curr = origin + ray * STEP_SIZE;
+        curr = curr.normalize3() * sphereRadius;
+
+        ray = curr - origin;
+
     }
 
     if (PLOT_RAYS)
@@ -340,7 +347,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     UV uvPrev = this->VectorToUV(origin);
     UV uvCurr = this->VectorToUV(origin);
     UV uvOrigin = this->VectorToUV(origin);
-    UV uvRay = this->VectorToUV(ray);
+    UV uvRay = this->VectorToUV(ray * STEP_SIZE);
 
     UV fundamentalDomainOffset = {0, 0};
 
@@ -395,6 +402,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             Vector rayXYZ = this->UVToVector(uvRay);
 
             curr = prev + rayXYZ * STEP_SIZE;
+
+            //printf("%s\n", rayXYZ.toString());
 
             //curr = curr.normalize3() * sphereRadius;
 
