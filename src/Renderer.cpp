@@ -330,14 +330,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
     if (SPACE_TYPE == SPHERICAL)
     {
-        sphereRadius = sqrt(origin.x * origin.x + origin.y * origin.y + origin.z * origin.z);
-        
-        // TODO: FAKE NEEVKLIDSKI PROSTOR S KOTOM
+        curr = origin + ray;
+        sphereRadius = sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z);
 
-        curr = origin + ray * STEP_SIZE;
-        curr = curr.normalize3() * sphereRadius;
+        //curr = curr.normalize3() * sphereRadius;
 
-        ray = curr - origin;
+        //ray = curr - origin;
 
     }
 
@@ -401,7 +399,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
             Vector rayXYZ = this->UVToVector(uvRay);
 
-            curr = prev + rayXYZ * STEP_SIZE;
+            curr = rayXYZ;
+
+            //curr = prev + rayXYZ * STEP_SIZE;
 
             //printf("%s\n", rayXYZ.toString());
 
@@ -411,6 +411,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
             // uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
             // uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
+
+            //printf("%s\n", rayXYZ.toString());
 
             uvCurr = this->VectorToUV(curr);
 
@@ -525,11 +527,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
                     Color diffuseColor = trace(diffuse, intersection + diffuse * STEP_SIZE, depth + 1, maxIter = 100, distanceTravelled = distTravelled);
 
-                    if (diffuseColor == SKY_COLOR)
+                    if (diffuseColor == SKY_COLOR) {
                         c.r += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.r;
-                    c.g += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.g;
-                    c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.b;
-                    continue;
+                        c.g += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.g;
+                        c.b += (RANDOM_RAY_ABSORPTION_FACTOR / RANDOM_RAY_COUNT) * objectColor.b;
+                        continue;
+                    }
 
                     // printf("%f\n", *distTravelled * 10);
 
@@ -717,20 +720,52 @@ UV F(UV x, UV y)
     //     -2 * (cos(x.u) / (sin(x.u) + 0.00001)) * y.u * y.v};
 }
 
+Vector F1(Vector Y) {
+    float y1 = Y.x;
+    float x1 = Y.y;
+    float y2 = Y.z;
+    float x2 = Y.w;
+
+    return Vector(
+        y1,
+        cos(x1) * sin(x1) * y2 * y2,
+        y2,
+        -2 * atan(x1) * y1 * y2
+    );
+}
+
 UV Renderer::rungeKutta4(UV x, UV y, float t)
 {
 
-    UV xNew = {
-        x.u + (double)t * y.u,
-        x.v + (double)t * y.v};
+    // UV k1 = F(x, y);
+    // k1.u *= t;
+    // k1.v *= t;
+    // UV k2 = F({0.5 * t, 0.5 * t}, {t * k1.u + y.u, t * k1.v + y.v});
+    // k2.u *= t;
+    // k2.v *= t;
 
-    UV accelaration = F(xNew, y);
+    // UV xNew = {
+    //     x.u + (double)t * y.u,
+    //     x.v + (double)t * y.v};
 
-    UV yNew = {
-        y.u + t * accelaration.u,
-        y.v + t * accelaration.v};
+    // UV accelaration = F(xNew, y);
 
-    return yNew;
+    // UV yNew = {
+    //     y.u + t * accelaration.u,
+    //     y.v + t * accelaration.v};
+
+    // return yNew;
+
+    Vector Y = Vector(x.u, y.u, x.v, y.v);
+
+    Vector Y_new = Y * t + F1(Y);
+
+    UV ret = {
+        Y_new.x,
+        Y_new.z
+    };
+
+    return ret;
 }
 
 UV Renderer::VectorToUV(Vector v)

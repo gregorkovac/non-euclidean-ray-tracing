@@ -1,0 +1,7 @@
+# SCENE FILE FORMAT:
+# Camera (Tx Ty Tz) (Rx Ry Rz)
+# Light (Tx Ty Tz) (Cx Cy Cz)
+# Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveIndex color_type (Cx Cy Cz)
+
+Camera (0 10 0) (0 0 0)
+Light (0 20 0) (255 140 30) 100.0

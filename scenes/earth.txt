@@ -3,7 +3,9 @@
 # Light (Tx Ty Tz) (Cx Cy Cz)
 # Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveIndex color_type (Cx Cy Cz)
 
-Camera (2 11 0) (0 -1.57 -0.2)
+Camera (2 10 0) (0 0 0)
+Sphere (1 10 2) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+Sphere (0 11 1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
 Sphere (0 0 0) (0 0 0) (10 10 10) 0 0 1 checkerboard normalmap-none (8 250 107)
 Sphere (-1.1 10.95 1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
 Sphere (-3.25 10.51 0.7) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 50 0)
