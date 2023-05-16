@@ -1,26 +1,30 @@
 import os
 
-scene1 = '''
-# SCENE FILE FORMAT:
-# Camera (Tx Ty Tz) (Rx Ry Rz)
-# Light (Tx Ty Tz) (Cx Cy Cz)
-# Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveIndex color_type (Cx Cy Cz)
+scene1 = '''Camera (3 11 2) (0 '''
 
-Camera (0 0 '''
-
-scene2 = ''') (0 0 0)
-Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 0 255)
-Plane (0 0 2) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (0 200 255)
-Light (1 1 1) (255 255 255) 2.0
+scene2 = ''' 0)
+Sphere (0 -5 0) (0 0 0) (15 15 15) 0 0 1 checkerboard normalmap-none (8 250 107)
+Sphere (-1.1 10.95 1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+Sphere (-3.25 10.51 0.7) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 50 0)
+Sphere (-5.27 9.65 0.4) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (150 100 0)
+Sphere (-7.09 8.41 0.1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 150 0)
+Sphere (-8.62 6.84 -0.2) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (50 200 0)
+Sphere (-9.8 4.99 -0.5) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (0 255 0)
+Light (0 20 0) (255 140 30) 150.0
 '''
 
-for i in range(-10, 10):
-    camera_z = i / 10.0
+os.system('make')
 
-    scene = scene1 + str(camera_z) + scene2
+for i in range(0, 45):
+    print("---------- [ ", i, " / 45 ] ----------")
+
+    angle = i * 8
+    angle = angle * 3.14159265358979323846 / 180.0
+
+    scene = scene1 + str(angle) + scene2
 
     with open('scenes/scene_anim.txt', 'w') as f:
         f.write(scene)
 
-    os.system('./Raytracing.out ./scenes/scene_anim.txt --save anim1/anim' + str(i + 11) + '.png')
+    os.system('./Raytracing.out ./scenes/scene_anim.txt --save anim_rotation_eucl/anim' + str(i) + '.png')
     os.system('rm ./scenes/scene_anim.txt')

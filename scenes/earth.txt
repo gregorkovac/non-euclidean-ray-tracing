@@ -3,14 +3,19 @@
 # Light (Tx Ty Tz) (Cx Cy Cz)
 # Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveIndex color_type (Cx Cy Cz)
 
-Camera (2 10 0) (0 0 0)
-Sphere (1 10 2) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
-Sphere (0 11 1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
-Sphere (0 0 0) (0 0 0) (10 10 10) 0 0 1 checkerboard normalmap-none (8 250 107)
-Sphere (-1.1 10.95 1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
-Sphere (-3.25 10.51 0.7) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 50 0)
-Sphere (-5.27 9.65 0.4) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (150 100 0)
-Sphere (-7.09 8.41 0.1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 150 0)
+Camera (0 12 0) (0 -2 0)
+#Sphere (1 10 2) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+#Sphere (0 11 1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+Sphere (0 -90 -10) (0 0 0) (100 100 100) 0 0 1 checkerboard normalmap-none (8 250 107)
+Sphere (-9.74059595474882 -5.121844437927703 1.0) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+#Sphere (-3.25 10.51 0.7) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 50 0)
+#Sphere (-5.27 9.65 0.4) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (150 100 0)
+#Sphere (-7.09 8.41 0.1) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (100 150 0)
 #Sphere (-8.62 6.84 -0.2) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (50 200 0)
 #Sphere (-9.8 4.99 -0.5) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (0 255 0)
 Light (0 20 0) (255 140 30) 100.0
+Light (0 -30 0) (255 140 30) 100.0
+Light (20 0 0) (255 140 30) 100.0
+Light (-20 0 0) (255 140 30) 100.0
+Light (0 0 20) (255 140 30) 100.0
+Light (0 0 -20) (255 140 30) 100.0

@@ -399,9 +399,9 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
             Vector rayXYZ = this->UVToVector(uvRay);
 
-            curr = rayXYZ;
+            //curr = rayXYZ;
 
-            //curr = prev + rayXYZ * STEP_SIZE;
+            curr = prev + rayXYZ * STEP_SIZE;
 
             //printf("%s\n", rayXYZ.toString());
 
@@ -737,28 +737,14 @@ Vector F1(Vector Y) {
 UV Renderer::rungeKutta4(UV x, UV y, float t)
 {
 
-    // UV k1 = F(x, y);
-    // k1.u *= t;
-    // k1.v *= t;
-    // UV k2 = F({0.5 * t, 0.5 * t}, {t * k1.u + y.u, t * k1.v + y.v});
-    // k2.u *= t;
-    // k2.v *= t;
-
-    // UV xNew = {
-    //     x.u + (double)t * y.u,
-    //     x.v + (double)t * y.v};
-
-    // UV accelaration = F(xNew, y);
-
-    // UV yNew = {
-    //     y.u + t * accelaration.u,
-    //     y.v + t * accelaration.v};
-
-    // return yNew;
-
     Vector Y = Vector(x.u, y.u, x.v, y.v);
 
-    Vector Y_new = Y * t + F1(Y);
+    Vector k1 = t * F1(Y);
+    Vector k2 = t * F1(Y + 0.5f * k1);
+    Vector k3 = t * F1(Y + 0.5f * k2);
+    Vector k4 = t * F1(Y + k3);
+
+    Vector Y_new = Y + (1.0f / 6.0f) * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
 
     UV ret = {
         Y_new.x,
@@ -766,6 +752,17 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
     };
 
     return ret;
+
+    // Vector Y = Vector(x.u, y.u, x.v, y.v);
+
+    // Vector Y_new = Y * t + F1(Y);
+
+    // UV ret = {
+    //     Y_new.x,
+    //     Y_new.z
+    // };
+
+    // return ret;
 }
 
 UV Renderer::VectorToUV(Vector v)
@@ -782,12 +779,24 @@ UV Renderer::VectorToUV(Vector v)
     // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
     // phi = atan2(v.y, v.x);
 
-    //sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 
     //printf("sphereRadius: %f\n", sphereRadius);
 
     uv.u = acos(v.z / sphereRadius);
-    uv.v = atan2(v.y, v.x);
+
+    if (v.x < 0.001) 
+        uv.v = atan2(v.x, v.y) + PI;
+    else
+        uv.v = atan2(v.y, v.x) + PI;
+
+    //printf("%f\n", acos(2.236248/2.236068));
+
+    printf("[%f] %s -> %f %f\n", sphereRadius, v.toString(), uv.u, uv.v);
+
+    // if (v.x < 0)
+    //     uv.v += PI;
+        
 
     // uv.u = mapToFundamentalDomain(uv.u, -1, 1);
     // uv.v = mapToFundamentalDomain(uv.v, -1, 1);

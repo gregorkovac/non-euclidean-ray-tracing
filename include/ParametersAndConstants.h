@@ -9,10 +9,10 @@
 #define WINDOW_HEIGHT 400
 
 // Camera parameters
-#define IMAGE_PLANE_WIDTH 5
-#define IMAGE_PLANE_HEIGHT 5
+#define IMAGE_PLANE_WIDTH 1
+#define IMAGE_PLANE_HEIGHT 1
 #define FOCAL_LENGTH 1
-#define PIXEL_SIZE 1
+#define PIXEL_SIZE 0.4
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
@@ -27,8 +27,8 @@ const SpaceType SPACE_TYPE = SPHERICAL;
 #define FUNDAMENTAL_DOMAIN_Z_MIN -2
 #define FUNDAMENTAL_DOMAIN_Z_MAX 2
 
-#define MAX_ITER 100
-#define STEP_SIZE 0.01
+#define MAX_ITER 1000
+#define STEP_SIZE 0.001
 #define MAX_DEPTH 3
 #define RAYS_PER_PIXEL 1
 #define SHADOW_RAY_COUNT 1
@@ -52,7 +52,7 @@ const Color DIRECTIONAL_LIGHT_COLOR = {255, 140, 30};
 #define DIRECTIONAL_LIGHT_DIRECTION_Z 1
 
 const Color DEFAULT_OBJECT_COLOR = {200, 200, 200};
-const Color SKY_COLOR = {120, 255, 250};
+const Color SKY_COLOR = {130,190, 220};
 const Color MISSING_COLOR = {250, 70, 250};
 
 #define BRIGHTEN_SHADOWS true

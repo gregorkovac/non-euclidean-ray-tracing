@@ -1,9 +1,9 @@
 # **Non-Euclidean Ray Tracing** <br/> Diploma thesis
 
-## To do
-- [ ] Replace Euler's method with Runge Kutta
-- [ ] Code comments/documentation
-- [ ] Mesh objects
+## Running the code
+- `make` in the root directory
+- `./Raytracing.out ./scenes/<scene_name>.txt`
 
-## To do - optional
-- [ ] Parameters in separate file (XML maybe?)
+## File guide
+- `src/Renderer.cpp` - all rendering code
+- `include/ParametersAndConstants.h` - ray tracing parameters
