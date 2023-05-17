@@ -27,8 +27,8 @@ const SpaceType SPACE_TYPE = SPHERICAL;
 #define FUNDAMENTAL_DOMAIN_Z_MIN -2
 #define FUNDAMENTAL_DOMAIN_Z_MAX 2
 
-#define MAX_ITER 1000
-#define STEP_SIZE 0.001
+#define MAX_ITER 5000
+#define STEP_SIZE 0.1
 #define MAX_DEPTH 3
 #define RAYS_PER_PIXEL 1
 #define SHADOW_RAY_COUNT 1

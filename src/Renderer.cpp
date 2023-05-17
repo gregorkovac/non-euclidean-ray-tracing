@@ -311,6 +311,39 @@ void Renderer::render(unsigned char *dataBuffer)
 
 Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *distanceTravelled, Color *unlitColor)
 {
+
+    // Vector point = Vector(0.003123, 1.328799, 1.798411, 2.236068);
+    // sphereRadius = sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
+    // printf("Point = %s\n", point.toString());
+    // UV uvPoint = this->VectorToUV(point);
+    // printf("UVPoint = (%f %f)\n", uvPoint.u, uvPoint.v);
+    // point = this->UVToVector(uvPoint);
+    // printf("Point after = %s\n", point.toString());
+    // exit(0);
+
+    // sphereRadius = 1;
+
+    // for (float i = 0; i < 2*PI; i+=0.01) {
+    //     UV uv;
+    //     uv.u = i;
+    //     uv.v = i;
+
+    //     Vector point = this->UVToVector(uv);
+
+    //     // uv = this->VectorToUV(point);
+    //     // uv.u = mapToFundamentalDomain(uv.u, 0, 2*PI);
+    //     // uv.v = mapToFundamentalDomain(uv.v, 0, PI); 
+
+    //     Vector drawing = Vector(uv.u, uv.v, 0);
+
+    //     printf("%f %f\n", uv.u, uv.v);
+
+    //     //fprintf(pointFile, "%f %f %f\n", drawing.x, drawing.y, drawing.z);
+    //     fprintf(pointFile, "%f %f %f\n", point.x, point.y, point.z);
+    // }
+
+    // return SKY_COLOR;
+
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
 
@@ -345,7 +378,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     UV uvPrev = this->VectorToUV(origin);
     UV uvCurr = this->VectorToUV(origin);
     UV uvOrigin = this->VectorToUV(origin);
-    UV uvRay = this->VectorToUV(ray * STEP_SIZE);
+
+    // Vector originOnSphere = origin.normalize3() * sphereRadius;
+    // UV uvRay = this->VectorToUV((curr - originOnSphere).normalize3() * STEP_SIZE); 
+
+    UV uvRay = this->VectorToUV(ray.normalize3() * sphereRadius);
 
     UV fundamentalDomainOffset = {0, 0};
 
@@ -395,17 +432,31 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             uvPrev = uvCurr;
             prev = curr;
 
-            uvRay = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
+            Vector RKret = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
+
+            uvRay.u = mapToFundamentalDomain(RKret.x, 0, 2*PI);
+            uvRay.v = mapToFundamentalDomain(RKret.z, 0, 2*PI);
 
             Vector rayXYZ = this->UVToVector(uvRay);
+            
+            // uvCurr.u = mapToFundamentalDomain(RKret.y, 0, 2 * PI);
+            // uvCurr.v = mapToFundamentalDomain(RKret.w, 0, 2 * PI);
+
+            // curr = this->UVToVector(uvCurr);
 
             //curr = rayXYZ;
 
             curr = prev + rayXYZ * STEP_SIZE;
 
+
+            //printf("%s\n", (rayXYZ * STEP_SIZE).toString());
+
+            //curr.y = 0;
+
             //printf("%s\n", rayXYZ.toString());
 
-            //curr = curr.normalize3() * sphereRadius;
+            curr = curr.normalize3() * sphereRadius;
+            //printf("%s %s\n", prev.toString(), curr.toString());
 
             //printf("%f\n", sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z));
 
@@ -414,7 +465,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
             //printf("%s\n", rayXYZ.toString());
 
-            uvCurr = this->VectorToUV(curr);
+            //uvCurr = this->VectorToUV(curr);
 
             if (PLOT_RAYS)
                 fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
@@ -734,7 +785,7 @@ Vector F1(Vector Y) {
     );
 }
 
-UV Renderer::rungeKutta4(UV x, UV y, float t)
+Vector Renderer::rungeKutta4(UV x, UV y, float t)
 {
 
     Vector Y = Vector(x.u, y.u, x.v, y.v);
@@ -746,12 +797,24 @@ UV Renderer::rungeKutta4(UV x, UV y, float t)
 
     Vector Y_new = Y + (1.0f / 6.0f) * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
 
-    UV ret = {
-        Y_new.x,
-        Y_new.z
-    };
+    //printf("%d\n", sign(Y_new.x));
 
-    return ret;
+    // UV uvmove;
+    // uvmove.u = Y_new.x;
+    // uvmove.v = Y_new.z;
+    // Vector move = this->UVToVector(uvmove);
+    // move = move * STEP_SIZE;
+
+    // printf("x = [%f %f] y = [%f %f] -> %s\n", Y_new.y, Y_new.w, Y_new.x, Y_new.z, move.toString());
+
+    return Y_new;
+
+    // UV ret = {
+    //     mapToFundamentalDomain(Y_new.y, 0, PI),
+    //     mapToFundamentalDomain(Y_new.w, 0, 2 * PI)
+    // };
+
+   // return ret;
 
     // Vector Y = Vector(x.u, y.u, x.v, y.v);
 
@@ -779,20 +842,40 @@ UV Renderer::VectorToUV(Vector v)
     // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
     // phi = atan2(v.y, v.x);
 
-    sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+    //sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+
+    //v = v.normalize3() * sphereRadius;
 
     //printf("sphereRadius: %f\n", sphereRadius);
 
     uv.u = acos(v.z / sphereRadius);
 
-    if (v.x < 0.001) 
-        uv.v = atan2(v.x, v.y) + PI;
-    else
-        uv.v = atan2(v.y, v.x) + PI;
+    // if (abs(v.x) < 0.000001) {
+    //     uv.v = atan2(v.x, v.y);
+    //    // printf("-----------------\n");
+    // } else
+    // if (abs(v.x) < 0.000001)
+    //     uv.v = PI;
+    // else
+
+    uv.v = atan2(v.y, v.x);
+
+    // uv.u = mapToFundamentalDomain(uv.u, 0, PI);
+    // uv.v = mapToFundamentalDomain(uv.v, 0, 2 * PI);
+
+    // if (v.x == 0)
+    //     uv.v = atan(v.x / v.y);
+    // else
+    //     uv.v = atan(v.y / v.x);
+
+    // if (v.x > 0 && v.y < 0)
+    //     uv.v += 2 * PI;
+    // else if (v.x < 0)
+    //     uv.v += PI;
 
     //printf("%f\n", acos(2.236248/2.236068));
 
-    printf("[%f] %s -> %f %f\n", sphereRadius, v.toString(), uv.u, uv.v);
+    //printf("[%f] %s -> %f %f\n", sphereRadius, v.toString(), uv.u, uv.v);
 
     // if (v.x < 0)
     //     uv.v += PI;

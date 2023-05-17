@@ -17,7 +17,6 @@ points = np.array(points)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-#ax.set_aspect('equal')
 
 cnt = 0
 
@@ -36,7 +35,7 @@ for line in param_file:
 for point in points:
     if cnt == max_iter:
         cnt = 0
-        color = np.random.rand(3,)
+    color = np.random.rand(3,)
 
 
 
@@ -54,4 +53,5 @@ for point in points:
 
     cnt += 1
 
+ax.set_aspect('equal')
 plt.show()

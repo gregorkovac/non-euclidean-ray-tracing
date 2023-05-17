@@ -32,7 +32,7 @@ class Renderer {
         void render(unsigned char* dataBuffer);
         Color trace(Vector ray, Vector origin, int depth, int maxIter = MAX_ITER, float* distanceTravelled = NULL, Color* unlitColor = NULL);
         bool isShadowed(Vector origin, Vector light, Vector ray);
-        UV rungeKutta4(UV x, UV y, float t);
+        Vector rungeKutta4(UV x, UV y, float t);
         UV VectorToUV(Vector v);
         Vector UVToVector(UV uv);
         void initExecutionTime();
