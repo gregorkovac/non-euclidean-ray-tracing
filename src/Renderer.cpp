@@ -379,10 +379,19 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     UV uvCurr = this->VectorToUV(origin);
     UV uvOrigin = this->VectorToUV(origin);
 
+    // uvCurr.u = 1;
+    // uvCurr.v = 0;
+
+    // uvPrev.u = 1;
+    // uvPrev.v = 0;
+
     // Vector originOnSphere = origin.normalize3() * sphereRadius;
     // UV uvRay = this->VectorToUV((curr - originOnSphere).normalize3() * STEP_SIZE); 
 
     UV uvRay = this->VectorToUV(ray.normalize3() * sphereRadius);
+    // UV uvRay;
+    // uvRay.u = 1;
+    // uvRay.v = 0;
 
     UV fundamentalDomainOffset = {0, 0};
 
@@ -432,21 +441,42 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             uvPrev = uvCurr;
             prev = curr;
 
-            Vector RKret = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
+            UV initialApproximation;
+            initialApproximation.u = 1;
+            initialApproximation.v = 0;
 
-            uvRay.u = mapToFundamentalDomain(RKret.x, 0, 2*PI);
-            uvRay.v = mapToFundamentalDomain(RKret.z, 0, 2*PI);
+            Vector RKret = this->rungeKutta4(initialApproximation, uvRay, STEP_SIZE);
 
-            Vector rayXYZ = this->UVToVector(uvRay);
+            // uvRay.u = mapToFundamentalDomain(RKret.x, 0, 2*PI);
+            // uvRay.v = mapToFundamentalDomain(RKret.z, 0, 2*PI);
+            uvRay.u = RKret.x;
+            uvRay.v = RKret.z;
+
+            uvCurr.u += uvRay.u * STEP_SIZE;
+            uvCurr.v += uvRay.v * STEP_SIZE;
+
+            uvCurr.u = mapToFundamentalDomain(uvCurr.u, 0, 2 * PI);
+            uvCurr.v = mapToFundamentalDomain(uvCurr.v, 0, 2 * PI);
+
+            curr = this->UVToVector(uvCurr);
+
+            // uvCurr.u = RKret.y;
+            // uvCurr.v = RKret.w;
+
+            // curr = this->UVToVector(uvCurr);
+
+            // printf("%s\n", curr.toString());
+
+            //Vector rayXYZ = this->UVToVector(uvRay);
+            //curr = prev + rayXYZ * STEP_SIZE;
             
             // uvCurr.u = mapToFundamentalDomain(RKret.y, 0, 2 * PI);
             // uvCurr.v = mapToFundamentalDomain(RKret.w, 0, 2 * PI);
 
-            // curr = this->UVToVector(uvCurr);
+            //curr = this->UVToVector(uvCurr);
 
             //curr = rayXYZ;
 
-            curr = prev + rayXYZ * STEP_SIZE;
 
 
             //printf("%s\n", (rayXYZ * STEP_SIZE).toString());
@@ -455,7 +485,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
             //printf("%s\n", rayXYZ.toString());
 
-            curr = curr.normalize3() * sphereRadius;
+            // curr = curr.normalize3() * sphereRadius;
             //printf("%s %s\n", prev.toString(), curr.toString());
 
             //printf("%f\n", sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z));
