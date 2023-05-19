@@ -358,13 +358,18 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
     Vector originOffset = Vector(0, 0, 0);
 
+
     prev = origin;
     curr = origin;
+
+    Vector xOffset;
 
     if (SPACE_TYPE == SPHERICAL)
     {
         curr = origin + ray;
         sphereRadius = sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z);
+
+        xOffset = Vector(curr.x, 0, 0);
 
         //curr = curr.normalize3() * sphereRadius;
 
@@ -458,7 +463,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             uvCurr.u = mapToFundamentalDomain(uvCurr.u, 0, 2 * PI);
             uvCurr.v = mapToFundamentalDomain(uvCurr.v, 0, 2 * PI);
 
-            curr = this->UVToVector(uvCurr);
+            curr = this->UVToVector(uvCurr) + xOffset;
 
             // uvCurr.u = RKret.y;
             // uvCurr.v = RKret.w;
