@@ -9,14 +9,14 @@
 #define WINDOW_HEIGHT 400
 
 // Camera parameters
-#define IMAGE_PLANE_WIDTH 100
-#define IMAGE_PLANE_HEIGHT 100
+#define IMAGE_PLANE_WIDTH 1
+#define IMAGE_PLANE_HEIGHT 1
 #define FOCAL_LENGTH 1
 #define PIXEL_SIZE 0.04
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = EUCLIDEAN;
+const SpaceType SPACE_TYPE = SPHERICAL;
 #define SPHERICAL_SPACE_RADIUS 2
 
 /* Fundamental domain parameters */
@@ -27,8 +27,8 @@ const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define FUNDAMENTAL_DOMAIN_Z_MIN -2
 #define FUNDAMENTAL_DOMAIN_Z_MAX 2
 
-#define MAX_ITER 1000
-#define STEP_SIZE 0.01
+#define MAX_ITER 100
+#define STEP_SIZE 0.1
 #define MAX_DEPTH 3
 #define RAYS_PER_PIXEL 1
 #define SHADOW_RAY_COUNT 1
@@ -63,7 +63,7 @@ const Color MISSING_COLOR = {250, 70, 250};
 #define DRAW_GIZMOS false
 #define PRINT_OBJECTS_ON_STARTUP false
 #define DRAW_IMAGE false
-#define PLOT_RAYS false
+#define PLOT_RAYS true
 
 // Other
 #define PRINT_PROJECT_INFO true

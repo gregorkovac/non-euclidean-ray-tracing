@@ -393,7 +393,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     // Vector originOnSphere = origin.normalize3() * sphereRadius;
     // UV uvRay = this->VectorToUV((curr - originOnSphere).normalize3() * STEP_SIZE); 
 
-    UV uvRay = this->VectorToUV(ray.normalize3() * sphereRadius);
+    // UV uvRay = this->VectorToUV(ray.normalize3() * sphereRadius);
     // UV uvRay;
     // uvRay.u = 1;
     // uvRay.v = 0;
@@ -450,18 +450,20 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             initialApproximation.u = 1;
             initialApproximation.v = 0;
 
-            Vector RKret = this->rungeKutta4(initialApproximation, uvRay, STEP_SIZE);
+            Vector RKret = this->rungeKutta4(uvCurr, initialApproximation, STEP_SIZE);
 
             // uvRay.u = mapToFundamentalDomain(RKret.x, 0, 2*PI);
             // uvRay.v = mapToFundamentalDomain(RKret.z, 0, 2*PI);
-            uvRay.u = RKret.x;
-            uvRay.v = RKret.z;
+            // uvRay.u = RKret.y;
+            // uvRay.v = RKret.w;
 
-            uvCurr.u += uvRay.u * STEP_SIZE;
-            uvCurr.v += uvRay.v * STEP_SIZE;
+            // printf("%s\n", RKret.toString());
 
-            uvCurr.u = mapToFundamentalDomain(uvCurr.u, 0, 2 * PI);
-            uvCurr.v = mapToFundamentalDomain(uvCurr.v, 0, 2 * PI);
+            uvCurr.u = RKret.x;
+            uvCurr.v = RKret.z;
+
+            // uvCurr.u = mapToFundamentalDomain(uvCurr.u, 0, 2 * PI);
+            // uvCurr.v = mapToFundamentalDomain(uvCurr.v, 0, 2 * PI);
 
             curr = this->UVToVector(uvCurr) + xOffset;
 
@@ -807,10 +809,10 @@ UV F(UV x, UV y)
 }
 
 Vector F1(Vector Y) {
-    float y1 = Y.x;
-    float x1 = Y.y;
-    float y2 = Y.z;
-    float x2 = Y.w;
+    float x1 = Y.x;
+    float x2 = Y.z;
+    float y1 = Y.y;
+    float y2 = Y.w;
 
     return Vector(
         y1,
@@ -823,44 +825,44 @@ Vector F1(Vector Y) {
 Vector Renderer::rungeKutta4(UV x, UV y, float t)
 {
 
-    Vector Y = Vector(x.u, y.u, x.v, y.v);
+//     Vector Y = Vector(x.u, y.u, x.v, y.v);
 
-    Vector k1 = t * F1(Y);
-    Vector k2 = t * F1(Y + 0.5f * k1);
-    Vector k3 = t * F1(Y + 0.5f * k2);
-    Vector k4 = t * F1(Y + k3);
+//     Vector k1 = t * F1(Y);
+//     Vector k2 = t * F1(Y + 0.5f * k1);
+//     Vector k3 = t * F1(Y + 0.5f * k2);
+//     Vector k4 = t * F1(Y + k3);
 
-    Vector Y_new = Y + (1.0f / 6.0f) * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
+//     Vector Y_new = Y + (1.0f / 6.0f) * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
 
-    //printf("%d\n", sign(Y_new.x));
+//     //printf("%d\n", sign(Y_new.x));
 
-    // UV uvmove;
-    // uvmove.u = Y_new.x;
-    // uvmove.v = Y_new.z;
-    // Vector move = this->UVToVector(uvmove);
-    // move = move * STEP_SIZE;
+//     // UV uvmove;
+//     // uvmove.u = Y_new.x;
+//     // uvmove.v = Y_new.z;
+//     // Vector move = this->UVToVector(uvmove);
+//     // move = move * STEP_SIZE;
 
-    // printf("x = [%f %f] y = [%f %f] -> %s\n", Y_new.y, Y_new.w, Y_new.x, Y_new.z, move.toString());
+//     // printf("x = [%f %f] y = [%f %f] -> %s\n", Y_new.y, Y_new.w, Y_new.x, Y_new.z, move.toString());
 
-    return Y_new;
+//     return Y_new;
 
-    // UV ret = {
-    //     mapToFundamentalDomain(Y_new.y, 0, PI),
-    //     mapToFundamentalDomain(Y_new.w, 0, 2 * PI)
-    // };
+//     // UV ret = {
+//     //     mapToFundamentalDomain(Y_new.y, 0, PI),
+//     //     mapToFundamentalDomain(Y_new.w, 0, 2 * PI)
+//     // };
 
-   // return ret;
+//    // return ret;
 
-    // Vector Y = Vector(x.u, y.u, x.v, y.v);
+    Vector Y = Vector(x.u, y.u, x.v, y.v); // (u, u', v, v')
 
-    // Vector Y_new = Y * t + F1(Y);
+    Vector Y_new = Y + t * F1(Y);
 
     // UV ret = {
     //     Y_new.x,
     //     Y_new.z
     // };
 
-    // return ret;
+    return Y_new;
 }
 
 UV Renderer::VectorToUV(Vector v)
