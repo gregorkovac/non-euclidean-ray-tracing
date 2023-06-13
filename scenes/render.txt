@@ -8,12 +8,12 @@ Sphere (10 8 -3) (0 0 0) (3 3 3) 0.8 0 1 solid normalmap-none (255 0 0)
 Sphere (10 8 3) (0 0 0) (3 3 3) 0.8 0 1 solid normalmap-none (0 255 0)
 Sphere (8 8 -3) (0 0 0) (1 1 1) 0.8 0 1 solid normalmap-none (0 255 0)
 Sphere (10 9 -3) (0 0 0) (0.5 0.5 0.5) 0 0 1 solid normalmap-none (0 0 255)
-Plane (10 6 -1) (0 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
-Plane (10 12 3) (0 0 3.14159) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
-Plane (10 7 -2) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
-Plane (10 7 -6) (-1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
-Plane (6 7 3) (0 0 1.5708) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
-Plane (14 7 3) (0 0 -1.5708) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
+Plane (10 6 -1) (0 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (142 68 173)
+#Plane (10 12 3) (0 0 3.14159) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
+Plane (10 7 -2) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (26 188 156)
+Plane (10 7 -6) (-1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (26 188 156)
+#Plane (6 7 3) (0 0 1.5708) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
+#Plane (14 7 3) (0 0 -1.5708) (1 1 1) 0 0 1 checkerboard normalmap-none (200 200 200)
 Light (10 8 -5) (255 255 255) 1.5
 Light (10 9 1) (255 255 255) 1.5
 Light (10 10 -4) (255 255 255) 1.5

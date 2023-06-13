@@ -4,7 +4,7 @@
 # Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveIndex color_type (Cx Cy Cz)
 
 Camera (0 0 0) (0 0 0)
-#Sphere (0 0 0) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+Sphere (0 0 3) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
 #Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (200 0 255)
 Plane (0 0 4) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (0 200 255)
 #Plane (0 0 -0.1) (-1.8 0 0) (1 1 1) 0 0 1 solid normalmap-none (200 255 0)

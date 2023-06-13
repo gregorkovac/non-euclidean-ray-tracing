@@ -1,0 +1,14 @@
+Camera (0 0 0) (0 0 0)
+Sphere (2 0 3) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
+Sphere (0 0 4) (0 0 0) (1 1 1) 1 0 1 solid normalmap-none (52 73 94)
+Sphere (-2 0 3) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (155 89 182)
+#Mesh (0 2 3) (-0.1 0.8 -0.1) (0.4 0.4 0.4) 0 0 1 solid normalmap-none (243 156 18) ./objects/cube.obj
+Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (251 251 251)
+Plane (0 0 6) (1.5708 0 0) (1 1 1) 0 0 1 solid normalmap-none (251 251 251)
+#Sphere (-1 0 2) (0 0 0) (1 1 1) 0 1 1 solid normalmap-none (52 73 94)
+#Plane (0 -1.1 0) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (200 0 255)
+#Plane (0 0 6) (1.5708 0 0) (1 1 1) 0 0 1 checkerboard normalmap-none (0 200 255)
+#Plane (0 0 -0.1) (-1.8 0 0) (1 1 1) 0 0 1 solid normalmap-none (200 255 0)
+Light (0 0.5 2) (255 255 255) 2.0
+Light (4 3 3) (255 230 0) 2.0
+Light (-4 3 3) (0 251 255) 2.0

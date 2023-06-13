@@ -38,4 +38,6 @@ enum SpaceType {
     SPHERICAL
 };
 
+UV VectorToUV(float x, float y, float z, float sphereRadius);
+
 #endif

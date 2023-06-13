@@ -155,16 +155,25 @@ Vector Object::up() {
 }
 
 Color Object::color(Vector p) {
-
     switch (colorType_) {
-        case COLOR_TYPE_SOLID:
+        case COLOR_TYPE_SOLID: {
             return this->color_;
+        }
         case COLOR_TYPE_GRADIENT: 
+        {
+            UV uv = VectorToUV(p.x, p.y, p.z, this->scale_.x);
+
             return {
-                (unsigned short) (this->color_.r * (1 - p.z) + 255 * p.z),
-                (unsigned short) (this->color_.g * (1 - p.z) + 255 * p.z),
-                (unsigned short) (this->color_.b * (1 - p.z) + 255 * p.z)
+                (unsigned short) (((sin(uv.v * 5) + 1) / 2 * 255)),
+                (unsigned short) (this->color_.g),
+                (unsigned short) (this->color_.b)
             };
+            // return {
+            //     (unsigned short) (this->color_.r * (1 - p.z) + 255 * p.z),
+            //     (unsigned short) (this->color_.g * (1 - p.z) + 255 * p.z),
+            //     (unsigned short) (this->color_.b * (1 - p.z) + 255 * p.z)
+            // };
+         }
         case COLOR_TYPE_TEXTURE:
         {
             /*int u = (int)((this->position_.x - p.x) * 1000) % this->textureWidth;
@@ -185,9 +194,28 @@ Color Object::color(Vector p) {
 
         case COLOR_TYPE_CHECKERBOARD:
         {
+
+            // UV uv = VectorToUV(p.x, p.y, p.z, this->scale_.x);
+
+            // //if ((int)(uv.u * 100 + uv.v * 100) % 2 == 0) {
+            // if ((int)floor(uv.u * 73) % 2 == (int)floor(uv.v * 33) % 2) {
+            //     //return this->color_;
+            //     return {
+            //         (unsigned short) (255),
+            //         (unsigned short) (255),
+            //         (unsigned short) (255)
+            //     };
+            // } else {
+            //     return {
+            //         (unsigned short) (0),
+            //         (unsigned short) (0),
+            //         (unsigned short) (0)
+            //     };
+            // }
+
             // Map the point to plane 2d space
             float u = this->position_.x - p.x;
-            float v = this->position_.y - p.y;
+            float v = this->position_.z - p.z;
 
             // Map the point to a checkerboard
             int i = (int) (u * 5);
@@ -198,9 +226,9 @@ Color Object::color(Vector p) {
                 return this->color_;
             } else {
                 return {
-                    (unsigned short) (this->color_.r * 0.5),
-                    (unsigned short) (this->color_.g * 0.5),
-                    (unsigned short) (this->color_.b * 0.5)
+                    (unsigned short) (this->color_.r * 0.2),
+                    (unsigned short) (this->color_.g * 0.2),
+                    (unsigned short) (this->color_.b * 0.2)
                 };
             }
         }

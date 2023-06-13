@@ -54,3 +54,12 @@ float mapToFundamentalDomain(float x, float a, float b)
     double fractionalPart = quotient - floor(quotient);
     return a + fractionalPart * range;
 }
+
+UV VectorToUV(float x, float y, float z, float sphereRadius)
+{
+    UV uv;
+    uv.u = acos(z / sphereRadius);
+    uv.v = atan2(y, x);
+
+    return uv;
+}

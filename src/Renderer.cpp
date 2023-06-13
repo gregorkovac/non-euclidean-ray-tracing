@@ -122,7 +122,7 @@ void Renderer::parseScene(char *sceneFilePath)
             char objFilePath[1000];
             sscanf(line, "%s (%f %f %f) (%f %f %f) (%f %f %f) %f %f %f %s %s (%d %d %d) %s", objectType, &position.x, &position.y, &position.z, &rotation.x, &rotation.y, &rotation.z, &scale.x, &scale.y, &scale.z, &reflectivity, &translucency, &refractiveIndex, colorType, normalMap, &color.r, &color.g, &color.b, objFilePath);
             this->objects[objectIndex] = new Mesh(position, rotation, scale, color, reflectivity, translucency, refractiveIndex, colorType, objFilePath);
-            ((Mesh*)this->objects[objectIndex])->cullBackFaces(this->camera);
+            //((Mesh*)this->objects[objectIndex])->cullBackFaces(this->camera);
 
             objectIndex++;
             printf(" -> Mesh\n");
@@ -193,6 +193,15 @@ void Renderer::render(unsigned char *dataBuffer)
                 Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
 
                 Color c = trace(ray, camera->position(), 0);
+
+                if (c == SKY_COLOR) {
+                    float p = 1 - (y - 0) * (1 - 0.6) / (IMAGE_PLANE_HEIGHT - 0.5) + 0.2;
+
+                    c.r *= p;
+                    c.g *= p;
+                    c.b *= p;
+                }
+
                 color.r += c.r;
                 color.g += c.g;
                 color.b += c.b;
@@ -369,6 +378,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
         curr = origin + ray;
         sphereRadius = sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z);
 
+        //printf("%f\n", sphereRadius);
+
         xOffset = Vector(curr.x, 0, 0);
 
         //curr = curr.normalize3() * sphereRadius;
@@ -380,9 +391,18 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     if (PLOT_RAYS)
         fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
 
-    UV uvPrev = this->VectorToUV(origin);
-    UV uvCurr = this->VectorToUV(origin);
+    UV uvPrev = this->VectorToUV(curr);
+    UV uvCurr = this->VectorToUV(curr);
     UV uvOrigin = this->VectorToUV(origin);
+
+    //printf("%f %f\n", uvCurr.u, uvCurr.v);
+
+    // // angle between ray and forward vector
+    // float angley = acos(ray * Vector(0, 0, 1) / ray.norm());
+    // float anglez = acos(ray * Vector(0, 1, 0) / ray.norm());
+
+    // Matrix Rspherical = Matrix::rotation(Vector(0, angley, anglez));
+
 
     // uvCurr.u = 1;
     // uvCurr.v = 0;
@@ -465,7 +485,14 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             // uvCurr.u = mapToFundamentalDomain(uvCurr.u, 0, 2 * PI);
             // uvCurr.v = mapToFundamentalDomain(uvCurr.v, 0, 2 * PI);
 
-            curr = this->UVToVector(uvCurr) + xOffset;
+            curr = this->UVToVector(uvCurr);
+   
+            // Vector u = curr - origin;
+            // Vector projection = (u * ray) / (ray.norm() * ray.norm()) * ray;
+
+            // curr = origin + projection;
+
+            //curr = Rspherical * curr;
 
             // uvCurr.u = RKret.y;
             // uvCurr.v = RKret.w;
@@ -508,6 +535,8 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                 fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
             break;
         }
+
+        //printf("%f %f\n", curr.x, round(curr.x));
 
         for (int i = 0; i < this->numObjects; i++)
         {
@@ -644,17 +673,20 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                         Vector offset;
                         float weight;
 
-                        if (k == 0) {
-                            offset = Vector(0, 0, 0);
-                            weight = (255 * SHADOW_RAY_COUNT) / (2 * SHADOW_RAY_COUNT);
-                        } else {
-                            offset = Vector(
-                                randomBetween(-1, 1),
-                                randomBetween(-1, 1),
-                                randomBetween(-1, 1));
+                        // if (k == 0) {
+                        //     offset = Vector(0, 0, 0);
+                        //     weight = (255 * SHADOW_RAY_COUNT) / (2 * SHADOW_RAY_COUNT);
+                        // } else {
+                            if (SHADOW_RAY_COUNT <= 1)
+                                offset = Vector(0, 0, 0);
+                            else
+                                offset = Vector(
+                                    randomBetween(-1, 1),
+                                    randomBetween(-1, 1),
+                                    randomBetween(-1, 1));
 
-                            weight = 255 / (2 * SHADOW_RAY_COUNT);
-                        }
+                            weight = 255 / (SHADOW_RAY_COUNT);
+                        //}
 
                         //Vector lightPosition = lights[j]->position() + offset;
                         Vector shadowRay = ((lights[j]->position() + offset) - intersection).normalize3();
@@ -681,22 +713,49 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                     c.b += shadowB * objectColor.b;
                 }
 
-                // if (BRIGHTEN_SHADOWS && c.r <= 10 && c.g <= 10 && c.b <= 10) {
-                //     c.r = 0.1 * objectColor.r;
-                //     c.g = 0.1 * objectColor.g;
-                //     c.b = 0.1 * objectColor.b;
-                // }
-
-                Vector directionalLight = 100 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
-
-                Vector directionalLightShadowRay = (directionalLight - intersection).normalize3();
-
-                if (!isShadowed(intersection, directionalLight, directionalLightShadowRay))
-                {
-                    c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0 * objectColor.r;
-                    c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
-                    c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
+                if (BRIGHTEN_SHADOWS && c.r <= 10 && c.g <= 10 && c.b <= 10) {
+                    c.r = 0.1 * objectColor.r;
+                    c.g = 0.1 * objectColor.g;
+                    c.b = 0.1 * objectColor.b;
                 }
+
+                Vector directionalLight = 5 * Vector(-DIRECTIONAL_LIGHT_DIRECTION_X, -DIRECTIONAL_LIGHT_DIRECTION_Y, -DIRECTIONAL_LIGHT_DIRECTION_Z);
+
+                float shadowR = 0, shadowG = 0, shadowB = 0;
+                 for (int k = 0; k < SHADOW_RAY_COUNT; k++)
+                    {
+                        Vector offset;
+                        float weight;
+
+                        if (SHADOW_RAY_COUNT <= 1)
+                            offset = Vector(0, 0, 0);
+                        else
+                            offset = Vector(
+                                randomBetween(-1, 1),
+                                randomBetween(-1, 1),
+                                randomBetween(-1, 1));
+
+                        weight = 255 / (SHADOW_RAY_COUNT);
+
+                        Vector directionalLightShadowRay = ((directionalLight + offset) - intersection).normalize3();
+
+                        if (!isShadowed(intersection, directionalLight, directionalLightShadowRay))
+                        {
+                            shadowR += (weight * DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0) / 255;
+                            shadowG += (weight * DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0) / 255;
+                            shadowB += (weight * DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0) / 255;
+
+                            /*
+                            c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0 * objectColor.r;
+                            c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
+                            c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
+                            */
+                        }
+                    }
+
+                    c.r += shadowR * objectColor.r;
+                    c.g += shadowG * objectColor.g;
+                    c.b += shadowB * objectColor.b;
 
                 // if (BRIGHTEN_SHADOWS && c.r <= 10 && c.g <= 10 && c.b <= 10) {
                 //     c.r = 0.1 * objectColor.r;

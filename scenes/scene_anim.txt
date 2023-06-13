@@ -1,9 +1,10 @@
-Camera (0 5 0) (0 0 0)
-#Sphere (0 0 0) (0 0 0) (10 10 10) 0 0 1 checkerboard normalmap-none (8 250 107)
-Sphere (0.0 0.8682408883346499 -4.924038765061041) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 0 0)
-Light (0 20 0) (255 140 30) 100.0
-Light (0 -30 0) (255 140 30) 100.0
-Light (20 0 0) (255 140 30) 100.0
-Light (-20 0 0) (255 140 30) 100.0
-Light (0 0 20) (255 140 30) 100.0
-Light (0 0 -20) (255 140 30) 100.0
+Camera (0 11 0) (0 0 0)
+Sphere (0 0 0) (0 0 0) (10 10 10) 0 0 1 solid normalmap-none (46 204 113)
+Sphere (0 11 2) (0 0 0) (1 1 1) 0.4 0 1 solid normalmap-none (251 197 49)
+Sphere (3 11 2) (0 0 0) (1 1 1) 0 0 1 gradient normalmap-none (234 32 39)
+Sphere (-4 10 6) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (18 203 196)
+Sphere (4 9 8) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (153 128 250)
+Sphere (-3 -11 2) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (255 168 1)
+Light (0 13 0) (255 255 255) 3.0
+Light (0 13 4) (255 255 255) 3.0
+Light (0 11 6) (255 255 255) 3.0
