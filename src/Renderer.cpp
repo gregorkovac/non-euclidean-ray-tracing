@@ -320,72 +320,18 @@ void Renderer::render(unsigned char *dataBuffer)
 
 Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *distanceTravelled, Color *unlitColor)
 {
-
-    // Vector point = Vector(0.003123, 1.328799, 1.798411, 2.236068);
-    // sphereRadius = sqrt(point.x * point.x + point.y * point.y + point.z * point.z);
-    // printf("Point = %s\n", point.toString());
-    // UV uvPoint = this->VectorToUV(point);
-    // printf("UVPoint = (%f %f)\n", uvPoint.u, uvPoint.v);
-    // point = this->UVToVector(uvPoint);
-    // printf("Point after = %s\n", point.toString());
-    // exit(0);
-
-    // sphereRadius = 1;
-
-    // for (float i = 0; i < 2*PI; i+=0.01) {
-    //     UV uv;
-    //     uv.u = i;
-    //     uv.v = i;
-
-    //     Vector point = this->UVToVector(uv);
-
-    //     // uv = this->VectorToUV(point);
-    //     // uv.u = mapToFundamentalDomain(uv.u, 0, 2*PI);
-    //     // uv.v = mapToFundamentalDomain(uv.v, 0, PI); 
-
-    //     Vector drawing = Vector(uv.u, uv.v, 0);
-
-    //     printf("%f %f\n", uv.u, uv.v);
-
-    //     //fprintf(pointFile, "%f %f %f\n", drawing.x, drawing.y, drawing.z);
-    //     fprintf(pointFile, "%f %f %f\n", point.x, point.y, point.z);
-    // }
-
-    // return SKY_COLOR;
-
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
 
-    // Vector curr = origin;
-    // Vector prev = origin;
-
-    // UV uvOrigin = this->VectorToUV(origin);
-    // UV uvRay = this->VectorToUV(ray);
-
     Vector prev, curr;
-    // UV uvPrev, uvCurr;
-
-    Vector originOffset = Vector(0, 0, 0);
-
 
     prev = origin;
     curr = origin;
-
-    Vector xOffset;
 
     if (SPACE_TYPE == SPHERICAL)
     {
         curr = origin + ray;
         sphereRadius = sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z);
-
-        //printf("%f\n", sphereRadius);
-
-        xOffset = Vector(curr.x, 0, 0);
-
-        //curr = curr.normalize3() * sphereRadius;
-
-        //ray = curr - origin;
-
     }
 
     if (PLOT_RAYS)
@@ -395,32 +341,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
     UV uvCurr = this->VectorToUV(curr);
     UV uvOrigin = this->VectorToUV(origin);
 
-    //printf("%f %f\n", uvCurr.u, uvCurr.v);
-
-    // // angle between ray and forward vector
-    // float angley = acos(ray * Vector(0, 0, 1) / ray.norm());
-    // float anglez = acos(ray * Vector(0, 1, 0) / ray.norm());
-
-    // Matrix Rspherical = Matrix::rotation(Vector(0, angley, anglez));
-
-
-    // uvCurr.u = 1;
-    // uvCurr.v = 0;
-
-    // uvPrev.u = 1;
-    // uvPrev.v = 0;
-
-    // Vector originOnSphere = origin.normalize3() * sphereRadius;
-    // UV uvRay = this->VectorToUV((curr - originOnSphere).normalize3() * STEP_SIZE); 
-
-    // UV uvRay = this->VectorToUV(ray.normalize3() * sphereRadius);
-    // UV uvRay;
-    // uvRay.u = 1;
-    // uvRay.v = 0;
-
     UV fundamentalDomainOffset = {0, 0};
-
-    //printf("=========== NEW RAY ============\n");
 
     for (float h = 1; h < maxIter; h += 1)
     {
@@ -470,73 +391,17 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             initialApproximation.u = 1;
             initialApproximation.v = 0;
 
-            Vector RKret = this->rungeKutta4(uvCurr, initialApproximation, STEP_SIZE);
-
-            // uvRay.u = mapToFundamentalDomain(RKret.x, 0, 2*PI);
-            // uvRay.v = mapToFundamentalDomain(RKret.z, 0, 2*PI);
-            // uvRay.u = RKret.y;
-            // uvRay.v = RKret.w;
-
-            // printf("%s\n", RKret.toString());
+            Vector RKret = this->euler(uvCurr, initialApproximation, STEP_SIZE);
 
             uvCurr.u = RKret.x;
             uvCurr.v = RKret.z;
 
-            // uvCurr.u = mapToFundamentalDomain(uvCurr.u, 0, 2 * PI);
-            // uvCurr.v = mapToFundamentalDomain(uvCurr.v, 0, 2 * PI);
-
             curr = this->UVToVector(uvCurr);
-   
-            // Vector u = curr - origin;
-            // Vector projection = (u * ray) / (ray.norm() * ray.norm()) * ray;
-
-            // curr = origin + projection;
-
-            //curr = Rspherical * curr;
-
-            // uvCurr.u = RKret.y;
-            // uvCurr.v = RKret.w;
-
-            // curr = this->UVToVector(uvCurr);
-
-            // printf("%s\n", curr.toString());
-
-            //Vector rayXYZ = this->UVToVector(uvRay);
-            //curr = prev + rayXYZ * STEP_SIZE;
-            
-            // uvCurr.u = mapToFundamentalDomain(RKret.y, 0, 2 * PI);
-            // uvCurr.v = mapToFundamentalDomain(RKret.w, 0, 2 * PI);
-
-            //curr = this->UVToVector(uvCurr);
-
-            //curr = rayXYZ;
-
-
-
-            //printf("%s\n", (rayXYZ * STEP_SIZE).toString());
-
-            //curr.y = 0;
-
-            //printf("%s\n", rayXYZ.toString());
-
-            // curr = curr.normalize3() * sphereRadius;
-            //printf("%s %s\n", prev.toString(), curr.toString());
-
-            //printf("%f\n", sqrt(curr.x * curr.x + curr.y * curr.y + curr.z * curr.z));
-
-            // uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
-            // uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
-
-            //printf("%s\n", rayXYZ.toString());
-
-            //uvCurr = this->VectorToUV(curr);
 
             if (PLOT_RAYS)
                 fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
             break;
         }
-
-        //printf("%f %f\n", curr.x, round(curr.x));
 
         for (int i = 0; i < this->numObjects; i++)
         {
@@ -544,7 +409,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             if (objects[i]->intersect(prev, curr))
             {
 
-                Vector intersection = objects[i]->newtonsMethod((prev + curr) / 2);
+                Vector intersection = objects[i]->gaussNewtonsMethod((prev + curr) / 2);
 
                 if (distanceTravelled != NULL)
                     *distanceTravelled = h * STEP_SIZE;
@@ -651,8 +516,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                         continue;
                     }
 
-                    // printf("%f\n", *distTravelled * 10);
-
                     float diffuseFactor = (*distTravelled) * (*distTravelled);
                     if (diffuseFactor < 1)
                         diffuseFactor = 1;
@@ -666,17 +529,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                 for (int j = 0; j < this->numLights; j++)
                 {
                     
-                    //Color shadowColor = {0, 0, 0};
                     float shadowR = 0, shadowG = 0, shadowB = 0;
                     for (int k = 0; k < SHADOW_RAY_COUNT; k++)
                     {
                         Vector offset;
                         float weight;
-
-                        // if (k == 0) {
-                        //     offset = Vector(0, 0, 0);
-                        //     weight = (255 * SHADOW_RAY_COUNT) / (2 * SHADOW_RAY_COUNT);
-                        // } else {
                             if (SHADOW_RAY_COUNT <= 1)
                                 offset = Vector(0, 0, 0);
                             else
@@ -686,9 +543,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                                     randomBetween(-1, 1));
 
                             weight = 255 / (SHADOW_RAY_COUNT);
-                        //}
 
-                        //Vector lightPosition = lights[j]->position() + offset;
                         Vector shadowRay = ((lights[j]->position() + offset) - intersection).normalize3();
 
                         if (!isShadowed(intersection, lights[j]->position(), shadowRay))
@@ -696,10 +551,6 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                             float distToLight = intersection.distance(lights[j]->position());
 
                             distToLight *= distToLight;
-
-                            // c.r += lights[j]->intensity() * lights[j]->color().r / 255.0 * objectColor.r / distToLight;
-                            // c.g += lights[j]->intensity() * lights[j]->color().g / 255.0 * objectColor.g / distToLight;
-                            // c.b += lights[j]->intensity() * lights[j]->color().b / 255.0 * objectColor.b / distToLight;
 
                             shadowR += (weight * lights[j]->intensity() * lights[j]->color().r / 255.0 * 1 / distToLight) / 255;
                             shadowG += (weight * lights[j]->intensity() * lights[j]->color().g / 255.0 * 1 / distToLight) / 255;
@@ -744,25 +595,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
                             shadowR += (weight * DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0) / 255;
                             shadowG += (weight * DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0) / 255;
                             shadowB += (weight * DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0) / 255;
-
-                            /*
-                            c.r += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.r / 255.0 * objectColor.r;
-                            c.g += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.g / 255.0 * objectColor.g;
-                            c.b += DIRECTIONAL_LIGHT_INTENSITY * DIRECTIONAL_LIGHT_COLOR.b / 255.0 * objectColor.b;
-                            */
                         }
                     }
 
                     c.r += shadowR * objectColor.r;
                     c.g += shadowG * objectColor.g;
                     c.b += shadowB * objectColor.b;
-
-                // if (BRIGHTEN_SHADOWS && c.r <= 10 && c.g <= 10 && c.b <= 10) {
-                //     c.r = 0.1 * objectColor.r;
-                //     c.g = 0.1 * objectColor.g;
-                //     c.b = 0.1 * objectColor.b;
-                // }
-
                 return c;
             }
         }
@@ -773,15 +611,11 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
 bool Renderer::isShadowed(Vector origin, Vector light, Vector ray)
 {
-    //Vector ray = (light - origin).normalize3();
 
     Vector originMoved = origin + ray * STEP_SIZE;
 
     Vector curr = originMoved;
     Vector prev = originMoved;
-
-    // UV uvOrigin = this->VectorToUV(originMoved);
-    // UV uvRay = this->VectorToUV(ray);
 
     UV uvPrev = this->VectorToUV(origin);
     UV uvCurr = this->VectorToUV(origin);
@@ -830,18 +664,6 @@ bool Renderer::isShadowed(Vector origin, Vector light, Vector ray)
             prev = curr;
             curr = originMoved + ray * h * STEP_SIZE;
 
-            // uvPrev = uvCurr;
-            // prev = curr;
-
-            // uvRay = this->rungeKutta4(this->VectorToUV(prev), uvRay, STEP_SIZE);
-
-            // Vector rayXYZ = this->UVToVector(uvRay);
-
-            // curr = prev + rayXYZ * STEP_SIZE;
-
-            // uvCurr.u = uvPrev.u + uvRay.u * STEP_SIZE;
-            // uvCurr.v = uvPrev.v + uvRay.v * STEP_SIZE;
-
             break;
         }
 
@@ -861,10 +683,6 @@ UV F(UV x, UV y)
     return {
         cos(x.u) * sin(x.u) * y.v * y.v,
         -2 * atan(x.u) * y.u * y.v};
-
-    // return {
-    //     cos(x.u) * sin(x.u) * y.v * y.v,
-    //     -2 * (cos(x.u) / (sin(x.u) + 0.00001)) * y.u * y.v};
 }
 
 Vector F1(Vector Y) {
@@ -881,45 +699,12 @@ Vector F1(Vector Y) {
     );
 }
 
-Vector Renderer::rungeKutta4(UV x, UV y, float t)
+Vector Renderer::euler(UV x, UV y, float t)
 {
 
-//     Vector Y = Vector(x.u, y.u, x.v, y.v);
-
-//     Vector k1 = t * F1(Y);
-//     Vector k2 = t * F1(Y + 0.5f * k1);
-//     Vector k3 = t * F1(Y + 0.5f * k2);
-//     Vector k4 = t * F1(Y + k3);
-
-//     Vector Y_new = Y + (1.0f / 6.0f) * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
-
-//     //printf("%d\n", sign(Y_new.x));
-
-//     // UV uvmove;
-//     // uvmove.u = Y_new.x;
-//     // uvmove.v = Y_new.z;
-//     // Vector move = this->UVToVector(uvmove);
-//     // move = move * STEP_SIZE;
-
-//     // printf("x = [%f %f] y = [%f %f] -> %s\n", Y_new.y, Y_new.w, Y_new.x, Y_new.z, move.toString());
-
-//     return Y_new;
-
-//     // UV ret = {
-//     //     mapToFundamentalDomain(Y_new.y, 0, PI),
-//     //     mapToFundamentalDomain(Y_new.w, 0, 2 * PI)
-//     // };
-
-//    // return ret;
-
-    Vector Y = Vector(x.u, y.u, x.v, y.v); // (u, u', v, v')
+    Vector Y = Vector(x.u, y.u, x.v, y.v);
 
     Vector Y_new = Y + t * F1(Y);
-
-    // UV ret = {
-    //     Y_new.x,
-    //     Y_new.z
-    // };
 
     return Y_new;
 }
@@ -928,112 +713,18 @@ UV Renderer::VectorToUV(Vector v)
 {
     UV uv;
 
-    // float theta, phi;
-
-    // theta = acos(mapToFundamentalDomain(v.z, -1, 1));
-    // phi = atan2(mapToFundamentalDomain(v.y, -1, 1), mapToFundamentalDomain(v.x, -1, 1));
-
-    // v = v.normalize3();
-
-    // theta = acos(v.z/SPHERICAL_SPACE_RADIUS);
-    // phi = atan2(v.y, v.x);
-
-    //sphereRadius = sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
-
-    //v = v.normalize3() * sphereRadius;
-
-    //printf("sphereRadius: %f\n", sphereRadius);
-
     uv.u = acos(v.z / sphereRadius);
-
-    // if (abs(v.x) < 0.000001) {
-    //     uv.v = atan2(v.x, v.y);
-    //    // printf("-----------------\n");
-    // } else
-    // if (abs(v.x) < 0.000001)
-    //     uv.v = PI;
-    // else
-
     uv.v = atan2(v.y, v.x);
 
-    // uv.u = mapToFundamentalDomain(uv.u, 0, PI);
-    // uv.v = mapToFundamentalDomain(uv.v, 0, 2 * PI);
-
-    // if (v.x == 0)
-    //     uv.v = atan(v.x / v.y);
-    // else
-    //     uv.v = atan(v.y / v.x);
-
-    // if (v.x > 0 && v.y < 0)
-    //     uv.v += 2 * PI;
-    // else if (v.x < 0)
-    //     uv.v += PI;
-
-    //printf("%f\n", acos(2.236248/2.236068));
-
-    //printf("[%f] %s -> %f %f\n", sphereRadius, v.toString(), uv.u, uv.v);
-
-    // if (v.x < 0)
-    //     uv.v += PI;
-        
-
-    // uv.u = mapToFundamentalDomain(uv.u, -1, 1);
-    // uv.v = mapToFundamentalDomain(uv.v, -1, 1);
-
-    // uv.u = (phi + PI) / (2 * PI);
-    // uv.v = (theta + PI/2) / PI;
-
     return uv;
-
-    // UV uv;
-
-    // float uArg = v.z / SPHERICAL_SPACE_RADIUS;
-    // uArg = mapToFundamentalDomain(uArg, -1, 1);
-    // uv.u = acos(uArg);
-
-    // if (v.y < 0)
-    //     uv.u = 2 * PI - uv.u;
-
-    // float vArg = v.x / (SPHERICAL_SPACE_RADIUS * sin(uv.u));
-    // vArg = mapToFundamentalDomain(vArg, -1, 1);
-    // uv.v = acos(vArg);
-
-    // return uv;
 }
 
 Vector Renderer::UVToVector(UV uv)
 {
-
-    // float theta, phi;
-
-    // theta = uv.v;
-    // phi = uv.u;
-
-    // return Vector(
-    //     sin(theta) * cos(phi) / SPHERICAL_SPACE_RADIUS,
-    //     sin(theta) * sin(phi) / SPHERICAL_SPACE_RADIUS,
-    //     cos(theta) / SPHERICAL_SPACE_RADIUS
-    // );
-
-    // return Vector(
-    //     sin(uv.u) * cos(uv.v) / SPHERICAL_SPACE_RADIUS,
-    //     sin(uv.u) * sin(uv.v) / SPHERICAL_SPACE_RADIUS,
-    //     cos(uv.u) / SPHERICAL_SPACE_RADIUS);
-
     return Vector(
         sphereRadius * sin(uv.u) * cos(uv.v),
         sphereRadius * sin(uv.u) * sin(uv.v),
         sphereRadius * cos(uv.u));
-
-    // float theta, phi;
-
-    // phi = PI * (uv.v - 0.5);
-    // theta = 2 * PI * uv.u - PI;
-
-    // return Vector(
-    //     SPHERICAL_SPACE_RADIUS * sin(phi) * cos(theta),
-    //     SPHERICAL_SPACE_RADIUS * sin(phi) * sin(theta),
-    //     SPHERICAL_SPACE_RADIUS * cos(phi));
 }
 
 void Renderer::initExecutionTime()

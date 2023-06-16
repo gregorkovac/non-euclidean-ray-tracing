@@ -54,5 +54,5 @@ for i in range(12, 1000, 1):
     with open('scenes/scene_anim.txt', 'w') as f:
         f.write(scene)
 
-    os.system('./Raytracing.out ./scenes/scene_anim.txt --save anim_diploma_euclidean/anim' + str(i) + '.png')
+    os.system('./Raytracing.out ./scenes/scene_anim.txt --save anim_diploma_spherical/anim' + str(i) + '.png')
     os.system('rm ./scenes/scene_anim.txt')

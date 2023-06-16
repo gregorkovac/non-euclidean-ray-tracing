@@ -50,7 +50,7 @@ class Object {
         virtual float equation(Vector v) = 0;
         virtual Vector gradient(Vector v) = 0;
         virtual Vector normal(Vector v) = 0;
-        Vector newtonsMethod(Vector x0);
+        Vector gaussNewtonsMethod(Vector x0);
         float refractiveCoefficient(Vector p);
         char* toString();
         char* type();

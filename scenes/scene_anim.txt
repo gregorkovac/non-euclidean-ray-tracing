@@ -1,6 +1,7 @@
+
 Camera (0 11 0) (0 0 0)
 Sphere (0 0 0) (0 0 0) (10 10 10) 0 0 1 solid normalmap-none (46 204 113)
-Sphere (0 11 2) (0 0 0) (1 1 1) 0.4 0 1 solid normalmap-none (251 197 49)
+Sphere (0.0 -10.8158039832035 2.0045907804136247) (0 0 0) (1 1 1) 0.4 0 1 solid normalmap-none (251 197 49)
 Sphere (3 11 2) (0 0 0) (1 1 1) 0 0 1 gradient normalmap-none (234 32 39)
 Sphere (-4 10 6) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (18 203 196)
 Sphere (4 9 8) (0 0 0) (1 1 1) 0 0 1 solid normalmap-none (153 128 250)

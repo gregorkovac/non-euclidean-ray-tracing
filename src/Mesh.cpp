@@ -159,7 +159,6 @@ void Mesh::cullBackFaces(Camera* camera) {
 bool Mesh::intersect(Vector a, Vector b) {
     if (a.distance(this->position_) > this->boundingSphereRadius && b.distance(this->position_) > this->boundingSphereRadius)
         return false;
-    // return true;
 
     if (sign(this->equation(a)) != sign(this->equation(b)))
         return true;

@@ -123,7 +123,6 @@ Torus::Torus(float majorRadius, float minorRadius, Vector position, Vector rotat
 
 float Torus::equation(Vector v) {
     return pow(this->minorRadius - sqrt(pow(v.x - this->position_.x, 2) + pow(v.y - this->position_.y, 2)), 2) + pow(v.z - this->position_.z, 2) - pow(this->majorRadius, 2);
-    //return pow(pow((v.x - this->position_.x), 2) + pow(v.y - this->position_.y, 2) + pow(v.z - this->position_.z, 2) - pow(this->majorRadius * this->scale_.x, 2), 2) - 4 * pow(this->minorRadius * this->scale_.x, 2) * (pow(v.x - this->position_.x, 2) + pow(v.z - this->position_.z, 2));
 }
 
 Vector Torus::gradient(Vector v) {

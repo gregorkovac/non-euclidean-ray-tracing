@@ -168,21 +168,9 @@ Color Object::color(Vector p) {
                 (unsigned short) (this->color_.g),
                 (unsigned short) (this->color_.b)
             };
-            // return {
-            //     (unsigned short) (this->color_.r * (1 - p.z) + 255 * p.z),
-            //     (unsigned short) (this->color_.g * (1 - p.z) + 255 * p.z),
-            //     (unsigned short) (this->color_.b * (1 - p.z) + 255 * p.z)
-            // };
          }
         case COLOR_TYPE_TEXTURE:
         {
-            /*int u = (int)((this->position_.x - p.x) * 1000) % this->textureWidth;
-            int v = (int)((this->position_.y - p.y) * 1000) % this->textureHeight;
-
-
-            if (u < 0) u += this->textureWidth;
-            if (v < 0) v += this->textureHeight; */
-
             int u = (int)(this->u(p) * this->textureScaleX) % this->textureWidth;
             int v = (int)(this->v(p) * this->textureScaleY) % this->textureHeight;
 
@@ -194,24 +182,6 @@ Color Object::color(Vector p) {
 
         case COLOR_TYPE_CHECKERBOARD:
         {
-
-            // UV uv = VectorToUV(p.x, p.y, p.z, this->scale_.x);
-
-            // //if ((int)(uv.u * 100 + uv.v * 100) % 2 == 0) {
-            // if ((int)floor(uv.u * 73) % 2 == (int)floor(uv.v * 33) % 2) {
-            //     //return this->color_;
-            //     return {
-            //         (unsigned short) (255),
-            //         (unsigned short) (255),
-            //         (unsigned short) (255)
-            //     };
-            // } else {
-            //     return {
-            //         (unsigned short) (0),
-            //         (unsigned short) (0),
-            //         (unsigned short) (0)
-            //     };
-            // }
 
             // Map the point to plane 2d space
             float u = this->position_.x - p.x;
@@ -249,7 +219,7 @@ float Object::reflectivity() {
     return this->reflectivity_;
 }
 
-Vector Object::newtonsMethod(Vector x0) {
+Vector Object::gaussNewtonsMethod(Vector x0) {
     int i = 0;
 
     do {
