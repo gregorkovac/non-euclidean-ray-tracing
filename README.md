@@ -1,6 +1,8 @@
-# **Non-Euclidean Ray Tracing** - Diploma thesis
+# **Non-Euclidean Ray Tracing** (Diploma thesis)
 
-![Render1](./renders/render1_better_merged.png)
+![AnimEuclidean](./renders/anim_euclidean.gif)
+
+![Render1](./renders/render1_merged.jpeg)
 
 For my diploma thesis at the Faculty of Computer and Information Science of University of Ljubljana I implemented a ray tracing engine that also supports two non-euclidean spaces: **flat torus** and **spherical space**. As the focus of this project was the algorithm and experimentation, it was developed to run on the CPU instead of the GPU, therefore generating an image might take a while.
 
