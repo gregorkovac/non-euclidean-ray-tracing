@@ -5,7 +5,7 @@ For my diploma thesis at the Faculty of Computer and Information Science of Univ
 My thesis, that also explains all the details behind this project, is available at *[work in progress...]*.
 
 ## Examples
-This is a comparison between the same animated scene rendered in euclidean and spherical geometry:
+This is a comparison between the same animated scene rendered in euclidean and spherical geometry (**this animation may take some time to load on GitHub.** Alternatively you can view it in [this YouTube video](https://youtu.be/5t1IR-IGBS4)):
 ![AnimEuclidean](./comparison.gif)
 
 This is the ray tracer with good settings (it takes very long to render an image like this):
