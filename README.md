@@ -38,3 +38,5 @@ Object (Tx Ty Tz) (Rx Ry Rz) (Sx Sy Sz) reflectivity translucency refractiveInde
 - You should leave `normalmap_none` as it is; normal maps are a work in progress feature.
   
 The scene can only have one camera, but you can define multiple objects and lights. 
+
+The STB library was used for saving the final render. It can be found [here](https://github.com/nothings/stb).
