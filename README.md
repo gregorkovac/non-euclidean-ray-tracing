@@ -2,7 +2,7 @@
 
 For my diploma thesis at the Faculty of Computer and Information Science of University of Ljubljana I implemented a ray tracing engine that also supports two non-euclidean spaces: **flat torus** and **spherical space**. As the focus of this project was the algorithm and experimentation, it was developed to run on the CPU instead of the GPU, therefore generating an image might take a while.
 
-My thesis, that also explains all the details behind this project, is available at *[work in progress...]*.
+My thesis, that also explains all the details behind this project, is available [here](https://repozitorij.uni-lj.si/IzpisGradiva.php?id=147132). It is written in Slovenian.
 
 ## Examples
 This is a comparison between the same animated scene rendered in euclidean and spherical geometry (**this animation may take some time to load on GitHub.** Alternatively you can view it in [this YouTube video](https://youtu.be/5t1IR-IGBS4)):
