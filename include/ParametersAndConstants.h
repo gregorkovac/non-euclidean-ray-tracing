@@ -5,19 +5,19 @@
 #include "Vector.h"
 
 // Window parameters
-#define WINDOW_WIDTH 500
-#define WINDOW_HEIGHT 500
+#define WINDOW_WIDTH 1
+#define WINDOW_HEIGHT 1
 
 // Camera parameters
-#define IMAGE_PLANE_WIDTH 500
-#define IMAGE_PLANE_HEIGHT 500
+#define IMAGE_PLANE_WIDTH 1
+#define IMAGE_PLANE_HEIGHT 1
 #define FOCAL_LENGTH 2
 //#define PIXEL_SIZE 0.0083
 #define PIXEL_SIZE 0.02
 #define PROJECTION 0 /* 0 ... perspective, 1 ... orthographic */
 
 // Ray tracing parameters
-const SpaceType SPACE_TYPE = SPHERICAL;
+const SpaceType SPACE_TYPE = EUCLIDEAN;
 #define SPHERICAL_SPACE_RADIUS 2
 
 /* Fundamental domain parameters */
@@ -28,7 +28,7 @@ const SpaceType SPACE_TYPE = SPHERICAL;
 #define FUNDAMENTAL_DOMAIN_Z_MIN -2
 #define FUNDAMENTAL_DOMAIN_Z_MAX 2
 
-#define MAX_ITER 1000
+#define MAX_ITER 10
 #define STEP_SIZE 0.01
 #define MAX_DEPTH 3
 #define RAYS_PER_PIXEL 1

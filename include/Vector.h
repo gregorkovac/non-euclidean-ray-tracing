@@ -7,27 +7,26 @@
 
 class Vector {
     public:
-        float x, y, z, w;
+        double x, y, z, w;
 
         Vector();
-        Vector(float x, float y, float z);
-        Vector(float x, float y, float z, float w);
+        Vector(double x, double y, double z);
+        Vector(double x, double y, double z, double w);
         Vector(Vector *v);
         Vector normalize();
         Vector normalize3();
         Vector operator+(Vector v);
         Vector operator-(Vector v);
-        float operator*(Vector v);
-        Vector operator*(float s);
-        Vector operator/(float s);
+        double operator*(Vector v);
+        Vector operator*(double s);
+        Vector operator/(double s);
         bool operator==(Vector v);
         bool operator!=(Vector v);
         char* toString();
-        float distance(Vector v);
-        float norm();
+        double distance(Vector v);
+        double norm();
         Vector cross(Vector v);
 };
 
-Vector operator*(float f, Vector v);
-
+Vector operator*(double f, Vector v);
 #endif

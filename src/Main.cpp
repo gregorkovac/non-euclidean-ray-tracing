@@ -11,8 +11,50 @@ using namespace std;
 
 Renderer *renderer = nullptr;
 
+#include "../include/Vector4.h"
+#include <math.h>
+#include <vector>
+
+Vector4 funct(Vector4 x) {
+    return Vector4(x.y, cosl(x.x) * sinl(x.x)*x.w*x.w, x.w, -2*1/tanl(x.x)*x.y*x.w);
+}
+
+void plotPoints(vector<Vector> points) {
+    FILE *f = fopen("points.txt", "w");
+    for (auto point : points) {
+        fprintf(f, "%f %f %f\n", point.x, point.y, point.z);
+    }
+    fclose(f);
+
+    system("python3 other/plot_points.py");
+}
+
 int main(int argc, char **argv)
 {
+  /* double u = 1.570796;
+    double v = 1;
+    double w = 0;
+    double z = 0.1;
+
+    double t0 = 0;
+    Vector4 x0 = Vector4(u, v, w, z);
+    double b = 10;
+    double epsilon = 1E-6;
+    double sigma = 0.9;
+
+    vector<Vector4> X = DOPRI5(funct, t0, x0, b, epsilon, sigma);
+
+    vector<Vector> points = vector<Vector>();
+    for (int i = 0; i < X.size(); i++) {
+        double u = X[i].x;
+        double v = X[i].z;
+
+        Vector pt = Vector(sin(u) * cos(v), sin(u)*sin(v), cos(u));
+        points.push_back(pt);
+    }
+
+    plotPoints(points); */
+
     srand(time(NULL));
 
     if (PRINT_PROJECT_INFO)

@@ -344,12 +344,16 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
     for (float h = 1; h < maxIter; h += 1)
     {
+        printf("%f\n", h);
 
         switch (SPACE_TYPE)
         {
         case EUCLIDEAN:
             prev = curr;
             curr = origin + ray * h * STEP_SIZE;
+
+            printf("%s\n", curr.toString());
+
             break;
 
         case FLAT_TORUS:
