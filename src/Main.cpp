@@ -15,10 +15,6 @@ Renderer *renderer = nullptr;
 #include <math.h>
 #include <vector>
 
-Vector4 funct(Vector4 x) {
-    return Vector4(x.y, cosl(x.x) * sinl(x.x)*x.w*x.w, x.w, -2*1/tanl(x.x)*x.y*x.w);
-}
-
 void plotPoints(vector<Vector> points) {
     FILE *f = fopen("points.txt", "w");
     for (auto point : points) {

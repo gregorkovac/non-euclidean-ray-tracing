@@ -14,6 +14,8 @@
 #include "ParametersAndConstants.h"
 #include "Lights.h"
 #include "Mesh.h"
+#include "DOPRI.h"
+#include "Vector4.h"
 
 class Renderer {
     private:

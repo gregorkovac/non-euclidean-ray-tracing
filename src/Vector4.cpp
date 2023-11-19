@@ -60,7 +60,7 @@ Vector4 Vector4::operator/(double s) {
 
 char* Vector4::toString() {
     char* str = new char[200];
-    sprintf(str, "(%Lf %Lf %Lf %Lf)", this->x, this->y, this->z, this->w);
+    sprintf(str, "(%f %f %f %f)", this->x, this->y, this->z, this->w);
     return str;
 }
 

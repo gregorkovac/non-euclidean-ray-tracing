@@ -155,6 +155,7 @@ void Renderer::parseScene(char *sceneFilePath)
 FILE *pointFile;
 
 float sphereRadius;
+double* stepSize;
 
 void Renderer::render(unsigned char *dataBuffer)
 {
@@ -192,6 +193,9 @@ void Renderer::render(unsigned char *dataBuffer)
                 Vector ray = PROJECTION == 0 ? (imagePlanePoint - camera->position()) : (camera->forward());
 
                 Color c = trace(ray, camera->position(), 0);
+
+                if (PLOT_RAYS)
+                    fprintf(pointFile, "---\n");
 
                 if (c == SKY_COLOR) {
                     float p = 1 - (y - 0) * (1 - 0.6) / (IMAGE_PLANE_HEIGHT - 0.5) + 0.2;
@@ -317,8 +321,14 @@ void Renderer::render(unsigned char *dataBuffer)
     }
 }
 
+
+double dir = -1;
+
 Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *distanceTravelled, Color *unlitColor)
 {
+
+    stepSize = new double(0.1);
+
     if (depth > MAX_DEPTH)
         return SKY_COLOR;
 
@@ -342,9 +352,12 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
 
     UV fundamentalDomainOffset = {0, 0};
 
+
+    Vector4 dopriApprox = new Vector4(uvCurr.u, 1, uvCurr.v, dir);
+    dir += 0.1;
+
     for (float h = 1; h < maxIter; h += 1)
     {
-        printf("%f\n", h);
 
         switch (SPACE_TYPE)
         {
@@ -352,7 +365,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             prev = curr;
             curr = origin + ray * h * STEP_SIZE;
 
-            printf("%s\n", curr.toString());
+            // printf("%s\n", curr.toString());
 
             break;
 
@@ -386,15 +399,19 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
         }
         break;
 
-        case SPHERICAL:
+        case SPHERICAL: {
             uvPrev = uvCurr;
             prev = curr;
 
-            UV initialApproximation;
-            initialApproximation.u = 1;
-            initialApproximation.v = 0;
+            // UV initialApproximation;
+            // initialApproximation.u = 1;
+            // initialApproximation.v = 0;
 
-            Vector RKret = this->euler(uvCurr, initialApproximation, STEP_SIZE);
+            //Vector RKret = this->euler(uvCurr, initialApproximation, STEP_SIZE);
+            // Vector4 y0 = new Vector4(uvCurr.u, 1, uvCurr.v, 0.1);
+            Vector4 RKret = DOPRI5_one_step(F_spherical, 0, dopriApprox, stepSize, 1E-6, 0.9);
+
+            dopriApprox = RKret;
 
             uvCurr.u = RKret.x;
             uvCurr.v = RKret.z;
@@ -404,6 +421,7 @@ Color Renderer::trace(Vector ray, Vector origin, int depth, int maxIter, float *
             if (PLOT_RAYS)
                 fprintf(pointFile, "%f %f %f\n", curr.x, curr.y, curr.z);
             break;
+        }
         }
 
         for (int i = 0; i < this->numObjects; i++)
